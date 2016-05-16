@@ -5,34 +5,14 @@ package com.example.yifan.mtgdecktracker;
  */
 public abstract class Card { //to be extended by Land, Creature, Sorcery, Artifact classes as these are all "cards"
 
-    public enum CurrentLocation {
-        DECK,
-        HAND,
-        GRAVEYARD,
-        EXILE
-    }
-
     int cmc; //converted mana cost
-    int remainingInDeck;
+    int totalCardNum; //total number of this specific card; totalCardNum = InDeck + notInDeck
+    int InDeck; //number of this card remaining in deck
+    int notInDeck; //number not in deck, i.e: in graveyard, hand, field, exile
 
 
-    public boolean toHand(CurrentLocation location){
-        if(location == CurrentLocation.DECK){
-            remainingInDeck--;
-        }
 
-    }
 
-    public boolean toGraveYard(){
-        remainingInDeck--;
-    }
 
-    public boolean toExile(){
-        remainingInDeck--;
-    }
-
-    public boolean toDeck(){
-        remainingInDeck++;
-    }
 
 }

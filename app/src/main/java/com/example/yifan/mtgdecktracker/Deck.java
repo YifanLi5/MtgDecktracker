@@ -1,33 +1,51 @@
 package com.example.yifan.mtgdecktracker;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.PriorityQueue;
 
 /**
  * Created by Yifan on 5/7/2016.
  */
 public class Deck {
-    ArrayList<Card> land;
-    ArrayList<Card> creature;
-    ArrayList<Card> instant;
-    ArrayList<Card> sorcery;
-    ArrayList<Card> enchantment;
-    ArrayList<Card> artifact;
-    ArrayList<Card> plainswalker;
-    ArrayList<ArrayList<Card>> deckList; //arraylist containing every above arraylist.
+    private static final int STARTING_CARD_AMT = 60;
+    ArrayList<Card> cardList;
+    HashMap<String, Integer> cardListMap;
+    /*
+    All cards user initially enters stored in cardListWIP as Strings
+    Only when deck is confirmed by user do we use this list to send all JSON requests at one time to fill out cardList.
+
+    HashMap is used due to possibility of double adding card strings, easier to compact them together.
+    ex) adding <"card1", 1> and <"card1", 2> would result in a final entry of <"card1", 3>
+    */
+
 
     public Deck(){
-        land = new ArrayList<>();
-        creature = new ArrayList<>();
-        instant = new ArrayList<>();
-        sorcery = new ArrayList<>();
-        enchantment = new ArrayList<>();
-        artifact = new ArrayList<>();
-        plainswalker = new ArrayList<>();
+        cardListMap = new HashMap<>();
+    }
+
+    public void addCard(String cardName, int count){ //assuming taking card name as string from textfield
+        if(cardListMap.containsKey(cardName)){
+            cardListMap.put(cardName, cardListMap.get(cardName) + count);
+        }
+        else{
+            cardListMap.put(cardName, Integer.valueOf(count));
+        }
+    }
+
+    public void finalizeDeck(){
+        for(HashMap.Entry<String, Integer> entry : cardListMap.entrySet()){
+            String cardName = entry.getKey();
+            int cardCount = entry.getValue().intValue();
+
+        }
+    }
+
+    public boolean removeFromDeck(Card card){
 
     }
 
-    public void addCard(Card card){
+    public void sortByCMC(){
 
     }
 
@@ -41,16 +59,7 @@ public class Deck {
      */
 
 
-    private void finishDeck(){ //do not do this in constructor. Everytime arrayList expands will need to copy everything.
-        deckList = new ArrayList<>();
-        deckList.add(land);
-        deckList.add(creature);
-        deckList.add(instant);
-        deckList.add(sorcery);
-        deckList.add(enchantment);
-        deckList.add(artifact);
-        deckList.add(plainswalker);
-    }
+
 
 
 
