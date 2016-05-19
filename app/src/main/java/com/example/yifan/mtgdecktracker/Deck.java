@@ -1,5 +1,10 @@
 package com.example.yifan.mtgdecktracker;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.PriorityQueue;
@@ -10,48 +15,43 @@ import java.util.PriorityQueue;
 public class Deck {
     private static final int STARTING_CARD_AMT = 60;
     ArrayList<Card> cardList;
-    HashMap<String, Integer> cardListMap;
-    /*
-    All cards user initially enters stored in cardListWIP as Strings
-    Only when deck is confirmed by user do we use this list to send all JSON requests at one time to fill out cardList.
-
-    HashMap is used due to possibility of double adding card strings, easier to compact them together.
-    ex) adding <"card1", 1> and <"card1", 2> would result in a final entry of <"card1", 3>
-    */
-
 
     public Deck(){
-        cardListMap = new HashMap<>();
+        cardList = new ArrayList<>();
     }
 
-    public void addCard(String cardName, int count){ //assuming taking card name as string from textfield
-        if(cardListMap.containsKey(cardName)){
-            cardListMap.put(cardName, cardListMap.get(cardName) + count);
-        }
-        else{
-            cardListMap.put(cardName, Integer.valueOf(count));
-        }
-    }
+    public void addCard(JSONObject jsonCard){
+        try{
+            String name = jsonCard.getString("name");
+            int cmc = jsonCard.getInt("cmc");
+            String cost = jsonCard.getString("cost");
+            String imageURL = jsonCard.getJSONArray("editions").getJSONObject(0).getString("image_url");
 
-    //testing new branch
+            //todo: set up how card objects work
+            Card newCard = null;
 
-    public void finalizeDeck(){
-        for(HashMap.Entry<String, Integer> entry : cardListMap.entrySet()){
-            String cardName = entry.getKey();
-            int cardCount = entry.getValue().intValue();
+            //todo: should extend arrayList and override add to insert using insertion sort, all cards ordered by cmc as added.
+            cardList.add(newCard);
+
 
         }
-    }
+        catch(JSONException e){
+            e.printStackTrace();
+        }
 
-    public boolean removeFromDeck(Card card){
-
-    }
-
-    public void sortByCMC(){
 
     }
 
-      /*
+    public boolean removeCardCopyFromDeck(Card card){
+        //todo: because list is order better to write own version of remove(Object) using binary search
+        return cardList.remove(card);
+    }
+
+    public boolean saveDeck(){
+        //figure out how to do this
+    }
+
+    /*
     Need comparator classes to sort
     - alphabetically
     - cmc
