@@ -47,9 +47,7 @@ public class Deck {
         return cardList.remove(card);
     }
 
-    public boolean saveDeck(){
-        //figure out how to do this
-    }
+
 
     /*
     Need comparator classes to sort
