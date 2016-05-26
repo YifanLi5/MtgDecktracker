@@ -1,6 +1,10 @@
 package com.example.yifan.mtgdecktracker;
 
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,6 +19,14 @@ public class NonLand extends Card {
         this.cmc = cmc;
         this.cost = cost;
         this.imageURL = imageURL;
+    }
+
+    public NonLand(JSONObject jsonCard)throws JSONException, IOException{
+        this.name = jsonCard.getString("name");
+        this.cmc = jsonCard.getInt("cmc");
+        this.cost = jsonCard.getString("cost");
+        this.imageURL = jsonCard.getJSONArray("editions").getJSONObject(0).getString("image_url");
+        initializeImage();
     }
 
     public boolean initializeImage() throws IOException {
@@ -42,6 +54,10 @@ public class NonLand extends Card {
 
     public String getImageURL() {
         return imageURL;
+    }
+
+    public Bitmap getCardImage(){
+        return cardImage;
     }
 
 }

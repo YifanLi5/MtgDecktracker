@@ -4,6 +4,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+
 /**
  * Created by Yifan on 5/20/2016.
  */
@@ -19,6 +21,9 @@ public class JsonCardParser {
 
     public NonLand getCardAtIndex(int index) throws JSONException {
         JSONObject jsonCard = JsonArr.getJSONObject(index);
+        if(jsonCard == null){
+            return null;
+        }
         String name = jsonCard.getString("name");
         int cmc = jsonCard.getInt("cmc");
         String cost = jsonCard.getString("cost");
@@ -26,7 +31,6 @@ public class JsonCardParser {
         card = new NonLand(name, cmc, cost, ImageURL);
         return (NonLand) getCard();
     }
-
 
     public JSONArray getJsonArr() {
         return JsonArr;
