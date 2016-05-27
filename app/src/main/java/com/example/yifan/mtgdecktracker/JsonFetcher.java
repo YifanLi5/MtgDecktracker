@@ -17,7 +17,7 @@ public class JsonFetcher {
     private JsonFetcher(){} //force to be static method library, uninstantiable class
 
     private final static String PARTIAL_MATCH_URL_START = "https://api.deckbrew.com/mtg/cards?name="; //append subname of card's name to get JsonArray containing all cards that contain that subname
-    private final static String AUTO_COMPLETE_URL_START = "https://api.deckbrew.com/mtg/cards/typeahead?q="; //^ but for cards that start with subname
+    private final static String AUTO_COMPLETE_URL_START = "https://api.deckbrew.com/mtg/cards/typeahead?q="; //^ but for cards that start with some string
 
     private static JSONArray cardsJsonArray;
 

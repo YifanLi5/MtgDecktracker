@@ -1,51 +1,49 @@
 package com.example.yifan.mtgdecktracker;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.PriorityQueue;
+import java.util.Collections;
+import java.util.Comparator;
 
 /**
  * Created by Yifan on 5/7/2016.
  */
 public class Deck {
-    private static final int STARTING_CARD_AMT = 60;
-    ArrayList<Card> cardList;
+    private static final int DEFAULT_AMT = 60;
+    private static final int SIDEBOARD_AMT = 15;
+    private ArrayList<Card> mainBoard;
+    private ArrayList<Card> sideBoard;
 
     public Deck(){
-        cardList = new ArrayList<>();
+        mainBoard = new ArrayList<>(DEFAULT_AMT);
+        sideBoard = new ArrayList<>(SIDEBOARD_AMT);
     }
 
-    public void addCard(JSONObject jsonCard){
-        try{
-            String name = jsonCard.getString("name");
-            int cmc = jsonCard.getInt("cmc");
-            String cost = jsonCard.getString("cost");
-            String imageURL = jsonCard.getJSONArray("editions").getJSONObject(0).getString("image_url");
-
-            //todo: set up how card objects work
-            Card newCard = null;
-
-            //todo: should extend arrayList and override add to insert using insertion sort, all cards ordered by cmc as added.
-            cardList.add(newCard);
-
-
-        }
-        catch(JSONException e){
-            e.printStackTrace();
-        }
-
-
+    public void addToMainboard(Card card){
+        mainBoard.add(card);
     }
 
-    public boolean removeCardCopyFromDeck(Card card){
-        //todo: because list is order better to write own version of remove(Object) using binary search
-        return cardList.remove(card);
+    public void addToSideBoard(Card card){
+        sideBoard.add(card);
     }
+
+    public void sortListCmc(){
+        Collections.sort(mainBoard, new Comparator<Card>() {
+            @Override
+            public int compare(Card lhs, Card rhs) {
+                int rhsCmc = rhs.getCmc();
+                int lhsCmc = lhs.getCmc();
+                if(lhsCmc < rhsCmc){
+                    return 1;
+                }
+                else{
+                    return -1;
+                }
+            }
+        });
+    }
+
+
+
 
 
 
@@ -57,14 +55,4 @@ public class Deck {
     - type of card
     - TBD
      */
-
-
-
-
-
-
-
-
-
-
 }

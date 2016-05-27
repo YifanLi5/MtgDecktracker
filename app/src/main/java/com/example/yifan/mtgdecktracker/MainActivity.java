@@ -49,17 +49,22 @@ public class MainActivity extends AppCompatActivity {
         if(autoCompleteAdapter != null){
             autoCompleteAdapter.clear();
         }
+
         autoCompleteAdapter.addAll(suggestions);
+
+        /* autoCompleteAdapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.select_dialog_item, suggestions);
+        autoCompleteAdapter.notifyDataSetChanged();*/
 
         //debug
         String info = "searching: " + mAutoCompleteEntryField.getText().toString() +
-                    "\nnum fields in arraylist(suggestions): " + suggestions.size()
+                    "\nnum fields in arraylist(suggestions): " + suggestions
                         +"\nnum fields in adapter(autoCompleteAdapter): " + autoCompleteAdapter.getCount();
         Log.d("autocomplete info", info);
     }
 
     private void initAutoComplete(){
-        autoCompleteAdapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.select_dialog_item);
+        //autoCompleteAdapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.select_dialog_item);
+        autoCompleteAdapter = new ArrayAdapterNoFilter(MainActivity.this, android.R.layout.select_dialog_item);
         autoCompleteAdapter.setNotifyOnChange(true);
 
         mAutoCompleteEntryField.setThreshold(3); //how many characters before looking for matches
