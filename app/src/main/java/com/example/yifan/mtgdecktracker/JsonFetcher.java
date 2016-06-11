@@ -1,11 +1,15 @@
 package com.example.yifan.mtgdecktracker;
 
+import android.util.Log;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -31,21 +35,49 @@ public class JsonFetcher {
         return getJsonArrFromURL(url);
     }
 
-    private static ArrayList<String> getJsonArrFromURL(String url){
-        InputStream is;
-        try {
-            is = new URL(url).openStream();
-            BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
-            String jsonText = readAll(rd);
+    public static ArrayList<String> getJsonArrFromURL(String url){
+        HttpURLConnection urlConnection = null;
+        BufferedReader reader = null;
+
+        try{
+            URL targetURL = new URL(url);
+            urlConnection = (HttpURLConnection) targetURL.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.connect();
+
+            InputStream is = urlConnection.getInputStream();
+            if(is == null){
+                return null; //nothing recieved
+            }
+            reader = new BufferedReader(new InputStreamReader(is));
+            String jsonText = readAll(reader);
             cardsJsonArray = new JSONArray(jsonText);
-            is.close();
             return parseJsonArray(cardsJsonArray);
 
+        } catch (MalformedURLException e) {
+            Log.e("JsonFetcher", "MalformedURLException: error in url");
+            return null;
+        } catch (IOException e) {
+            Log.e("JsonFetcher", "IOException: error in getting data from url");
+            return null;
+        } catch (JSONException e) {
+            Log.e("JsonFetcher", "JSONException: error in getting json");
+            return null;
         }
-        catch(Exception e){
-            e.printStackTrace();
+
+        finally{
+            if(urlConnection != null){
+                urlConnection.disconnect();
+            }
+            if(reader != null){
+                try{
+                    reader.close();
+                } catch (IOException e) {
+                    Log.e("JsonFetcher", "IOException: error in closing reader");
+                }
+            }
         }
-        return null;
+
     }
 
     private static String readAll(Reader rd) throws IOException {

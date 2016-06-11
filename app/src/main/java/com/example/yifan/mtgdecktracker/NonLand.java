@@ -2,6 +2,8 @@ package com.example.yifan.mtgdecktracker;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.IOException;
@@ -12,12 +14,15 @@ import java.net.URL;
  * Created by Yifan on 5/21/2016.
  */
 public class NonLand extends Card {
+
+    public boolean didTask = false;
+
     public NonLand(String name, int cmc, String cost, String imageURL) throws  IOException{
         this.name = name;
         this.cmc = cmc;
         this.cost = cost;
         this.imageURL = imageURL;
-        initializeImage();
+        new fetchImageTask().execute();
     }
 
     public NonLand(JSONObject jsonCard)throws JSONException, IOException {
@@ -25,7 +30,20 @@ public class NonLand extends Card {
         this.cmc = jsonCard.getInt("cmc");
         this.cost = jsonCard.getString("cost");
         this.imageURL = jsonCard.getJSONArray("editions").getJSONObject(0).getString("image_url");
-        initializeImage();
+        new fetchImageTask().execute();
+    }
+
+    private class fetchImageTask extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... params) {
+            try {
+                didTask = initializeImage();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
     }
 
     public boolean initializeImage() throws IOException {

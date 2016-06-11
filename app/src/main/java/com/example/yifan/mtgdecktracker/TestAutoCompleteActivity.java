@@ -1,7 +1,5 @@
 package com.example.yifan.mtgdecktracker;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapRegionDecoder;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,33 +10,26 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MainActivity extends AppCompatActivity {
+public class TestAutoCompleteActivity extends AppCompatActivity {
     private AutoCompleteTextView mAutoCompleteEntryField;
     private ImageView mCardView;
-    private ArrayAdapter<String> autoCompleteAdapter;
+    private ArrayAdapter<String> mAutoCompleteAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
+        setContentView(R.layout.test_auto_complete);
 
         mAutoCompleteEntryField = (AutoCompleteTextView) findViewById(R.id.autoCompleteEntryField);
         mCardView = (ImageView) findViewById(R.id.cardView);
@@ -46,30 +37,30 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void autoCompleteUpdater(ArrayList<String> suggestions){
-        if(autoCompleteAdapter != null){
-            autoCompleteAdapter.clear();
+        if(mAutoCompleteAdapter != null){
+            mAutoCompleteAdapter.clear();
         }
 
-        autoCompleteAdapter.addAll(suggestions);
+        mAutoCompleteAdapter.addAll(suggestions);
 
-        /* autoCompleteAdapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.select_dialog_item, suggestions);
-        autoCompleteAdapter.notifyDataSetChanged();*/
+        /* mAutoCompleteAdapter = new ArrayAdapter<>(TestAutoCompleteActivity.this, android.R.layout.select_dialog_item, suggestions);
+        mAutoCompleteAdapter.notifyDataSetChanged();*/
 
         //debug
         String info = "searching: " + mAutoCompleteEntryField.getText().toString() +
                     "\nnum fields in arraylist(suggestions): " + suggestions
-                        +"\nnum fields in adapter(autoCompleteAdapter): " + autoCompleteAdapter.getCount();
+                        +"\nnum fields in adapter(mAutoCompleteAdapter): " + mAutoCompleteAdapter.getCount();
         Log.d("autocomplete info", info);
     }
 
     private void initAutoComplete(){
-        //autoCompleteAdapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.select_dialog_item);
-        autoCompleteAdapter = new ArrayAdapterNoFilter(MainActivity.this, android.R.layout.select_dialog_item);
-        autoCompleteAdapter.setNotifyOnChange(true);
+        //mAutoCompleteAdapter = new ArrayAdapter<>(TestAutoCompleteActivity.this, android.R.layout.select_dialog_item);
+        mAutoCompleteAdapter = new ArrayAdapterNoFilter(TestAutoCompleteActivity.this, android.R.layout.select_dialog_item);
+        mAutoCompleteAdapter.setNotifyOnChange(true);
 
         mAutoCompleteEntryField.setThreshold(3); //how many characters before looking for matches
         mAutoCompleteEntryField.getText().clear();
-        mAutoCompleteEntryField.setAdapter(autoCompleteAdapter);
+        mAutoCompleteEntryField.setAdapter(mAutoCompleteAdapter);
         mAutoCompleteEntryField.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -108,13 +99,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private class AutoCompleteTask extends AsyncTask<String, Void, ArrayList<String>> { //populates the autocomplete
+        private final String LOG_TAG = AutoCompleteTask.class.getSimpleName();
         @Override
         protected ArrayList<String> doInBackground(String... params) {
             ArrayList<String> cardSuggestions;
             try{
                 cardSuggestions = JsonFetcher.getCardsFromAutoComplete(params[0]);
             } catch(IOException e){
-                Log.e("MainActivity", "IOException in autoCompleteTask");
+                Log.e(LOG_TAG, "IOException in autoCompleteTask");
                 return null;
             }
             return cardSuggestions;
@@ -127,7 +119,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private class initSelectedCardTask extends AsyncTask<Integer, Void, NonLand>{ //gets the card selected from auto complete and downlaods the image
+    private class initSelectedCardTask extends AsyncTask<Integer, Void, NonLand>{ //gets the card selected from auto complete and downloads the image
+        private final String LOG_TAG = initSelectedCardTask.class.getSimpleName();
         @Override
         protected NonLand doInBackground(Integer... params) {
             JSONArray cardsJsonArray = JsonFetcher.getCardsJsonArray();
@@ -137,11 +130,11 @@ public class MainActivity extends AppCompatActivity {
                 return newCard;
             } catch (JSONException e) {
                 e.printStackTrace();
-                Log.e("initSelectedCardTask", "JSONException occured");
+                Log.e(LOG_TAG, "JSONException occured");
                 return null;
             } catch (IOException e){
                 e.printStackTrace();
-                Log.e("initSelectedCardTask", "IOException occured: likely image dl problems");
+                Log.e(LOG_TAG, "IOException occured: likely image dl problems");
                 return null;
             }
         }

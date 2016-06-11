@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context=".TestAutoCompleteActivity">
+
+    <EditText
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:ems="10"
+        android:id="@+id/card_quantity_field"
+        android:layout_toLeftOf="@+id/add_card"
+        android:layout_gravity="center_vertical"
+        android:hint="quantity"
+        android:layout_below="@+id/auto_complete_field"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <AutoCompleteTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:id="@+id/auto_complete_field"
+        android:hint="Enter card"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add"
+        android:id="@+id/add_card"
+        android:layout_alignBottom="@+id/card_quantity_field"
+        android:layout_alignLeft="@+id/save_button"
+        android:layout_alignStart="@+id/save_button" />
+
+    <EditText
+        android:id="@+id/current_mainboard"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:ems="12"
+        android:gravity="top"
+        android:scrollbars="vertical"
+        android:layout_below="@+id/card_quantity_field"
+        android:layout_above="@+id/save_button"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:hint="Empty"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Save"
+        android:id="@+id/save_button"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+
+</RelativeLayout>

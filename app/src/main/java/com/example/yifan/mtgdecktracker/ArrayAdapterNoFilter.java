@@ -6,7 +6,7 @@ import android.widget.Filter;
 
 /**
  * Created by Yifan on 5/27/2016.
- * extention of ArrayAdapter to get rid of its filter. The filter gets rid of results added by ArrayAdapter.add() method sometimes so they are not shown
+ * extention of ArrayAdapter to get rid of its filter as the filter sometimes omits valid results
  */
 public class ArrayAdapterNoFilter extends ArrayAdapter<String> {
 

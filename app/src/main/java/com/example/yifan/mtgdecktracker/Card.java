@@ -14,6 +14,15 @@ public abstract class Card {
     int notInDeck; //number not in deck, i.e: in graveyard, hand, field, exile
     String cost;
     String imageURL;
+
+    public Bitmap getCardImage() {
+        return cardImage;
+    }
+
+    public void setCardImage(Bitmap cardImage) {
+        this.cardImage = cardImage;
+    }
+
     Bitmap cardImage;
 
     public String getName() {

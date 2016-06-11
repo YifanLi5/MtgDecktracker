@@ -13,9 +13,25 @@ public class Deck {
     private ArrayList<Card> mainBoard;
     private ArrayList<Card> sideBoard;
 
+
+
+    private String deckName;
+
     public Deck(){
         mainBoard = new ArrayList<>(DEFAULT_AMT);
         sideBoard = new ArrayList<>(SIDEBOARD_AMT);
+    }
+
+    public ArrayList<Card> getMainBoard() {
+        return mainBoard;
+    }
+
+    public void setDeckName(String deckName){
+        this.deckName = deckName;
+    }
+
+    public String getDeckName() {
+        return deckName;
     }
 
     public void addToMainboard(Card card){
@@ -43,16 +59,4 @@ public class Deck {
     }
 
 
-
-
-
-
-    /*
-    Need comparator classes to sort
-    - alphabetically
-    - cmc
-    - color(s) ps: need to decide how to handle multiple card colors. Or can omit this field entirely
-    - type of card
-    - TBD
-     */
 }
