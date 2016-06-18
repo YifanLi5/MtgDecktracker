@@ -123,7 +123,7 @@ public class TestAutoCompleteActivity extends AppCompatActivity {
         private final String LOG_TAG = initSelectedCardTask.class.getSimpleName();
         @Override
         protected NonLand doInBackground(Integer... params) {
-            JSONArray cardsJsonArray = JsonFetcher.getCardsJsonArray();
+            JSONArray cardsJsonArray = JsonFetcher.getJSONArrayOfCards();
             try {
                 JSONObject selectedCard = cardsJsonArray.getJSONObject(params[0]);
                 NonLand newCard = new NonLand(selectedCard);

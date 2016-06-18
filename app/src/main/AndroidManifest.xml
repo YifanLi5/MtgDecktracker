@@ -10,7 +10,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-        <activity android:name=".TestAutoCompleteActivity">
+        <activity android:name=".HorizRecyclerViewInVerticalTest.HorizRecyclerViewInVerticalActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -18,19 +18,19 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".masterDetailDev.CardListActivity"
+            android:name=".masterDetailTestDeprecated.CardListActivity"
             android:label="@string/title_card_list"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity
-            android:name=".masterDetailDev.CardDetailActivity"
+            android:name=".masterDetailTestDeprecated.CardDetailActivity"
             android:label="@string/title_card_detail"
-            android:parentActivityName=".masterDetailDev.CardListActivity"
+            android:parentActivityName=".masterDetailTestDeprecated.CardListActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.yifan.mtgdecktracker.masterDetailDev.CardListActivity" />
+                android:value="com.example.yifan.mtgdecktracker.masterDetailTestDeprecated.CardListActivity" />
         </activity>
-        <activity android:name=".HorizRecyclerViewInVerticalTest.HorizRecyclerViewInVerticalActivity"></activity>
+
     </application>
 
 </manifest>

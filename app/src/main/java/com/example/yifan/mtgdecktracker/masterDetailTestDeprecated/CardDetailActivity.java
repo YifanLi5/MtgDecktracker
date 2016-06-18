@@ -1,4 +1,4 @@
-package com.example.yifan.mtgdecktracker.masterDetailDev;
+package com.example.yifan.mtgdecktracker.masterDetailTestDeprecated;
 
 import android.content.Intent;
 import android.os.Bundle;

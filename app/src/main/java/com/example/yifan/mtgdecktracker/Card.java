@@ -1,11 +1,12 @@
 package com.example.yifan.mtgdecktracker;
 
 import android.graphics.Bitmap;
+import android.os.Parcelable;
 
 /**
  * Created by Yifan on 5/7/2016.
  */
-public abstract class Card {
+public abstract class Card implements Parcelable{
 
     String name;
     int cmc; //converted mana cost
@@ -55,5 +56,13 @@ public abstract class Card {
 
     public void setImageURL(String imageURL) {
         this.imageURL = imageURL;
+    }
+
+    public int getTotal() {
+        return total;
+    }
+
+    public void setTotal(int total) {
+        this.total = total;
     }
 }

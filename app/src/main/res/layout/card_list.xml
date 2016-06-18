@@ -9,5 +9,5 @@
     android:layout_marginLeft="16dp"
     android:layout_marginRight="16dp"
     app:layoutManager="LinearLayoutManager"
-    tools:context="com.example.yifan.mtgdecktracker.masterDetailDev.CardListActivity"
+    tools:context="com.example.yifan.mtgdecktracker.masterDetailTestDeprecated.CardListActivity"
     tools:listitem="@layout/card_list_content" />

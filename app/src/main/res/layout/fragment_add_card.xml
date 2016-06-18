@@ -17,7 +17,7 @@
         android:id="@+id/card_quantity_field"
         android:layout_toLeftOf="@+id/add_card"
         android:layout_gravity="center_vertical"
-        android:hint="quantity"
+        android:hint="@string/quantity"
         android:layout_below="@+id/auto_complete_field"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
@@ -41,18 +41,17 @@
         android:layout_alignLeft="@+id/save_button"
         android:layout_alignStart="@+id/save_button" />
 
-    <EditText
+    <ListView
         android:id="@+id/current_mainboard"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:ems="12"
         android:gravity="top"
         android:scrollbars="vertical"
         android:layout_below="@+id/card_quantity_field"
         android:layout_above="@+id/save_button"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:hint="Empty"/>
+        />
 
     <Button
         android:layout_width="wrap_content"
@@ -62,6 +61,15 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
+
+    <FrameLayout
+        android:layout_width="250dp"
+        android:layout_height="250dp"
+        android:id="@+id/modify_card_entry_fragment_container"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true">
+
+    </FrameLayout>
 
 
 </RelativeLayout>

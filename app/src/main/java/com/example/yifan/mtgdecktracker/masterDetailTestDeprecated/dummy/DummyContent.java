@@ -1,4 +1,4 @@
-package com.example.yifan.mtgdecktracker.masterDetailDev.dummy;
+package com.example.yifan.mtgdecktracker.masterDetailTestDeprecated.dummy;
 
 import java.util.ArrayList;
 import java.util.HashMap;

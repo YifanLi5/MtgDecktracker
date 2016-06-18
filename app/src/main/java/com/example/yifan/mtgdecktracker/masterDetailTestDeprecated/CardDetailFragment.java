@@ -1,4 +1,4 @@
-package com.example.yifan.mtgdecktracker.masterDetailDev;
+package com.example.yifan.mtgdecktracker.masterDetailTestDeprecated;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
@@ -12,16 +12,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.example.yifan.mtgdecktracker.JsonFetcher;
 import com.example.yifan.mtgdecktracker.R;
-import com.example.yifan.mtgdecktracker.masterDetailDev.dummy.DummyContent;
-
-import org.json.JSONArray;
+import com.example.yifan.mtgdecktracker.masterDetailTestDeprecated.dummy.DummyContent;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.ArrayList;
 
 /**
  * A fragment representing a single Card detail screen.

@@ -11,7 +11,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -23,19 +22,19 @@ public class JsonFetcher {
     private final static String PARTIAL_MATCH_URL_START = "https://api.deckbrew.com/mtg/cards?name="; //append subname of card's name to get JsonArray containing all cards that contain that subname
     private final static String AUTO_COMPLETE_URL_START = "https://api.deckbrew.com/mtg/cards/typeahead?q="; //^ but for cards that start with some string
 
-    private static JSONArray cardsJsonArray;
+    private static JSONArray JSONArrayOfCards;
 
     public static ArrayList<String> getCardsFromPartialMatch(String subname) throws UnsupportedEncodingException {
         String url = (PARTIAL_MATCH_URL_START + subname).replaceAll(" ", "-"); //may need some better way to encodeURLs, URLencoder class doesn't work here
-        return getJsonArrFromURL(url);
+        return getCardNamesArrayListFromURL(url);
     }
 
     public static ArrayList<String> getCardsFromAutoComplete(String subname) throws UnsupportedEncodingException {
         String url = (AUTO_COMPLETE_URL_START + subname).replaceAll(" ", "-");
-        return getJsonArrFromURL(url);
+        return getCardNamesArrayListFromURL(url);
     }
 
-    public static ArrayList<String> getJsonArrFromURL(String url){
+    public static ArrayList<String> getCardNamesArrayListFromURL(String url){
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
 
@@ -51,8 +50,8 @@ public class JsonFetcher {
             }
             reader = new BufferedReader(new InputStreamReader(is));
             String jsonText = readAll(reader);
-            cardsJsonArray = new JSONArray(jsonText);
-            return parseJsonArray(cardsJsonArray);
+            JSONArrayOfCards = new JSONArray(jsonText);
+            return getCardNamesFromJSONArray(JSONArrayOfCards);
 
         } catch (MalformedURLException e) {
             Log.e("JsonFetcher", "MalformedURLException: error in url");
@@ -89,7 +88,7 @@ public class JsonFetcher {
         return sb.toString();
     }
 
-    public static ArrayList<String> parseJsonArray(JSONArray jsonCards) throws JSONException {
+    public static ArrayList<String> getCardNamesFromJSONArray(JSONArray jsonCards) throws JSONException {
         ArrayList<String> cardsList = new ArrayList<>();
         for(int i = 0; i < jsonCards.length(); i++){
             JSONObject card = jsonCards.getJSONObject(i);
@@ -98,7 +97,7 @@ public class JsonFetcher {
         return cardsList;
     }
 
-    public static JSONArray getCardsJsonArray() {
-        return cardsJsonArray;
+    public static JSONArray getJSONArrayOfCards() {
+        return JSONArrayOfCards;
     }
 }

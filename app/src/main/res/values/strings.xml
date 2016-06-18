@@ -14,4 +14,12 @@
     <string name="title_card_detail">Card Detail</string>
 
     <string name="create_new_deck">New Deck</string>
+    <string name="placeholder_card_name">Placeholder Card Name</string>
+    <string name="quantity">quantity</string>
+    <string name="remove_card">Remove Card</string>
+    <string name="save">Save</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
 </resources>
