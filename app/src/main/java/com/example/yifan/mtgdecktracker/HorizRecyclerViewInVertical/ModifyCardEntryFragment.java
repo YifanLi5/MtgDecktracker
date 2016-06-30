@@ -1,14 +1,17 @@
-package com.example.yifan.mtgdecktracker.HorizRecyclerViewInVerticalTest;
+package com.example.yifan.mtgdecktracker.HorizRecyclerViewInVertical;
 
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,14 +28,15 @@ public class ModifyCardEntryFragment extends Fragment {
     private EditText mCardQuantity;
     private Button mRemoveCard;
     private Button mSave;
-    private EditDeckCommunicator mFragmentCommunicator; //AddCardsToDeckFragment communicates with this Fragment thru the host activity, that host activity implements EditDeckCommunicator
+    private ImageButton mCloseButton;
+    private FragmentActivityAdapterCommunicator hostActivity; //AddCardsToDeckFragment communicates with this Fragment thru the host activity, that host activity implements FragmentActivityAdapterCommunicator
     private int positionClicked; //This fragment should hold the position of the item clicked in the listview so if the item is deleted we know which one to delete (which index to remove from the arraylist). Lessens errors with passing it internally.
     private static ModifyCardEntryFragment singletonInstance;
 
 
     public ModifyCardEntryFragment() {
-        // Required empty public constructor
-        // this needs to be public b/c android backgrounds needs it to be, do not call default constructor in code use
+        // Required empty public constructor even though using singleton design
+        // this needs to be public b/c android backgrounds needs it to be
     }
 
     //singleton design pattern to prevent multiple instances from being created
@@ -49,8 +53,8 @@ public class ModifyCardEntryFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        Log.d(LOG_TAG, "creating fragment " + LOG_TAG);
-        mFragmentCommunicator = (EditDeckCommunicator) getActivity();
+        hostActivity = (FragmentActivityAdapterCommunicator) getActivity();
+        hostActivity.lockOrUnlockdrawer(DrawerLayout.LOCK_MODE_LOCKED_OPEN, Gravity.END);
         rootView = inflater.inflate(R.layout.fragment_modify_card_entry, container, false);
         textViewSetUp(getArguments().getString("CardName"), getArguments().getString("CardQuantity"));
         this.positionClicked = getArguments().getInt("PositionClicked");
@@ -61,13 +65,14 @@ public class ModifyCardEntryFragment extends Fragment {
     private void buttonsSetUp(){
         mRemoveCard = (Button) rootView.findViewById(R.id.remove_card);
         mSave = (Button) rootView.findViewById(R.id.save);
+        mCloseButton = (ImageButton) rootView.findViewById(R.id.close_btn);
 
         mRemoveCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mFragmentCommunicator.setCardCount(0, positionClicked);
+                hostActivity.setCardCountCallback(0, positionClicked);
                 StaticUtilityMethods.hideKeyboardFrom(getContext(), rootView);
-                closeThisFragment();
+                StaticUtilityMethods.closeThisFragment(getActivity(), ModifyCardEntryFragment.this);
             }
         });
 
@@ -76,22 +81,25 @@ public class ModifyCardEntryFragment extends Fragment {
             public void onClick(View v) {
                 String newCardQuantity = mCardQuantity.getText().toString();
                 try{
-                    mFragmentCommunicator.setCardCount(Integer.parseInt(newCardQuantity), positionClicked);
+                    hostActivity.setCardCountCallback(Integer.parseInt(newCardQuantity), positionClicked);
                     StaticUtilityMethods.hideKeyboardFrom(getContext(), rootView);
-                    closeThisFragment();
+
+                    StaticUtilityMethods.closeThisFragment(getActivity(), ModifyCardEntryFragment.this);
                 }
                 catch(NumberFormatException ex){
-                    Toast.makeText(getContext(), "invalid number for quantity", Toast.LENGTH_SHORT);
+                    Toast.makeText(getContext(), "invalid number for quantity", Toast.LENGTH_SHORT).show();
                 }
-
-
             }
         });
-    }
 
-    private void closeThisFragment(){
-        getActivity().getSupportFragmentManager().beginTransaction()
-                .remove(this).addToBackStack(null).commit();
+        mCloseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                StaticUtilityMethods.hideKeyboardFrom(getContext(), rootView);
+                hostActivity.closeDrawer(Gravity.END);
+                StaticUtilityMethods.closeThisFragment(getActivity(), ModifyCardEntryFragment.this);
+            }
+        });
     }
 
     private void textViewSetUp(String cardName, String startingCardQuantity){

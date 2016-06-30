@@ -132,10 +132,6 @@ public class TestAutoCompleteActivity extends AppCompatActivity {
                 e.printStackTrace();
                 Log.e(LOG_TAG, "JSONException occured");
                 return null;
-            } catch (IOException e){
-                e.printStackTrace();
-                Log.e(LOG_TAG, "IOException occured: likely image dl problems");
-                return null;
             }
         }
 

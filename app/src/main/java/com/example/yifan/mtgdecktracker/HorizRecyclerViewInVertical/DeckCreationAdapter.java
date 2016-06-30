@@ -1,4 +1,4 @@
-package com.example.yifan.mtgdecktracker.HorizRecyclerViewInVerticalTest;
+package com.example.yifan.mtgdecktracker.HorizRecyclerViewInVertical;
 
 import android.content.Context;
 import android.util.Log;

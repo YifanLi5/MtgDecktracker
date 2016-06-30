@@ -10,26 +10,14 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-        <activity android:name=".HorizRecyclerViewInVerticalTest.HorizRecyclerViewInVerticalActivity">
+        <activity android:name=".HorizRecyclerViewInVertical.SavedDecksActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".masterDetailTestDeprecated.CardListActivity"
-            android:label="@string/title_card_list"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
-        <activity
-            android:name=".masterDetailTestDeprecated.CardDetailActivity"
-            android:label="@string/title_card_detail"
-            android:parentActivityName=".masterDetailTestDeprecated.CardListActivity"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.yifan.mtgdecktracker.masterDetailTestDeprecated.CardListActivity" />
-        </activity>
+
 
     </application>
 

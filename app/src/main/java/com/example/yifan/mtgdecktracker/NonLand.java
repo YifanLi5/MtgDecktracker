@@ -1,26 +1,30 @@
 package com.example.yifan.mtgdecktracker;
 
+import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.v4.app.Fragment;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.example.yifan.mtgdecktracker.HorizRecyclerViewInVertical.SavedDecksActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
+import java.net.URISyntaxException;
 
 /**
  * Created by Yifan on 5/21/2016.
  */
 public class NonLand extends Card {
 
-    public boolean didTask = false;
+    public boolean initImage = false;
 
-
-    public NonLand(String name, int cmc, String cost, String imageURL) throws  IOException{
+    public NonLand(String name, int cmc, String cost, String imageURL) {
         this.name = name;
         this.cmc = cmc;
         this.cost = cost;
@@ -28,15 +32,15 @@ public class NonLand extends Card {
         this.total = 1;
     }
 
-    public NonLand(JSONObject jsonCard)throws JSONException, IOException {
+    public NonLand(JSONObject jsonCard) throws JSONException {
         this.name = jsonCard.getString("name");
         this.cmc = jsonCard.getInt("cmc");
         this.cost = jsonCard.getString("cost");
         this.imageURL = jsonCard.getJSONArray("editions").getJSONObject(0).getString("image_url");
-        new fetchImageTask().execute();
+
     }
 
-    public NonLand(JSONObject jsonCard, int total)throws JSONException {
+    public NonLand(JSONObject jsonCard, int total) throws JSONException {
         this.name = jsonCard.getString("name");
         this.cmc = jsonCard.getInt("cmc");
         this.cost = jsonCard.getString("cost");
@@ -53,6 +57,7 @@ public class NonLand extends Card {
         cost = in.readString();
         imageURL = in.readString();
         cardImage = (Bitmap) in.readValue(Bitmap.class.getClassLoader());
+        initImage = in.readByte() != 0; //initImage == true if byte != 0
     }
 
     @Override
@@ -70,6 +75,7 @@ public class NonLand extends Card {
         dest.writeString(cost);
         dest.writeString(imageURL);
         dest.writeValue(cardImage);
+        dest.writeByte((byte) (initImage ? 1 : 0)); //if initImage == true, byte == 1
     }
 
     public static final Parcelable.Creator<Card> CREATOR = new Parcelable.Creator<Card>() {
@@ -84,44 +90,27 @@ public class NonLand extends Card {
         }
     };
 
-    private class fetchImageTask extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected Void doInBackground(Void... params) {
-            try {
-                didTask = initializeImage();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
+    public void initializeImage(Fragment fragment, final int recyclerViewPosition, final Context context) throws IOException, URISyntaxException {
+        Glide.with(fragment)
+                .load(imageURL)
+                .asBitmap()
+                .into(new SimpleTarget<Bitmap>() {
+                    @Override
+                    public void onResourceReady(Bitmap resource, GlideAnimation glideAnimation) {
+                        cardImage = resource;
+                        initImage = true;
+                        if (context instanceof SavedDecksActivity) {
+                            ((SavedDecksActivity) context).initCardImageCallback(recyclerViewPosition);
+                        }
+                    }
+                });
 
     }
 
-    public boolean initializeImage() throws IOException {
-        InputStream imageStream = new URL(getImageURL()).openStream();
-        cardImage = BitmapFactory.decodeStream(imageStream);
-        if(cardImage != null){
-            return true;
-        }
-        else{
-            return false;
-        }
-    }
 
-    public void setTotal(int newTotal){
+    public void setTotal(int newTotal) {
         this.total = newTotal;
         this.inDeck = newTotal;
-    }
-
-    public boolean moveOutOfDeck(){
-        if(this.inDeck > 0){
-            this.inDeck--;
-            this.notInDeck++;
-            return true;
-        }
-        else{
-            return false;
-        }
     }
 
     public String getName() {
@@ -140,14 +129,15 @@ public class NonLand extends Card {
         return imageURL;
     }
 
-    public Bitmap getCardImage(){
+    public Bitmap getCardImage() {
         return cardImage;
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return "name: " + name + " total: " + total;
 
     }
+
 
 }

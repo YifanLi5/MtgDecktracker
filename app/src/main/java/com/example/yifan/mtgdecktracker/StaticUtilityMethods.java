@@ -2,6 +2,9 @@ package com.example.yifan.mtgdecktracker;
 
 import android.app.Activity;
 import android.content.Context;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
@@ -41,5 +44,12 @@ public class StaticUtilityMethods {
     public static void hideKeyboardFrom(Context context, View view) {
         InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+    //used to close fragment
+    //usually called by closeThisFragment(getActivity(), Fragment.this)
+    public static void closeThisFragment(FragmentActivity activity, Fragment fragment){
+        activity.getSupportFragmentManager().beginTransaction()
+                .remove(fragment).addToBackStack(null).commit();
     }
 }
