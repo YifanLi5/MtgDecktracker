@@ -38,5 +38,5 @@ Todo:
 - able to sort decks (start with alphabetical)
 - on saving new deck wipe create deck list                                                                  DONE
 - handle attempting to add 2 decks with same name
--
+- fix the inconcistency detetected bug. (passing by reference causes this, clone object)
  */

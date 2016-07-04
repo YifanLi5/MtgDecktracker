@@ -71,7 +71,15 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
 
-
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Revert Changes"
+        android:id="@+id/reset_button"
+        android:textSize="@dimen/font_size_small"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
 
 </RelativeLayout>

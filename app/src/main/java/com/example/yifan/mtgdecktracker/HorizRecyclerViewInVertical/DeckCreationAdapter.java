@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Filter;
 import android.widget.TextView;
 
 import com.example.yifan.mtgdecktracker.Card;
@@ -18,6 +19,11 @@ import java.util.ArrayList;
  */
 public class DeckCreationAdapter extends ArrayAdapter<Card> {
     private static String LOG_TAG = DeckCreationAdapter.class.getSimpleName();
+    NoFilter noFilter;
+
+    public DeckCreationAdapter(Context context, int resource){
+        super(context, resource);
+    }
 
     public DeckCreationAdapter(Context context, ArrayList<Card> resource) {
         super(context, R.layout.single_card_in_listview, resource);
@@ -37,5 +43,24 @@ public class DeckCreationAdapter extends ArrayAdapter<Card> {
         cardNameText.setText(card.getName());
         cardQuantityText.setText("x"+String.valueOf(card.getTotal()));//explicitly cast int (card.getTotal()) to String b/c setText looks for string resource based on id
         return singleCardView;
+    }
+
+    @Override
+    public Filter getFilter() {
+        if (noFilter == null) {
+            noFilter = new NoFilter();
+        }
+        return noFilter;
+    }
+
+    private class NoFilter extends Filter {
+        protected FilterResults performFiltering(CharSequence prefix) {
+            return new FilterResults();
+        }
+
+        protected void publishResults(CharSequence constraint,
+                                      Filter.FilterResults results) {
+            // Do nothing
+        }
     }
 }

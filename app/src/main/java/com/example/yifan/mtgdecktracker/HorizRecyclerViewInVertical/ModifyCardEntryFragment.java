@@ -83,7 +83,6 @@ public class ModifyCardEntryFragment extends Fragment {
                 try{
                     hostActivity.setCardCountCallback(Integer.parseInt(newCardQuantity), positionClicked);
                     StaticUtilityMethods.hideKeyboardFrom(getContext(), rootView);
-
                     StaticUtilityMethods.closeThisFragment(getActivity(), ModifyCardEntryFragment.this);
                 }
                 catch(NumberFormatException ex){
