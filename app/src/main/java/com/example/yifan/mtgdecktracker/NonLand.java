@@ -90,7 +90,7 @@ public class NonLand extends Card {
         }
     };
 
-    public void initializeImage(Fragment fragment, final int recyclerViewPosition, final Context context) throws IOException, URISyntaxException {
+    public void initializeImage(Fragment fragment, final int recyclerViewPosition, final Context context, final boolean mainboardCard) throws IOException, URISyntaxException {
         Glide.with(fragment)
                 .load(imageURL)
                 .asBitmap()
@@ -100,13 +100,12 @@ public class NonLand extends Card {
                         cardImage = resource;
                         initImage = true;
                         if (context instanceof SavedDecksActivity) {
-                            ((SavedDecksActivity) context).initCardImageCallback(recyclerViewPosition);
+                            ((SavedDecksActivity) context).initCardImageCallback(recyclerViewPosition, mainboardCard);
                         }
                     }
                 });
 
     }
-
 
     public void setTotal(int newTotal) {
         this.total = newTotal;

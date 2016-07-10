@@ -1,9 +1,8 @@
 package com.example.yifan.mtgdecktracker.HorizRecyclerViewInVertical;
 
-
-import android.support.v4.app.DialogFragment;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -18,6 +17,8 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TabHost;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.yifan.mtgdecktracker.ArrayAdapterNoFilter;
@@ -39,9 +40,9 @@ import java.util.TimerTask;
 
 
 public class AddCardsToDeckFragment extends Fragment implements ConfirmResetDialogFragment.ConfirmResetDialogCallbacks{
-
-    private static final int DEFAULT_CARD_COUNT = 60;
     private static final String LOG_TAG = AddCardsToDeckFragment.class.getSimpleName();
+    private View rootView;
+    private JSONObject selectedJSON;
     private String mDeckName;
     private Button mAddButton;
     private Button mSaveButton;
@@ -50,13 +51,19 @@ public class AddCardsToDeckFragment extends Fragment implements ConfirmResetDial
     private ArrayAdapter<String> mAutoCompleteAdapter;
     private EditText mDeckNameField;
     private EditText mQuantityToAdd;
+    private TabHost tabHost;
+
     private ListView mMainboardAddedCards;
-    private ArrayAdapter<Card> mListViewAdapter;
-    private View rootView;
-    private ArrayList<Card> mMainboardOriginal;
+    private ListView mSideboardAddedCards;
+    private ArrayAdapter<Card> mMainboardAdapter;
+    private ArrayAdapter<Card> mSideboardAdapter;
+    private ArrayList<Card> mMainboardOriginal; //copy of main and sideboards are used to undo all edited changes. When saving original is cloned from to copy
     private ArrayList<Card> mMainboardCopy;
-    private JSONObject selectedJSON;
+    private ArrayList<Card> mSideboardOriginal;
+    private ArrayList<Card> mSideboardCopy;
     private HashSet<String> mMainboardSet; //used to prevent duplicate cards from being entered
+    private HashSet<String> mSideboardSet;
+
     private ModifyCardEntryFragment modifyCardFragment;
     private static AddCardsToDeckFragment singletonInstance;
     private FragmentActivityAdapterCommunicator hostActivity;
@@ -64,7 +71,8 @@ public class AddCardsToDeckFragment extends Fragment implements ConfirmResetDial
     //strings for bundle keys
     private static final String EDIT_EXISTING_DECK = "EditExistingDeck";
     private static final String DECK_NAME = "DeckName";
-    private static final String DECK_CONTENTS = "DeckContents";
+    private static final String MAINBOARD_CONTENTS = "MainContents";
+    private static final String SIDEBOARD_CONTENTS = "SideboardContents";
     private static final String DECK_INDEX = "DeckIndex";
 
     public AddCardsToDeckFragment() {
@@ -82,15 +90,17 @@ public class AddCardsToDeckFragment extends Fragment implements ConfirmResetDial
      */
 
     //used when editing an existing deck
-    public static AddCardsToDeckFragment getInstance(ArrayList<Card> deckContents, String deckName, int deckIndex){
+
+    public static AddCardsToDeckFragment getInstance(ArrayList<Card> mainboardContents, ArrayList<Card> sideboardContents, String deckName, int deckIndex){
         Log.d("Testing FSM", "edit existing deck");
-        if(singletonInstance == null){ //fragment isn't created meaning we are in starting state, therefore create it to get to edit deck state
+        if(singletonInstance == null){ //fragment isn't created meaning we are in starting state, therefore create it to get to edit deck state as that was what was selected by user
             singletonInstance = new AddCardsToDeckFragment();
             Bundle args = new Bundle();
             args.putInt(DECK_INDEX, deckIndex);
             args.putBoolean(EDIT_EXISTING_DECK, true);  //bundle arguement for whether we the fragment's state is to edit an exsting deck
             args.putString(DECK_NAME, deckName);
-            args.putParcelableArrayList(DECK_CONTENTS, deckContents);
+            args.putParcelableArrayList(MAINBOARD_CONTENTS, mainboardContents);
+            args.putParcelableArrayList(SIDEBOARD_CONTENTS, sideboardContents);
             singletonInstance.setArguments(args);
             return singletonInstance;
         }
@@ -99,13 +109,14 @@ public class AddCardsToDeckFragment extends Fragment implements ConfirmResetDial
             if(lastArgs.getBoolean(EDIT_EXISTING_DECK) && lastArgs.getString("DeckName").equals(deckName)){ //check if the last state was editing an existing deck and if we are rediting the same deck
                 return singletonInstance; //then no changes necessary.
             }
-            else{
+            else{ //fragment already exists but editing new deck
                 singletonInstance = new AddCardsToDeckFragment();
                 Bundle args = new Bundle();
                 args.putInt(DECK_INDEX, deckIndex);
                 args.putBoolean(EDIT_EXISTING_DECK, true);
                 args.putString(DECK_NAME, deckName);
-                args.putParcelableArrayList(DECK_CONTENTS, deckContents);
+                args.putParcelableArrayList(MAINBOARD_CONTENTS, mainboardContents);
+                args.putParcelableArrayList(SIDEBOARD_CONTENTS, sideboardContents);
                 singletonInstance.setArguments(args);
                 return singletonInstance;
             }
@@ -141,49 +152,89 @@ public class AddCardsToDeckFragment extends Fragment implements ConfirmResetDial
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         Log.d(LOG_TAG, "creating fragment " + LOG_TAG);
-        rootView = inflater.inflate(R.layout.fragment_add_card, container, false);
+        rootView = inflater.inflate(R.layout.fragment_add_cards_to_deck, container, false);
         mQuantityToAdd = (EditText) rootView.findViewById(R.id.card_quantity_field);
         mDeckNameField = (EditText) rootView.findViewById(R.id.deck_name_field);
         hostActivity = (FragmentActivityAdapterCommunicator) getActivity();
+
         if(savedInstanceState != null){
             this.mDeckName = savedInstanceState.getString(DECK_NAME);
-            this.mMainboardOriginal = savedInstanceState.getParcelableArrayList(DECK_CONTENTS);
-
+            this.mMainboardOriginal = savedInstanceState.getParcelableArrayList(MAINBOARD_CONTENTS);
             this.mMainboardSet = new HashSet<>();
-            for(Card card: mMainboardOriginal){
-                mMainboardSet.add(card.getName());
+            if(mMainboardOriginal == null){
+                this.mMainboardOriginal = new ArrayList<>();
+
+            }
+            else{
+                for(Card card: mMainboardOriginal){
+                    mMainboardSet.add(card.getName());
+                }
+            }
+
+            this.mSideboardOriginal = savedInstanceState.getParcelableArrayList(SIDEBOARD_CONTENTS);
+            this.mSideboardSet = new HashSet<>();
+            if(mSideboardOriginal == null){
+                this.mSideboardOriginal = new ArrayList<>();
+            }
+            else{
+                for(Card card: mSideboardOriginal){
+                    mSideboardSet.add(card.getName());
+                }
             }
         }
         else{
             this.mDeckName = getArguments().getString(DECK_NAME);
             this.mDeckNameField.setText(mDeckName);
-            if(getArguments().containsKey(DECK_CONTENTS)){
-                this.mMainboardOriginal = getArguments().getParcelableArrayList(DECK_CONTENTS);
-
+            if(getArguments().containsKey(MAINBOARD_CONTENTS)){
+                this.mMainboardOriginal = getArguments().getParcelableArrayList(MAINBOARD_CONTENTS);
                 this.mMainboardSet = new HashSet<>();
                 for(Card card: mMainboardOriginal){
                     mMainboardSet.add(card.getName());
                 }
+            }
 
+            if(getArguments().containsKey(SIDEBOARD_CONTENTS)){
+                this.mSideboardOriginal = getArguments().getParcelableArrayList(SIDEBOARD_CONTENTS);
+                this.mSideboardSet = new HashSet<>();
+                for(Card card: mSideboardOriginal){
+                    mSideboardSet.add(card.getName());
+                }
             }
         }
+
         if(mMainboardOriginal != null){
-            this.mMainboardCopy = (ArrayList<Card>) this.mMainboardOriginal.clone();
-            autoCompleteSetUp();
-            buttonsSetUp();
-            listViewSetUp();
+            mMainboardCopy = (ArrayList<Card>) mMainboardOriginal.clone();
+        }
+        else{
+            mMainboardOriginal = new ArrayList<>();
+            mMainboardCopy = new ArrayList<>();
+            mMainboardSet = new HashSet<>();
         }
 
+        if(mSideboardOriginal != null){
+            mSideboardCopy = (ArrayList<Card>) mSideboardOriginal.clone();
+        }
+        else{
+            mSideboardOriginal = new ArrayList<>();
+            mSideboardCopy = new ArrayList<>();
+            mSideboardSet = new HashSet<>();
+        }
+
+        autoCompleteSetUp();
+        buttonsSetUp();
+        tabsSetUp();
+        listViewSetUp();
         return rootView;
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList(DECK_CONTENTS, mMainboardOriginal);
+        outState.putParcelableArrayList(MAINBOARD_CONTENTS, mMainboardOriginal); //this will make a flip overwrite changes
         outState.putString(DECK_NAME, mDeckName);
 
     }
@@ -197,28 +248,46 @@ public class AddCardsToDeckFragment extends Fragment implements ConfirmResetDial
     }
 
     //callback methods used to edit quantities or delete already added cards
-    public void changeCardQuantityCallback(int newQuantity, int positionClicked) {
-        //listview comes from data in mMainboard, therefore can just modify this arraylist then call notifyDataChanged()
+    public void changeMainboardCardQuantityCallback(int newQuantity, int positionClicked) {
+        //listviews comes from data in mMainboard or mSideboard, therefore can just modify this arraylist then call notifyDataChanged()
         if (newQuantity == 0) {
-            deleteCardCallback(positionClicked);
-        } else {
+            deleteMainboardCard(positionClicked);
+        }
+        else {
             Card targetCard = mMainboardCopy.get(positionClicked);
             targetCard.setTotal(newQuantity);
-            mListViewAdapter.notifyDataSetChanged();
+            mMainboardAdapter.notifyDataSetChanged();
         }
     }
 
-    private void deleteCardCallback(int positionClicked) {
+    private void deleteMainboardCard(int positionClicked) {
         //remove from arraylist and set, remove from set FIRST b/c set requires arraylist to get the item
         mMainboardSet.remove(mMainboardCopy.get(positionClicked).getName());
         mMainboardCopy.remove(positionClicked);
-        mListViewAdapter.notifyDataSetChanged();
+        mMainboardAdapter.notifyDataSetChanged();
+    }
+
+    public void changeSideboardCardQuantityCallback(int newQuantity, int positionClicked) {
+        if(newQuantity == 0){
+            deleteSideboardCard(positionClicked);
+        }
+        else{
+            Card targetCard = mSideboardCopy.get(positionClicked);
+            targetCard.setTotal(newQuantity);
+            mSideboardAdapter.notifyDataSetChanged();
+        }
+    }
+
+    private void deleteSideboardCard(int positionClicked){
+        mSideboardSet.remove(mSideboardCopy.get(positionClicked).getName());
+        mSideboardCopy.remove(positionClicked);
+        mSideboardAdapter.notifyDataSetChanged();
     }
 
     private void listViewSetUp() {
         mMainboardAddedCards = (ListView) rootView.findViewById(R.id.current_mainboard);
-        mListViewAdapter = new DeckCreationAdapter(getContext(), mMainboardCopy);
-        mMainboardAddedCards.setAdapter(mListViewAdapter);
+        mMainboardAdapter = new DeckCreationAdapter(getContext(), mMainboardCopy);
+        mMainboardAddedCards.setAdapter(mMainboardAdapter);
         mMainboardAddedCards.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -226,19 +295,18 @@ public class AddCardsToDeckFragment extends Fragment implements ConfirmResetDial
                 //set up arguments
                 Card targetCard = mMainboardCopy.get(position);
                 //launch fragment or replace it
-                //todo: pass in the position
                 //if modifyCardFragment doesn't exist, create it. If it does exist recreate it (a new item in the listview may have been pressed therefore need a new instance of the fragment) and replace it.
                 if(modifyCardFragment == null){
-                    Log.d(LOG_TAG, "creating fragment ModifyCardEntryFragment");
-                    modifyCardFragment = ModifyCardEntryFragment.newInstance(targetCard, position);
+                    Log.d(LOG_TAG, "creating fragment ModifyCardEntryFragment for mainboard card");
+                    modifyCardFragment = ModifyCardEntryFragment.newInstance(targetCard, position, true);
                     getActivity().getSupportFragmentManager().beginTransaction()
                             .add(R.id.modify_card_entry_fragment_container, modifyCardFragment)
                             .commit();
                     hostActivity.openDrawer(Gravity.END);
                 }
                 else{
-                    Log.d(LOG_TAG, "replacing fragment ModifyCardEntryFragment");
-                    modifyCardFragment = ModifyCardEntryFragment.newInstance(targetCard, position);
+                    Log.d(LOG_TAG, "replacing fragment ModifyCardEntryFragment for mainboard card");
+                    modifyCardFragment = ModifyCardEntryFragment.newInstance(targetCard, position, true);
                     getActivity().getSupportFragmentManager().beginTransaction()
                             .replace(R.id.modify_card_entry_fragment_container, modifyCardFragment)
                             .commit();
@@ -247,18 +315,58 @@ public class AddCardsToDeckFragment extends Fragment implements ConfirmResetDial
 
             }
         });
+
+        mSideboardAddedCards = (ListView) rootView.findViewById(R.id.current_sideboard);
+        mSideboardAdapter = new DeckCreationAdapter(getContext(), mSideboardCopy);
+        mSideboardAddedCards.setAdapter(mSideboardAdapter);
+        mSideboardAddedCards.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Card targetCard = mSideboardCopy.get(position);
+                if(modifyCardFragment == null){
+                    Log.d(LOG_TAG, "creating fragment ModifyCardEntryFragment for mainboard card");
+                    modifyCardFragment = ModifyCardEntryFragment.newInstance(targetCard, position, false);
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .add(R.id.modify_card_entry_fragment_container, modifyCardFragment)
+                            .commit();
+                    hostActivity.openDrawer(Gravity.END);
+                }
+                else{
+                    Log.d(LOG_TAG, "replacing fragment ModifyCardEntryFragment for mainboard card");
+                    modifyCardFragment = ModifyCardEntryFragment.newInstance(targetCard, position, false);
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.modify_card_entry_fragment_container, modifyCardFragment)
+                            .commit();
+                    hostActivity.openDrawer(Gravity.END);
+                }
+            }
+        });
     }
 
+    @SuppressWarnings("unchecked")
     private void buttonsSetUp() {
         mAddButton = (Button) rootView.findViewById(R.id.add_card);
         mSaveButton = (Button) rootView.findViewById(R.id.save_button);
-        mResetButton = (Button) rootView.findViewById(R.id.reset_button);
+        mResetButton = (Button) rootView.findViewById(R.id.reset_button); //if editing an existing deck, this will allow user to undo all edits
+
+        if(getArguments().getBoolean(EDIT_EXISTING_DECK)){ //do not need the reset button if creating a new deck
+            mResetButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ConfirmResetDialogFragment dialog = new ConfirmResetDialogFragment();
+                    dialog.setTargetFragment(AddCardsToDeckFragment.this, 1);
+                    dialog.show(getFragmentManager(), "ConfirmResetDialogFragment");
+                }
+            });
+        }
+        else{
+            mResetButton.setVisibility(View.GONE);
+        }
 
         mAddButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //create nonland object, add it into mMainboard, update the listview to show the cards and respective quantities.
-
                 String quantityFieldEntry = mQuantityToAdd.getText().toString(); //make sure user has entered a number into the field, if not just add 1 copy of the card
                 int numToAdd;
                 if (!StaticUtilityMethods.isInteger(quantityFieldEntry)) {
@@ -269,109 +377,156 @@ public class AddCardsToDeckFragment extends Fragment implements ConfirmResetDial
 
                 //using constructor NonLand(JsonObject, int)
                 try {
+                    //reset text fields
+                    mAutoCompleteEntryField.setText("");
+                    mQuantityToAdd.setText("");
                     NonLand newEntry = new NonLand(selectedJSON, numToAdd);
-                    if (mMainboardSet.add(newEntry.getName())) { //check if adding duplicates
-                        mMainboardCopy.add(newEntry);
-                        StaticUtilityMethods.hideKeyboardFrom(getContext(), rootView); //listview only updates after keyboard is pulled down, use this method
-                        mListViewAdapter.notifyDataSetChanged();
+                    if(tabHost.getCurrentTab() == 0){ //in mainboard tab, add to mainboard
+                        if (mMainboardSet.add(newEntry.getName())) { //check if adding duplicates
+                            mMainboardCopy.add(newEntry);
+                            StaticUtilityMethods.hideKeyboardFrom(getContext(), rootView); //listview only updates after keyboard is pulled down, use this method
+                            mMainboardAdapter.notifyDataSetChanged();
 
-                    } else {
-                        Toast.makeText(getContext(), "Card already added, modify quantities by touching the list.", Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(getContext(), "Card already added into Mainboard, modify quantities by touching the list.", Toast.LENGTH_LONG).show();
+                        }
+
+                    }
+                    else if(tabHost.getCurrentTab() == 1){ //in sideboard tab, add to sideboard
+                        if(mSideboardSet.add(newEntry.getName())){
+                            mSideboardCopy.add(newEntry);
+                            StaticUtilityMethods.hideKeyboardFrom(getContext(), rootView);
+                            mSideboardAdapter.notifyDataSetChanged();
+                        } else{
+                            Toast.makeText(getContext(), "Card already added into Sideboard, modify quantities by touching the list.", Toast.LENGTH_LONG).show();
+                        }
                     }
 
-                    Log.d(LOG_TAG, mMainboardCopy.toString());
                 } catch (JSONException e) {
                     Log.e(LOG_TAG, "JSONException when adding card");
-                    Toast.makeText(getContext(), "ERROR: unable to add card" + mAutoCompleteEntryField.getText(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "JSONException " + mAutoCompleteEntryField.getText(), Toast.LENGTH_SHORT).show();
                     e.printStackTrace();
                 } catch(NullPointerException e){
-                    Toast.makeText(getContext(), "ERROR: unable get JSON" + mAutoCompleteEntryField.getText(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "NullPointerException for some reason" + mAutoCompleteEntryField.getText(), Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
                 }
 
-
+                Log.d(LOG_TAG, mMainboardCopy.toString());
             }
         });
 
         mSaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(mMainboardCopy.isEmpty()){
+                if(mMainboardCopy.isEmpty() && mSideboardCopy.isEmpty()){
                     mMainboardOriginal = null;
-                    Toast.makeText(getContext(), "Deck is Empty, if this was an existing deck it will be deleted", Toast.LENGTH_SHORT).show();
+                    mSideboardOriginal = null;
+                    Toast.makeText(getContext(), "Deck is Empty, if this was an existing deck it was deleted", Toast.LENGTH_SHORT).show();
                     if(getArguments().getBoolean(EDIT_EXISTING_DECK)){
-                        hostActivity.getModifiedDeck(mMainboardCopy, getArguments().getInt(DECK_INDEX), mDeckName);
+                        hostActivity.getModifiedDeck(mMainboardCopy, mSideboardCopy, getArguments().getInt(DECK_INDEX), mDeckName);
                     }
                 }
                 else{
+                    //clone main and sideboards over as they changed and we can overwrite
                     mMainboardOriginal = (ArrayList<Card>) mMainboardCopy.clone();
+                    mSideboardOriginal = (ArrayList<Card>) mSideboardCopy.clone(); 
                     mDeckName = mDeckNameField.getText().toString();
-                    //implement make deck (initialize all images) and save, display it in host activity
+
+                    saveButtonInitImageHelper(); //implement make deck (initialize all images)
+
                     if(getArguments().containsKey(DECK_INDEX)){ //check if fragment has index of where it is in the host activity's vertical recyclerview, this means that we are modifying an existing deck
-                        hostActivity.getModifiedDeck(mMainboardCopy, getArguments().getInt(DECK_INDEX), mDeckName);
-                        for(int i = 0; i < mMainboardCopy.size(); i++){
-                            Card card = mMainboardCopy.get(i);
-                            if(!(card instanceof NonLand)){
-                                continue;
-                            }
-                            if(!((NonLand)mMainboardCopy.get(i)).initImage){
-                                try {
-                                    ((NonLand) card).initializeImage(AddCardsToDeckFragment.this, i, getActivity());
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                } catch (URISyntaxException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        }
+                        hostActivity.getModifiedDeck(mMainboardCopy, mSideboardCopy, getArguments().getInt(DECK_INDEX), mDeckName);
                     }
+
                     else{ //creating new deck
-                        mMainboardOriginal = (ArrayList<Card>) mMainboardCopy.clone();
-                        for(int i = 0; i < mMainboardCopy.size(); i++){
-                            Card card = mMainboardCopy.get(i);
-                            if(!(card instanceof NonLand)){
-                                continue;
-                            }
-                            if(!((NonLand)card).initImage){
-                                try {
-                                    ((NonLand) card).initializeImage(AddCardsToDeckFragment.this, i, getActivity());
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                } catch (URISyntaxException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        }
-                        hostActivity.getModifiedDeck(mMainboardCopy, -1, mDeckName); //2nd argument is index in vertical adapter, -1 means creating new deck
-                        mListViewAdapter.clear(); //after saving a new deck clear its contents from this fragment's listview to prepare to accept new deck
+                        hostActivity.getModifiedDeck(mMainboardCopy, mSideboardCopy, -1, mDeckName); //3rd argument is index in vertical adapter, -1 means creating new deck
+                        mMainboardAdapter.clear(); //after saving a new deck clear its contents from this fragment's listview to prepare to accept new deck as old data is still inside (user create subsequent new deck)
                         mQuantityToAdd.setText("");
                         mAutoCompleteEntryField.setText("");
                         mDeckNameField.setText("");
-                        StaticUtilityMethods.closeThisFragment(getActivity(), AddCardsToDeckFragment.this);
+
                     }
 
                 }
+
+                hostActivity.closeDrawer(Gravity.START);
             }
 
         });
+    }
 
-        mResetButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ConfirmResetDialogFragment dialog = new ConfirmResetDialogFragment();
-                dialog.setTargetFragment(AddCardsToDeckFragment.this, 1);
-                dialog.show(getFragmentManager(), "ConfirmResetDialogFragment");
+    private void saveButtonInitImageHelper(){
+        for(int i = 0; i < mMainboardCopy.size(); i++){
+            Card card = mMainboardCopy.get(i);
+            if(!(card instanceof NonLand)){
+                continue;
             }
-        });
+            if(!((NonLand)card).initImage){
+                try {
+                    ((NonLand) card).initializeImage(AddCardsToDeckFragment.this, i, getActivity(), true);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (URISyntaxException e) {
+                    Log.e(LOG_TAG, "URISyntaxException- bad uri for card: " + card.getName());
+                    e.printStackTrace();
+                }
+            }
+        }
 
+        for(int i = 0; i < mSideboardCopy.size(); i++){
+            Card card = mSideboardCopy.get(i);
+            if(!(card instanceof NonLand)){
+                continue;
+            }
+            if(!((NonLand)card).initImage){
+                try {
+                    ((NonLand) card).initializeImage(AddCardsToDeckFragment.this, i, getActivity(), false);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (URISyntaxException e) {
+                    Log.e(LOG_TAG, "URISyntaxException- bad uri for card: " + card.getName());
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private void tabsSetUp(){
+        tabHost = (TabHost) rootView.findViewById(R.id.tabHost);
+        tabHost.setup();
+
+        TabHost.TabSpec spec = tabHost.newTabSpec("MainboardTab");
+        spec.setContent(R.id.mainboard_tab);
+        spec.setIndicator("Mainboard");
+        tabHost.addTab(spec);
+
+        spec = tabHost.newTabSpec("SideboardTab");
+        spec.setContent(R.id.sideboard_tab);
+        spec.setIndicator("Sideboard");
+        tabHost.addTab(spec);
+
+        TextView tabname;
+        tabname = (TextView) tabHost.getTabWidget().getChildAt(0).findViewById(android.R.id.title);
+        tabname.setTextSize(12);
+
+        tabname = (TextView) tabHost.getTabWidget().getChildAt(1).findViewById(android.R.id.title);
+        tabname.setTextSize(12);
     }
 
     @Override
-    public void onPositiveClick(DialogFragment dialog) {
-        mListViewAdapter.clear();
-        mListViewAdapter.addAll(mMainboardOriginal);
+    public void onPositiveClick(DialogFragment dialog) { //reset button uses yes/no dialog fragment to confirm. Yes in dialog fragment this is called and resets changes
+        mMainboardAdapter.clear(); //don't need to sideboard = mainboard.clone() because clearing adapter also clears the contained arraylist
+        mMainboardAdapter.addAll(mMainboardOriginal);
         mMainboardSet.clear();
         for(Card card: mMainboardOriginal){
             mMainboardSet.add(card.getName());
+        }
+
+        mSideboardAdapter.clear();
+        mSideboardAdapter.addAll(mSideboardOriginal);
+        mSideboardSet.clear();
+        for(Card card: mSideboardOriginal){
+            mSideboardSet.add(card.getName());
         }
 
     }

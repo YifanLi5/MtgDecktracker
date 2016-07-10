@@ -84,11 +84,13 @@ public abstract class Card implements Parcelable, Serializable{
         out.writeObject(imageURL);
 
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        cardImage.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
-        BitmapDataObject bitmapDataObject  = new BitmapDataObject();
-        bitmapDataObject.imageByteArray = byteArrayOutputStream.toByteArray();
+        if(cardImage != null){
+            cardImage.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+            BitmapDataObject bitmapDataObject  = new BitmapDataObject();
+            bitmapDataObject.imageByteArray = byteArrayOutputStream.toByteArray();
+            out.writeObject(bitmapDataObject);
+        }
 
-        out.writeObject(bitmapDataObject);
     }
 
     private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {

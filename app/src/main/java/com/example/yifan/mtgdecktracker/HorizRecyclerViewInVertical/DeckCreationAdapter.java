@@ -26,13 +26,13 @@ public class DeckCreationAdapter extends ArrayAdapter<Card> {
     }
 
     public DeckCreationAdapter(Context context, ArrayList<Card> resource) {
-        super(context, R.layout.single_card_in_listview, resource);
+        super(context, R.layout.card_info_in_listview, resource);
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         LayoutInflater inflater = LayoutInflater.from(getContext());
-        View singleCardView = inflater.inflate(R.layout.single_card_in_listview, parent, false);
+        View singleCardView = inflater.inflate(R.layout.card_info_in_listview, parent, false);
 
         TextView cardNameText = (TextView) singleCardView.findViewById(R.id.card_name_inboard);
         TextView cardQuantityText = (TextView) singleCardView.findViewById(R.id.card_quantity_inboard);

@@ -8,19 +8,20 @@ import java.util.ArrayList;
  * Created by Yifan on 6/16/2016.
  */
 public interface FragmentActivityAdapterCommunicator {
-    public void setCardCountCallback(int newCount, int position); //ModifyCardEntryFragment communicates AddCardsToDeckFragment through its host activity
+    //// FIXME: 7/6/2016 needs to account for which tab
+    void setCardCountCallback(int newCount, int position, boolean mainboardChange); //ModifyCardEntryFragment communicates AddCardsToDeckFragment through its host activity
 
-    public void respondToAdapterEditDeckButton(ArrayList<Card> deckContents, String deckName, int deckIndex); //allows host activity to respond to RecyclerView's button click
+    void respondToAdapterEditDeckButton(ArrayList<Card> mainboardContents, ArrayList<Card> sideboardContents, String deckName, int deckIndex); //allows host activity to respond to RecyclerView's button click
 
-    public void getModifiedDeck(ArrayList<Card> deck, int deckIndex, String deckName); //AddCardsToDeckFragment gives back a modified deck to host activity
+    void getModifiedDeck(ArrayList<Card> mainboard, ArrayList<Card> sideboard, int deckIndex, String deckName); //AddCardsToDeckFragment gives back a modified deck to host activity
 
-    public void initCardImageCallback(int position); //called within NonLand class by initializeImage inorder to have the horizontal adapter show the card images
+    void initCardImageCallback(int position, boolean mainboardCard); //called within NonLand class by initializeImage inorder to have the horizontal adapter show the card images
 
-    public void openDrawer(int gravity); //opens drawer based on the drawer's gravity
+    void openDrawer(int gravity); //opens drawer based on the drawer's gravity
 
-    public void closeDrawer(int gravity); //closes drawer based on the drawer's gravity
+    void closeDrawer(int gravity); //closes drawer based on the drawer's gravity
 
-    public void lockOrUnlockdrawer(int lockmode, int gravity); //locks or unlocks drawer based on the drawer's gravity
+    void lockOrUnlockdrawer(int lockmode, int gravity); //locks or unlocks drawer based on the drawer's gravity
 
 }
 
@@ -32,11 +33,13 @@ Todo:
 - Actually have images, (init images) - glide api?                                                          DONE
 - crop card images                                                                                          DONE
 - save images(bitmaps) somehow                                                                              DONE
-- delete deck when last card is deleted + option to delete decks
+- delete deck when last card is deleted + option to delete decks                                            1/2 DONE
 - have deck names                                                                                           DONE
 - saved decks needs to show both number and name of card                                                    DONE
 - able to sort decks (start with alphabetical)
 - on saving new deck wipe create deck list                                                                  DONE
 - handle attempting to add 2 decks with same name
-- fix the inconcistency detetected bug. (passing by reference causes this, clone object)
+- fix the inconcistency detetected bug. (passing by reference causes this, clone object)                    DONE
+- ability to have sideboard                                                                                 DONE
+- fix images not loading until ui is refreshed if trying to load too many                                   DONE
  */
