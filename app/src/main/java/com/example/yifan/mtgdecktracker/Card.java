@@ -31,8 +31,6 @@ public abstract class Card implements Parcelable, Serializable{
         this.cardImage = cardImage;
     }
 
-
-
     public String getName() {
         return name;
     }

@@ -11,8 +11,8 @@ import android.widget.Filter;
 public class ArrayAdapterNoFilter extends ArrayAdapter<String> {
 
     NoFilter noFilter;
-    public ArrayAdapterNoFilter(Context context, int resource){
-        super(context, resource);
+    public ArrayAdapterNoFilter(Context context, int resource, int textViewResourceId){
+        super(context, resource, textViewResourceId);
     }
 
     @Override

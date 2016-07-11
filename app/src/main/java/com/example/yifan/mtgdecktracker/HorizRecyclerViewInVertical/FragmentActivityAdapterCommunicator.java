@@ -9,11 +9,11 @@ import java.util.ArrayList;
  */
 public interface FragmentActivityAdapterCommunicator {
     //// FIXME: 7/6/2016 needs to account for which tab
-    void setCardCountCallback(int newCount, int position, boolean mainboardChange); //ModifyCardEntryFragment communicates AddCardsToDeckFragment through its host activity
+    void setCardCountCallback(int newCount, int position, boolean mainboardChange); //ModifyCardEntryFragment communicates EditDeckFragment through its host activity
 
     void respondToAdapterEditDeckButton(ArrayList<Card> mainboardContents, ArrayList<Card> sideboardContents, String deckName, int deckIndex); //allows host activity to respond to RecyclerView's button click
 
-    void getModifiedDeck(ArrayList<Card> mainboard, ArrayList<Card> sideboard, int deckIndex, String deckName); //AddCardsToDeckFragment gives back a modified deck to host activity
+    void getModifiedDeck(ArrayList<Card> mainboard, ArrayList<Card> sideboard, int deckIndex, String deckName); //EditDeckFragment gives back a modified deck to host activity
 
     void initCardImageCallback(int position, boolean mainboardCard); //called within NonLand class by initializeImage inorder to have the horizontal adapter show the card images
 
@@ -36,7 +36,7 @@ Todo:
 - delete deck when last card is deleted + option to delete decks                                            1/2 DONE
 - have deck names                                                                                           DONE
 - saved decks needs to show both number and name of card                                                    DONE
-- able to sort decks (start with alphabetical)
+- able to sort decks (cmc)                                                                                  DONE (add cards in cmc order)
 - on saving new deck wipe create deck list                                                                  DONE
 - handle attempting to add 2 decks with same name
 - fix the inconcistency detetected bug. (passing by reference causes this, clone object)                    DONE

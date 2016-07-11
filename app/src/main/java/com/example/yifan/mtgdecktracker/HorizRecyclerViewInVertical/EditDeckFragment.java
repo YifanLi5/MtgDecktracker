@@ -34,13 +34,15 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Timer;
 import java.util.TimerTask;
 
 
-public class AddCardsToDeckFragment extends Fragment implements ConfirmResetDialogFragment.ConfirmResetDialogCallbacks{
-    private static final String LOG_TAG = AddCardsToDeckFragment.class.getSimpleName();
+public class EditDeckFragment extends Fragment implements ConfirmResetDialogFragment.ConfirmResetDialogCallbacks{
+    private static final String LOG_TAG = EditDeckFragment.class.getSimpleName();
     private View rootView;
     private JSONObject selectedJSON;
     private String mDeckName;
@@ -63,9 +65,14 @@ public class AddCardsToDeckFragment extends Fragment implements ConfirmResetDial
     private ArrayList<Card> mSideboardCopy;
     private HashSet<String> mMainboardSet; //used to prevent duplicate cards from being entered
     private HashSet<String> mSideboardSet;
+    private TextView mMainboardTotalCardsTV;
+    private TextView mSideboardTotalCardsTV;
+    private int mainboardCardCounter;
+    private int sideboardCardCounter;
+    private static final String CARD_COUNT_STARTER = "Card count: ";
 
     private ModifyCardEntryFragment modifyCardFragment;
-    private static AddCardsToDeckFragment singletonInstance;
+    private static EditDeckFragment singletonInstance;
     private FragmentActivityAdapterCommunicator hostActivity;
 
     //strings for bundle keys
@@ -75,7 +82,7 @@ public class AddCardsToDeckFragment extends Fragment implements ConfirmResetDial
     private static final String SIDEBOARD_CONTENTS = "SideboardContents";
     private static final String DECK_INDEX = "DeckIndex";
 
-    public AddCardsToDeckFragment() {
+    public EditDeckFragment() {
         // Required empty public constructor
     }
 
@@ -91,10 +98,10 @@ public class AddCardsToDeckFragment extends Fragment implements ConfirmResetDial
 
     //used when editing an existing deck
 
-    public static AddCardsToDeckFragment getInstance(ArrayList<Card> mainboardContents, ArrayList<Card> sideboardContents, String deckName, int deckIndex){
+    public static EditDeckFragment getInstance(ArrayList<Card> mainboardContents, ArrayList<Card> sideboardContents, String deckName, int deckIndex){
         Log.d("Testing FSM", "edit existing deck");
         if(singletonInstance == null){ //fragment isn't created meaning we are in starting state, therefore create it to get to edit deck state as that was what was selected by user
-            singletonInstance = new AddCardsToDeckFragment();
+            singletonInstance = new EditDeckFragment();
             Bundle args = new Bundle();
             args.putInt(DECK_INDEX, deckIndex);
             args.putBoolean(EDIT_EXISTING_DECK, true);  //bundle arguement for whether we the fragment's state is to edit an exsting deck
@@ -106,11 +113,11 @@ public class AddCardsToDeckFragment extends Fragment implements ConfirmResetDial
         }
         else{
             Bundle lastArgs = singletonInstance.getArguments();
-            if(lastArgs.getBoolean(EDIT_EXISTING_DECK) && lastArgs.getString("DeckName").equals(deckName)){ //check if the last state was editing an existing deck and if we are rediting the same deck
+            if(lastArgs.getBoolean(EDIT_EXISTING_DECK) &&  lastArgs.getString("DeckName").equals(deckName)){ //check if the last state was editing an existing deck and if we are rediting the same deck
                 return singletonInstance; //then no changes necessary.
             }
             else{ //fragment already exists but editing new deck
-                singletonInstance = new AddCardsToDeckFragment();
+                singletonInstance = new EditDeckFragment();
                 Bundle args = new Bundle();
                 args.putInt(DECK_INDEX, deckIndex);
                 args.putBoolean(EDIT_EXISTING_DECK, true);
@@ -124,10 +131,10 @@ public class AddCardsToDeckFragment extends Fragment implements ConfirmResetDial
     }
 
     //used when creating a new deck
-    public static AddCardsToDeckFragment getInstance(String deckName, int newDeckNumber){
+    public static EditDeckFragment getInstance(String deckName, int newDeckNumber){
         Log.d("Testing FSM", "testing create new deck");
         if(singletonInstance == null){ //fragment isn't created, create it in create deck mode with empty mMainboard
-            singletonInstance = new AddCardsToDeckFragment();
+            singletonInstance = new EditDeckFragment();
             Bundle args = new Bundle();
             args.putBoolean(EDIT_EXISTING_DECK, false);
             args.putString(DECK_NAME, deckName + newDeckNumber);
@@ -141,7 +148,7 @@ public class AddCardsToDeckFragment extends Fragment implements ConfirmResetDial
                 return singletonInstance;
             }
             else{ //otherwise the last state was edit existing deck, create new instance of singleton
-                singletonInstance = new AddCardsToDeckFragment();
+                singletonInstance = new EditDeckFragment();
                 Bundle args = new Bundle();
                 args.putBoolean(EDIT_EXISTING_DECK, false);
                 args.putString(DECK_NAME, deckName + newDeckNumber);
@@ -156,11 +163,12 @@ public class AddCardsToDeckFragment extends Fragment implements ConfirmResetDial
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         Log.d(LOG_TAG, "creating fragment " + LOG_TAG);
-        rootView = inflater.inflate(R.layout.fragment_add_cards_to_deck, container, false);
+        rootView = inflater.inflate(R.layout.fragment_edit_deck, container, false);
         mQuantityToAdd = (EditText) rootView.findViewById(R.id.card_quantity_field);
         mDeckNameField = (EditText) rootView.findViewById(R.id.deck_name_field);
         hostActivity = (FragmentActivityAdapterCommunicator) getActivity();
 
+        // TODO: 7/11/2016 see if this part can be simplified
         if(savedInstanceState != null){
             this.mDeckName = savedInstanceState.getString(DECK_NAME);
             this.mMainboardOriginal = savedInstanceState.getParcelableArrayList(MAINBOARD_CONTENTS);
@@ -224,6 +232,7 @@ public class AddCardsToDeckFragment extends Fragment implements ConfirmResetDial
             mSideboardSet = new HashSet<>();
         }
 
+        cardCounterSetup();
         autoCompleteSetUp();
         buttonsSetUp();
         tabsSetUp();
@@ -236,6 +245,34 @@ public class AddCardsToDeckFragment extends Fragment implements ConfirmResetDial
         super.onSaveInstanceState(outState);
         outState.putParcelableArrayList(MAINBOARD_CONTENTS, mMainboardOriginal); //this will make a flip overwrite changes
         outState.putString(DECK_NAME, mDeckName);
+
+    }
+
+    private void cardCounterSetup(){
+        mMainboardTotalCardsTV = (TextView) rootView.findViewById(R.id.current_mainboard_card_count);
+        mSideboardTotalCardsTV = (TextView) rootView.findViewById(R.id.current_sideboard_card_count);
+        if(mMainboardOriginal.isEmpty()){
+            mainboardCardCounter = 0;
+        }
+        else{
+            for(Card card: mMainboardOriginal){
+                mainboardCardCounter += card.getTotal();
+            }
+        }
+
+        if(mSideboardOriginal.isEmpty()){
+            sideboardCardCounter = 0;
+        }
+        else{
+            for(Card card: mSideboardOriginal){
+                sideboardCardCounter += card.getTotal();
+            }
+        }
+
+        String temp = CARD_COUNT_STARTER + mainboardCardCounter;
+        mMainboardTotalCardsTV.setText(temp);
+        temp = CARD_COUNT_STARTER + sideboardCardCounter;
+        mSideboardTotalCardsTV.setText(temp);
 
     }
 
@@ -255,6 +292,10 @@ public class AddCardsToDeckFragment extends Fragment implements ConfirmResetDial
         }
         else {
             Card targetCard = mMainboardCopy.get(positionClicked);
+            int quantityDelta = newQuantity - targetCard.getTotal(); //if quantityDelta is negative, card count decreased, vice versa for positive
+            mainboardCardCounter += quantityDelta; //therefore simply add
+            String temp = CARD_COUNT_STARTER + mainboardCardCounter;
+            mMainboardTotalCardsTV.setText(temp);
             targetCard.setTotal(newQuantity);
             mMainboardAdapter.notifyDataSetChanged();
         }
@@ -262,6 +303,9 @@ public class AddCardsToDeckFragment extends Fragment implements ConfirmResetDial
 
     private void deleteMainboardCard(int positionClicked) {
         //remove from arraylist and set, remove from set FIRST b/c set requires arraylist to get the item
+        mainboardCardCounter -= mMainboardCopy.get(positionClicked).getTotal();
+        String temp = CARD_COUNT_STARTER + mainboardCardCounter;
+        mMainboardTotalCardsTV.setText(temp);
         mMainboardSet.remove(mMainboardCopy.get(positionClicked).getName());
         mMainboardCopy.remove(positionClicked);
         mMainboardAdapter.notifyDataSetChanged();
@@ -273,12 +317,19 @@ public class AddCardsToDeckFragment extends Fragment implements ConfirmResetDial
         }
         else{
             Card targetCard = mSideboardCopy.get(positionClicked);
+            int quantityDelta = newQuantity - targetCard.getTotal();
+            sideboardCardCounter += quantityDelta;
+            String temp = CARD_COUNT_STARTER + sideboardCardCounter;
+            mSideboardTotalCardsTV.setText(temp);
             targetCard.setTotal(newQuantity);
             mSideboardAdapter.notifyDataSetChanged();
         }
     }
 
     private void deleteSideboardCard(int positionClicked){
+        sideboardCardCounter -= mSideboardCopy.get(positionClicked).getTotal();
+        String temp = CARD_COUNT_STARTER + sideboardCardCounter;
+        mSideboardTotalCardsTV.setText(temp);
         mSideboardSet.remove(mSideboardCopy.get(positionClicked).getName());
         mSideboardCopy.remove(positionClicked);
         mSideboardAdapter.notifyDataSetChanged();
@@ -354,7 +405,7 @@ public class AddCardsToDeckFragment extends Fragment implements ConfirmResetDial
                 @Override
                 public void onClick(View v) {
                     ConfirmResetDialogFragment dialog = new ConfirmResetDialogFragment();
-                    dialog.setTargetFragment(AddCardsToDeckFragment.this, 1);
+                    dialog.setTargetFragment(EditDeckFragment.this, 1);
                     dialog.show(getFragmentManager(), "ConfirmResetDialogFragment");
                 }
             });
@@ -383,8 +434,11 @@ public class AddCardsToDeckFragment extends Fragment implements ConfirmResetDial
                     NonLand newEntry = new NonLand(selectedJSON, numToAdd);
                     if(tabHost.getCurrentTab() == 0){ //in mainboard tab, add to mainboard
                         if (mMainboardSet.add(newEntry.getName())) { //check if adding duplicates
-                            mMainboardCopy.add(newEntry);
+                            insertInCmcOrder(mMainboardCopy, newEntry);
                             StaticUtilityMethods.hideKeyboardFrom(getContext(), rootView); //listview only updates after keyboard is pulled down, use this method
+                            mainboardCardCounter += numToAdd;
+                            String temp = CARD_COUNT_STARTER + mainboardCardCounter;
+                            mMainboardTotalCardsTV.setText(temp);
                             mMainboardAdapter.notifyDataSetChanged();
 
                         } else {
@@ -394,8 +448,11 @@ public class AddCardsToDeckFragment extends Fragment implements ConfirmResetDial
                     }
                     else if(tabHost.getCurrentTab() == 1){ //in sideboard tab, add to sideboard
                         if(mSideboardSet.add(newEntry.getName())){
-                            mSideboardCopy.add(newEntry);
+                            insertInCmcOrder(mSideboardCopy, newEntry);
                             StaticUtilityMethods.hideKeyboardFrom(getContext(), rootView);
+                            sideboardCardCounter += numToAdd;
+                            String temp = CARD_COUNT_STARTER + mainboardCardCounter;
+                            mSideboardTotalCardsTV.setText(temp);
                             mSideboardAdapter.notifyDataSetChanged();
                         } else{
                             Toast.makeText(getContext(), "Card already added into Sideboard, modify quantities by touching the list.", Toast.LENGTH_LONG).show();
@@ -455,6 +512,25 @@ public class AddCardsToDeckFragment extends Fragment implements ConfirmResetDial
         });
     }
 
+    private void insertInCmcOrder(ArrayList<Card> targetBoard, Card newEntry){
+        int insertionPos = Collections.binarySearch(targetBoard, newEntry, new Comparator<Card>() {
+            @Override
+            public int compare(Card lhs, Card rhs) {
+                int rhsCmc = rhs.getCmc();
+                int lhsCmc = lhs.getCmc();
+                if(lhsCmc > rhsCmc){
+                    return 1;
+                }
+                else{
+                    return -1;
+                }
+            }
+        });
+        if(insertionPos < 0){
+            targetBoard.add(-insertionPos - 1, newEntry);
+        }
+    }
+
     private void saveButtonInitImageHelper(){
         for(int i = 0; i < mMainboardCopy.size(); i++){
             Card card = mMainboardCopy.get(i);
@@ -463,7 +539,7 @@ public class AddCardsToDeckFragment extends Fragment implements ConfirmResetDial
             }
             if(!((NonLand)card).initImage){
                 try {
-                    ((NonLand) card).initializeImage(AddCardsToDeckFragment.this, i, getActivity(), true);
+                    ((NonLand) card).initializeImage(EditDeckFragment.this, i, getActivity(), true);
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (URISyntaxException e) {
@@ -480,7 +556,7 @@ public class AddCardsToDeckFragment extends Fragment implements ConfirmResetDial
             }
             if(!((NonLand)card).initImage){
                 try {
-                    ((NonLand) card).initializeImage(AddCardsToDeckFragment.this, i, getActivity(), false);
+                    ((NonLand) card).initializeImage(EditDeckFragment.this, i, getActivity(), false);
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (URISyntaxException e) {
@@ -539,7 +615,7 @@ public class AddCardsToDeckFragment extends Fragment implements ConfirmResetDial
 
     private void autoCompleteSetUp() {
         mAutoCompleteEntryField = (AutoCompleteTextView) rootView.findViewById(R.id.auto_complete_field);
-        mAutoCompleteAdapter = new ArrayAdapterNoFilter(this.getActivity(), android.R.layout.select_dialog_item);
+        mAutoCompleteAdapter = new ArrayAdapterNoFilter(this.getActivity(), R.layout.autocomplete_suggestion_item_layout, R.id.autocomplete_suggestion);
         mAutoCompleteAdapter.setNotifyOnChange(true);
         mAutoCompleteEntryField.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override

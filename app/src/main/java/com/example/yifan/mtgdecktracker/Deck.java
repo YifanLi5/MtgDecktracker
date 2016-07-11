@@ -53,20 +53,24 @@ public class Deck implements Serializable, Parcelable{
         sideBoard.add(card);
     }
 
-    public void sortListCmc(){
+    public void sortDeckCmc(){
         Collections.sort(mainBoard, new Comparator<Card>() {
             @Override
             public int compare(Card lhs, Card rhs) {
-                int rhsCmc = rhs.getCmc();
-                int lhsCmc = lhs.getCmc();
-                if(lhsCmc < rhsCmc){
-                    return 1;
-                }
-                else{
-                    return -1;
-                }
+            int rhsCmc = rhs.getCmc();
+            int lhsCmc = lhs.getCmc();
+            if(lhsCmc < rhsCmc){
+                return 1;
+            }
+            else{
+                return -1;
+            }
             }
         });
+    }
+
+    public void sortDeckAlphabetical(){
+
     }
 
     @Override
@@ -82,13 +86,13 @@ public class Deck implements Serializable, Parcelable{
 
     protected Deck(Parcel in) {
         if (in.readByte() == 0x01) {
-            mainBoard = new ArrayList<Card>();
+            mainBoard = new ArrayList<>();
             in.readList(mainBoard, Card.class.getClassLoader());
         } else {
             mainBoard = null;
         }
         if (in.readByte() == 0x01) {
-            sideBoard = new ArrayList<Card>();
+            sideBoard = new ArrayList<>();
             in.readList(sideBoard, Card.class.getClassLoader());
         } else {
             sideBoard = null;

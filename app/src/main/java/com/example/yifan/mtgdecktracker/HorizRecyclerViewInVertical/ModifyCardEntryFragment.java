@@ -28,7 +28,7 @@ public class ModifyCardEntryFragment extends Fragment {
     private Button mRemoveCard;
     private Button mSave;
     private ImageButton mCloseButton;
-    private FragmentActivityAdapterCommunicator hostActivity; //AddCardsToDeckFragment communicates with this Fragment thru the host activity, that host activity implements FragmentActivityAdapterCommunicator
+    private FragmentActivityAdapterCommunicator hostActivity; //EditDeckFragment communicates with this Fragment thru the host activity, that host activity implements FragmentActivityAdapterCommunicator
     private int positionClicked; //This fragment should hold the position of the item clicked in the listview so if the item is deleted we know which one to delete (which index to remove from the arraylist). Lessens errors with passing it internally.
     private static ModifyCardEntryFragment singletonInstance;
 
