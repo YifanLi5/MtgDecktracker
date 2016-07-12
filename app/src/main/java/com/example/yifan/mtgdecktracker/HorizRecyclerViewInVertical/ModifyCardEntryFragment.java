@@ -74,7 +74,6 @@ public class ModifyCardEntryFragment extends Fragment {
         mRemoveCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // FIXME: 7/6/2016 crash when remove from sideboard
                 hostActivity.setCardCountCallback(0, positionClicked, getArguments().getBoolean(MAINBOARD_CHANGE));
                 StaticUtilityMethods.hideKeyboardFrom(getContext(), rootView);
                 StaticUtilityMethods.closeThisFragment(getActivity(), ModifyCardEntryFragment.this);

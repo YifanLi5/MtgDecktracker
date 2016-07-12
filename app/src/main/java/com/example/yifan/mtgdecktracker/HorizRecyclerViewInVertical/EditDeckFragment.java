@@ -69,7 +69,8 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
     private TextView mSideboardTotalCardsTV;
     private int mainboardCardCounter;
     private int sideboardCardCounter;
-    private static final String CARD_COUNT_STARTER = "Card count: ";
+    private static final String MAINBOARD_CARD_COUNT_STARTER = "Mainboard Cards: ";
+    private static final String SIDEBOARD_CARD_COUNT_STARTER = "Sideboard Cards: ";
 
     private ModifyCardEntryFragment modifyCardFragment;
     private static EditDeckFragment singletonInstance;
@@ -269,9 +270,9 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
             }
         }
 
-        String temp = CARD_COUNT_STARTER + mainboardCardCounter;
+        String temp = MAINBOARD_CARD_COUNT_STARTER + mainboardCardCounter;
         mMainboardTotalCardsTV.setText(temp);
-        temp = CARD_COUNT_STARTER + sideboardCardCounter;
+        temp = SIDEBOARD_CARD_COUNT_STARTER + sideboardCardCounter;
         mSideboardTotalCardsTV.setText(temp);
 
     }
@@ -294,7 +295,7 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
             Card targetCard = mMainboardCopy.get(positionClicked);
             int quantityDelta = newQuantity - targetCard.getTotal(); //if quantityDelta is negative, card count decreased, vice versa for positive
             mainboardCardCounter += quantityDelta; //therefore simply add
-            String temp = CARD_COUNT_STARTER + mainboardCardCounter;
+            String temp = MAINBOARD_CARD_COUNT_STARTER + mainboardCardCounter;
             mMainboardTotalCardsTV.setText(temp);
             targetCard.setTotal(newQuantity);
             mMainboardAdapter.notifyDataSetChanged();
@@ -304,7 +305,7 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
     private void deleteMainboardCard(int positionClicked) {
         //remove from arraylist and set, remove from set FIRST b/c set requires arraylist to get the item
         mainboardCardCounter -= mMainboardCopy.get(positionClicked).getTotal();
-        String temp = CARD_COUNT_STARTER + mainboardCardCounter;
+        String temp = MAINBOARD_CARD_COUNT_STARTER + mainboardCardCounter;
         mMainboardTotalCardsTV.setText(temp);
         mMainboardSet.remove(mMainboardCopy.get(positionClicked).getName());
         mMainboardCopy.remove(positionClicked);
@@ -319,7 +320,7 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
             Card targetCard = mSideboardCopy.get(positionClicked);
             int quantityDelta = newQuantity - targetCard.getTotal();
             sideboardCardCounter += quantityDelta;
-            String temp = CARD_COUNT_STARTER + sideboardCardCounter;
+            String temp = SIDEBOARD_CARD_COUNT_STARTER + sideboardCardCounter;
             mSideboardTotalCardsTV.setText(temp);
             targetCard.setTotal(newQuantity);
             mSideboardAdapter.notifyDataSetChanged();
@@ -328,7 +329,7 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
 
     private void deleteSideboardCard(int positionClicked){
         sideboardCardCounter -= mSideboardCopy.get(positionClicked).getTotal();
-        String temp = CARD_COUNT_STARTER + sideboardCardCounter;
+        String temp = SIDEBOARD_CARD_COUNT_STARTER + sideboardCardCounter;
         mSideboardTotalCardsTV.setText(temp);
         mSideboardSet.remove(mSideboardCopy.get(positionClicked).getName());
         mSideboardCopy.remove(positionClicked);
@@ -437,7 +438,7 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
                             insertInCmcOrder(mMainboardCopy, newEntry);
                             StaticUtilityMethods.hideKeyboardFrom(getContext(), rootView); //listview only updates after keyboard is pulled down, use this method
                             mainboardCardCounter += numToAdd;
-                            String temp = CARD_COUNT_STARTER + mainboardCardCounter;
+                            String temp = MAINBOARD_CARD_COUNT_STARTER + mainboardCardCounter;
                             mMainboardTotalCardsTV.setText(temp);
                             mMainboardAdapter.notifyDataSetChanged();
 
@@ -451,7 +452,7 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
                             insertInCmcOrder(mSideboardCopy, newEntry);
                             StaticUtilityMethods.hideKeyboardFrom(getContext(), rootView);
                             sideboardCardCounter += numToAdd;
-                            String temp = CARD_COUNT_STARTER + mainboardCardCounter;
+                            String temp = SIDEBOARD_CARD_COUNT_STARTER + mainboardCardCounter;
                             mSideboardTotalCardsTV.setText(temp);
                             mSideboardAdapter.notifyDataSetChanged();
                         } else{
@@ -482,6 +483,7 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
                     if(getArguments().getBoolean(EDIT_EXISTING_DECK)){
                         hostActivity.getModifiedDeck(mMainboardCopy, mSideboardCopy, getArguments().getInt(DECK_INDEX), mDeckName);
                     }
+                    hostActivity.closeDrawer(Gravity.START);
                 }
                 else{
                     //clone main and sideboards over as they changed and we can overwrite
@@ -493,6 +495,7 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
 
                     if(getArguments().containsKey(DECK_INDEX)){ //check if fragment has index of where it is in the host activity's vertical recyclerview, this means that we are modifying an existing deck
                         hostActivity.getModifiedDeck(mMainboardCopy, mSideboardCopy, getArguments().getInt(DECK_INDEX), mDeckName);
+                        hostActivity.closeDrawer(Gravity.START);
                     }
 
                     else{ //creating new deck
@@ -501,12 +504,10 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
                         mQuantityToAdd.setText("");
                         mAutoCompleteEntryField.setText("");
                         mDeckNameField.setText("");
-
+                        hostActivity.closeDrawer(Gravity.START);
                     }
 
                 }
-
-                hostActivity.closeDrawer(Gravity.START);
             }
 
         });
@@ -604,6 +605,8 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
         for(Card card: mSideboardOriginal){
             mSideboardSet.add(card.getName());
         }
+
+        cardCounterSetup();
 
     }
 

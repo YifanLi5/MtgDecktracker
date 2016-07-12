@@ -33,7 +33,7 @@ Todo:
 - Actually have images, (init images) - glide api?                                                          DONE
 - crop card images                                                                                          DONE
 - save images(bitmaps) somehow                                                                              DONE
-- delete deck when last card is deleted + option to delete decks                                            1/2 DONE
+- delete deck when last card is deleted + option to delete decks                                            DONE
 - have deck names                                                                                           DONE
 - saved decks needs to show both number and name of card                                                    DONE
 - able to sort decks (cmc)                                                                                  DONE (add cards in cmc order)

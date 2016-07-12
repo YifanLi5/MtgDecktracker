@@ -22,5 +22,8 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="Deck_Name">Deck Name</string>
+    <string name="play_deck">Play Deck</string>
+    <string name="edit_deck">Edit Deck</string>
+    <string name="delete_deck">Delete Deck</string>
 
 </resources>
