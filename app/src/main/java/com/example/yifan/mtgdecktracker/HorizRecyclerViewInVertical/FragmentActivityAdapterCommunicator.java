@@ -23,6 +23,12 @@ public interface FragmentActivityAdapterCommunicator {
 
     void lockOrUnlockdrawer(int lockmode, int gravity); //locks or unlocks drawer based on the drawer's gravity
 
+    void respondToCardImageClick(Card selectedCard, int recyclerViewIndex, boolean mainboardCard, int startingEditionIndex);
+
+    void respondToDeleteDeckRequest(int recyclerViewIndex);
+
+
+
 }
 
 
@@ -38,8 +44,11 @@ Todo:
 - saved decks needs to show both number and name of card                                                    DONE
 - able to sort decks (cmc)                                                                                  DONE (add cards in cmc order)
 - on saving new deck wipe create deck list                                                                  DONE
-- handle attempting to add 2 decks with same name
+- handle attempting to add 2 decks with same name                                                           DONE (decks can have same name, fixed so that it doesn't matter anymore)
 - fix the inconcistency detetected bug. (passing by reference causes this, clone object)                    DONE
 - ability to have sideboard                                                                                 DONE
 - fix images not loading until ui is refreshed if trying to load too many                                   DONE
+- add confirmation before deleting deck in dropdown menu
+- when clicking on card image in SavedDecksActivity open a fragment showing a bigger image
+- inside the above mentioned fragment ^, give user ability to switch card image to one of different set
  */

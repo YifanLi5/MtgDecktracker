@@ -11,11 +11,14 @@ import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.example.yifan.mtgdecktracker.HorizRecyclerViewInVertical.SavedDecksActivity;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 
 /**
  * Created by Yifan on 5/21/2016.
@@ -23,6 +26,8 @@ import java.net.URISyntaxException;
 public class NonLand extends Card {
 
     public boolean initImage = false;
+    private ArrayList<Edition> editions;
+    private int currentEditionIndex = -1;
 
     public NonLand(String name, int cmc, String cost, String imageURL) {
         this.name = name;
@@ -44,7 +49,8 @@ public class NonLand extends Card {
         this.name = jsonCard.getString("name");
         this.cmc = jsonCard.getInt("cmc");
         this.cost = jsonCard.getString("cost");
-        this.imageURL = jsonCard.getJSONArray("editions").getJSONObject(0).getString("image_url");
+        //this.imageURL = jsonCard.getJSONArray("editions").getJSONObject(0).getString("image_url");
+        this.editions = fillEditionArray(jsonCard.getJSONArray("editions"));
         this.total = total;
     }
 
@@ -58,6 +64,11 @@ public class NonLand extends Card {
         imageURL = in.readString();
         cardImage = (Bitmap) in.readValue(Bitmap.class.getClassLoader());
         initImage = in.readByte() != 0; //initImage == true if byte != 0
+        if(in.readByte() == 0x01){
+            in.readList(getEditions(), Edition.class.getClassLoader());
+        }
+
+
     }
 
     @Override
@@ -76,6 +87,13 @@ public class NonLand extends Card {
         dest.writeString(imageURL);
         dest.writeValue(cardImage);
         dest.writeByte((byte) (initImage ? 1 : 0)); //if initImage == true, byte == 1
+        if(getEditions() == null){
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeList(getEditions());
+        }
+
     }
 
     public static final Parcelable.Creator<Card> CREATOR = new Parcelable.Creator<Card>() {
@@ -90,9 +108,10 @@ public class NonLand extends Card {
         }
     };
 
-    public void initializeImage(Fragment fragment, final int recyclerViewPosition, final Context context, final boolean mainboardCard) throws IOException, URISyntaxException {
+    public void initializeImage(Fragment fragment, final int recyclerViewPosition, final Context context, final boolean mainboardCard, int editionIndex) throws IOException, URISyntaxException {
+        currentEditionIndex = editionIndex;
         Glide.with(fragment)
-                .load(imageURL)
+                .load(editions.get(currentEditionIndex).imageURL) //edition index is which printing of the card to load, usually editionIndex is called with 0 to load the most recent
                 .asBitmap()
                 .into(new SimpleTarget<Bitmap>() {
                     @Override
@@ -103,6 +122,7 @@ public class NonLand extends Card {
                             ((SavedDecksActivity) context).initCardImageCallback(recyclerViewPosition, mainboardCard);
                         }
                     }
+
                 });
 
     }
@@ -132,10 +152,79 @@ public class NonLand extends Card {
         return cardImage;
     }
 
+    public ArrayList<Edition> getEditions() {
+        return editions;
+    }
+
+    public void setCurrentEditionIndex(int currentEditionIndex) {
+        this.currentEditionIndex = currentEditionIndex;
+    }
+
+    public int getCurrentEditionIndex(){
+        return currentEditionIndex;
+    }
+
     @Override
     public String toString() {
         return "name: " + name + " total: " + total;
 
+    }
+
+    public static class Edition implements Serializable, Parcelable{
+        String set;
+        String imageURL;
+
+        public Edition(JSONObject editionJSON) throws JSONException {
+            this.set = editionJSON.getString("set");
+            this.imageURL = editionJSON.getString("image_url");
+        }
+
+        protected Edition(Parcel in){
+            set = in.readString();
+            imageURL = in.readString();
+        }
+
+        public String getSet() {
+            return set;
+        }
+
+        public String getImageURL() {
+            return imageURL;
+        }
+
+        @Override
+        public String toString() {
+            return "set: " + set + " imageURL: " + imageURL;
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeString(set);
+            dest.writeString(imageURL);
+        }
+
+        public static final Creator<Edition> CREATOR = new Creator<Edition>() {
+            public Edition createFromParcel(Parcel in) {
+                return new Edition(in);
+            }
+
+            public Edition[] newArray(int size) {
+                return new Edition[size];
+            }
+        };
+    }
+
+    public ArrayList<Edition> fillEditionArray(JSONArray editionsJSONArr) throws JSONException {
+        ArrayList<Edition> editionsReturn = new ArrayList<>();
+        for(int i = editionsJSONArr.length() - 1; i >= 0; i--){ //add in reverse order, the card at the beginning of the arraylist oldest release and least likely to be a blank
+            editionsReturn.add(new Edition(editionsJSONArr.getJSONObject(i)));
+        }
+        return editionsReturn;
     }
 
 

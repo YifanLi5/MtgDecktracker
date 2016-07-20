@@ -5,8 +5,6 @@ import android.os.Parcelable;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 
 /**
  * Created by Yifan on 5/7/2016.
@@ -51,26 +49,6 @@ public class Deck implements Serializable, Parcelable{
 
     public void addToSideBoard(Card card){
         sideBoard.add(card);
-    }
-
-    public void sortDeckCmc(){
-        Collections.sort(mainBoard, new Comparator<Card>() {
-            @Override
-            public int compare(Card lhs, Card rhs) {
-            int rhsCmc = rhs.getCmc();
-            int lhsCmc = lhs.getCmc();
-            if(lhsCmc < rhsCmc){
-                return 1;
-            }
-            else{
-                return -1;
-            }
-            }
-        });
-    }
-
-    public void sortDeckAlphabetical(){
-
     }
 
     @Override

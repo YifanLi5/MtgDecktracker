@@ -25,8 +25,8 @@ public class ModifyCardEntryFragment extends Fragment {
     private View rootView;
     private TextView mCardName;
     private EditText mCardQuantity;
-    private Button mRemoveCard;
-    private Button mSave;
+    private Button mRemoveBtn;
+    private Button mConfirmBtn;
     private ImageButton mCloseButton;
     private FragmentActivityAdapterCommunicator hostActivity; //EditDeckFragment communicates with this Fragment thru the host activity, that host activity implements FragmentActivityAdapterCommunicator
     private int positionClicked; //This fragment should hold the position of the item clicked in the listview so if the item is deleted we know which one to delete (which index to remove from the arraylist). Lessens errors with passing it internally.
@@ -67,27 +67,29 @@ public class ModifyCardEntryFragment extends Fragment {
     }
 
     private void buttonsSetUp(){
-        mRemoveCard = (Button) rootView.findViewById(R.id.remove_card);
-        mSave = (Button) rootView.findViewById(R.id.save);
+        mRemoveBtn = (Button) rootView.findViewById(R.id.remove_card);
+        mConfirmBtn = (Button) rootView.findViewById(R.id.confirm_btn);
         mCloseButton = (ImageButton) rootView.findViewById(R.id.close_btn);
 
-        mRemoveCard.setOnClickListener(new View.OnClickListener() {
+        mRemoveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 hostActivity.setCardCountCallback(0, positionClicked, getArguments().getBoolean(MAINBOARD_CHANGE));
                 StaticUtilityMethods.hideKeyboardFrom(getContext(), rootView);
-                StaticUtilityMethods.closeThisFragment(getActivity(), ModifyCardEntryFragment.this);
+                hostActivity.closeDrawer(Gravity.END);
+                //StaticUtilityMethods.closeThisFragment(getActivity(), ModifyCardEntryFragment.this);
             }
         });
 
-        mSave.setOnClickListener(new View.OnClickListener() {
+        mConfirmBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String newCardQuantity = mCardQuantity.getText().toString();
                 try{
                     hostActivity.setCardCountCallback(Integer.parseInt(newCardQuantity), positionClicked, getArguments().getBoolean(MAINBOARD_CHANGE));
                     StaticUtilityMethods.hideKeyboardFrom(getContext(), rootView);
-                    StaticUtilityMethods.closeThisFragment(getActivity(), ModifyCardEntryFragment.this);
+                    hostActivity.closeDrawer(Gravity.END);
+                    //StaticUtilityMethods.closeThisFragment(getActivity(), ModifyCardEntryFragment.this);
                 }
                 catch(NumberFormatException ex){
                     Toast.makeText(getContext(), "invalid number for quantity", Toast.LENGTH_SHORT).show();
@@ -100,7 +102,7 @@ public class ModifyCardEntryFragment extends Fragment {
             public void onClick(View v) {
                 StaticUtilityMethods.hideKeyboardFrom(getContext(), rootView);
                 hostActivity.closeDrawer(Gravity.END);
-                StaticUtilityMethods.closeThisFragment(getActivity(), ModifyCardEntryFragment.this);
+                //StaticUtilityMethods.closeThisFragment(getActivity(), ModifyCardEntryFragment.this);
             }
         });
     }

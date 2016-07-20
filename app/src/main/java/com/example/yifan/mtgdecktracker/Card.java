@@ -20,6 +20,7 @@ public abstract class Card implements Parcelable, Serializable{
     int inDeck; //number of this card remaining in deck
     int notInDeck; //number not in deck, i.e: in graveyard, hand, field, exile
     String cost;
+
     String imageURL;
     Bitmap cardImage;
 
@@ -108,4 +109,6 @@ public abstract class Card implements Parcelable, Serializable{
         this.imageURL = "NoData";
         this.cardImage = null;
     }
+
+
 }

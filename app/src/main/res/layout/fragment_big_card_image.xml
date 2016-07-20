@@ -1,0 +1,55 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="10dp"
+    android:background="@color/white"
+    tools:context="com.example.yifan.mtgdecktracker.HorizRecyclerViewInVertical.BigCardImageFragment">
+
+    <ImageButton
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:id="@+id/close_btn"
+        android:src="@mipmap/ic_close_btn"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="400dp"
+        android:scaleType="fitXY"
+        android:src="@mipmap/ic_placeholder_card"
+        android:id="@+id/big_card_imageview"
+        android:layout_below="@+id/close_btn"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="5dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Set Selection:"
+        android:layout_below="@+id/big_card_imageview"
+        android:id="@+id/set_selection"/>
+
+    <Spinner
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/set_spinner"
+        android:layout_marginTop="5dp"
+        android:layout_below="@+id/set_selection"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Ok"
+        android:id="@+id/ok_btn"
+        android:layout_alignParentBottom="true"
+        android:layout_alignRight="@+id/big_card_imageview"
+        android:layout_alignEnd="@+id/big_card_imageview" />
+
+
+</RelativeLayout>

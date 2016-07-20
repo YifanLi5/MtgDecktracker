@@ -98,7 +98,6 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
      */
 
     //used when editing an existing deck
-
     public static EditDeckFragment getInstance(ArrayList<Card> mainboardContents, ArrayList<Card> sideboardContents, String deckName, int deckIndex){
         Log.d("Testing FSM", "edit existing deck");
         if(singletonInstance == null){ //fragment isn't created meaning we are in starting state, therefore create it to get to edit deck state as that was what was selected by user
@@ -114,7 +113,7 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
         }
         else{
             Bundle lastArgs = singletonInstance.getArguments();
-            if(lastArgs.getBoolean(EDIT_EXISTING_DECK) &&  lastArgs.getString("DeckName").equals(deckName)){ //check if the last state was editing an existing deck and if we are rediting the same deck
+            if(lastArgs.getBoolean(EDIT_EXISTING_DECK) &&  lastArgs.getInt(DECK_INDEX) == deckIndex){ //check if the last state was editing an existing deck and if we are rediting the same deck
                 return singletonInstance; //then no changes necessary.
             }
             else{ //fragment already exists but editing new deck
@@ -132,6 +131,7 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
     }
 
     //used when creating a new deck
+    // FIXME: 7/12/2016 Adding new deck retains card counts previous deck edited
     public static EditDeckFragment getInstance(String deckName, int newDeckNumber){
         Log.d("Testing FSM", "testing create new deck");
         if(singletonInstance == null){ //fragment isn't created, create it in create deck mode with empty mMainboard
@@ -405,8 +405,8 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
             mResetButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    ConfirmResetDialogFragment dialog = new ConfirmResetDialogFragment();
-                    dialog.setTargetFragment(EditDeckFragment.this, 1);
+                    //ConfirmResetDialogFragment dialog = new ConfirmResetDialogFragment();
+                    ConfirmResetDialogFragment dialog = ConfirmResetDialogFragment.getInstanceForFragment("Cancel Deck Changes?", EditDeckFragment.this);
                     dialog.show(getFragmentManager(), "ConfirmResetDialogFragment");
                 }
             });
@@ -497,7 +497,6 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
                         hostActivity.getModifiedDeck(mMainboardCopy, mSideboardCopy, getArguments().getInt(DECK_INDEX), mDeckName);
                         hostActivity.closeDrawer(Gravity.START);
                     }
-
                     else{ //creating new deck
                         hostActivity.getModifiedDeck(mMainboardCopy, mSideboardCopy, -1, mDeckName); //3rd argument is index in vertical adapter, -1 means creating new deck
                         mMainboardAdapter.clear(); //after saving a new deck clear its contents from this fragment's listview to prepare to accept new deck as old data is still inside (user create subsequent new deck)
@@ -540,7 +539,7 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
             }
             if(!((NonLand)card).initImage){
                 try {
-                    ((NonLand) card).initializeImage(EditDeckFragment.this, i, getActivity(), true);
+                    ((NonLand) card).initializeImage(EditDeckFragment.this, i, getActivity(), true, 0);
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (URISyntaxException e) {
@@ -557,7 +556,7 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
             }
             if(!((NonLand)card).initImage){
                 try {
-                    ((NonLand) card).initializeImage(EditDeckFragment.this, i, getActivity(), false);
+                    ((NonLand) card).initializeImage(EditDeckFragment.this, i, getActivity(), false, 0);
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (URISyntaxException e) {
