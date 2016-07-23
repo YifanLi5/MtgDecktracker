@@ -2,6 +2,10 @@ package com.example.yifan.mtgdecktracker;
 
 import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,13 +16,10 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class JsonFetcher {
     private JsonFetcher(){} //force to be static method library, uninstantiable class
-
+    private final static String LOG_TAG = JsonFetcher.class.getSimpleName();
     private final static String PARTIAL_MATCH_URL_START = "https://api.deckbrew.com/mtg/cards?name="; //append subname of card's name to get JsonArray containing all cards that contain that subname
     private final static String AUTO_COMPLETE_URL_START = "https://api.deckbrew.com/mtg/cards/typeahead?q="; //^ but for cards that start with some string
 
@@ -35,6 +36,7 @@ public class JsonFetcher {
     }
 
     public static ArrayList<String> getCardNamesArrayListFromURL(String url){
+        Log.d(LOG_TAG, url);
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
 
@@ -54,13 +56,13 @@ public class JsonFetcher {
             return getCardNamesFromJSONArray(JSONArrayOfCards);
 
         } catch (MalformedURLException e) {
-            Log.e("JsonFetcher", "MalformedURLException: error in url");
+            Log.e(LOG_TAG, "MalformedURLException: error in url");
             return null;
         } catch (IOException e) {
-            Log.e("JsonFetcher", "IOException: error in getting data from url");
+            Log.e(LOG_TAG, "IOException: error in getting data from url");
             return null;
         } catch (JSONException e) {
-            Log.e("JsonFetcher", "JSONException: error in getting json");
+            Log.e(LOG_TAG, "JSONException: error in getting json");
             return null;
         }
 
@@ -72,11 +74,10 @@ public class JsonFetcher {
                 try{
                     reader.close();
                 } catch (IOException e) {
-                    Log.e("JsonFetcher", "IOException: error in closing reader");
+                    Log.e(LOG_TAG, "IOException: error in closing reader");
                 }
             }
         }
-
     }
 
     private static String readAll(Reader rd) throws IOException {

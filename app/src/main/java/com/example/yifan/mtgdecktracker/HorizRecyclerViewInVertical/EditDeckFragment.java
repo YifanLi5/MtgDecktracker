@@ -24,7 +24,6 @@ import android.widget.Toast;
 import com.example.yifan.mtgdecktracker.ArrayAdapterNoFilter;
 import com.example.yifan.mtgdecktracker.Card;
 import com.example.yifan.mtgdecktracker.JsonFetcher;
-import com.example.yifan.mtgdecktracker.NonLand;
 import com.example.yifan.mtgdecktracker.R;
 import com.example.yifan.mtgdecktracker.StaticUtilityMethods;
 
@@ -249,27 +248,26 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
 
     }
 
-    private void cardCounterSetup(){
+    private void cardCounterSetup() {
         mMainboardTotalCardsTV = (TextView) rootView.findViewById(R.id.current_mainboard_card_count);
         mSideboardTotalCardsTV = (TextView) rootView.findViewById(R.id.current_sideboard_card_count);
-        if(mMainboardOriginal.isEmpty()){
-            mainboardCardCounter = 0;
-        }
-        else{
+        countCards();
+    }
+
+    private void countCards(){
+        mainboardCardCounter = 0;
+        sideboardCardCounter = 0;
+        if(!mMainboardOriginal.isEmpty()){
             for(Card card: mMainboardOriginal){
                 mainboardCardCounter += card.getTotal();
             }
         }
 
-        if(mSideboardOriginal.isEmpty()){
-            sideboardCardCounter = 0;
-        }
-        else{
+        if(!mSideboardOriginal.isEmpty()){
             for(Card card: mSideboardOriginal){
                 sideboardCardCounter += card.getTotal();
             }
         }
-
         String temp = MAINBOARD_CARD_COUNT_STARTER + mainboardCardCounter;
         mMainboardTotalCardsTV.setText(temp);
         temp = SIDEBOARD_CARD_COUNT_STARTER + sideboardCardCounter;
@@ -427,12 +425,13 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
                     numToAdd = Integer.parseInt(quantityFieldEntry);
                 }
 
-                //using constructor NonLand(JsonObject, int)
+                //using constructor NonBasicLand(JsonObject, int)
                 try {
                     //reset text fields
                     mAutoCompleteEntryField.setText("");
                     mQuantityToAdd.setText("");
-                    NonLand newEntry = new NonLand(selectedJSON, numToAdd);
+                    //NonBasicLand newEntry = new NonBasicLand(selectedJSON, numToAdd);
+                    Card newEntry = Card.getCardSubclassInstance(selectedJSON, numToAdd);
                     if(tabHost.getCurrentTab() == 0){ //in mainboard tab, add to mainboard
                         if (mMainboardSet.add(newEntry.getName())) { //check if adding duplicates
                             insertInCmcOrder(mMainboardCopy, newEntry);
@@ -491,7 +490,14 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
                     mSideboardOriginal = (ArrayList<Card>) mSideboardCopy.clone(); 
                     mDeckName = mDeckNameField.getText().toString();
 
-                    saveButtonInitImageHelper(); //implement make deck (initialize all images)
+                    try {
+                        saveButtonInitImageHelper(); //implement make deck (initialize all images)
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (URISyntaxException e) {
+                        Log.e(LOG_TAG, "URISyntaxException- bad uri for card");
+                        e.printStackTrace();
+                    }
 
                     if(getArguments().containsKey(DECK_INDEX)){ //check if fragment has index of where it is in the host activity's vertical recyclerview, this means that we are modifying an existing deck
                         hostActivity.getModifiedDeck(mMainboardCopy, mSideboardCopy, getArguments().getInt(DECK_INDEX), mDeckName);
@@ -531,40 +537,23 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
         }
     }
 
-    private void saveButtonInitImageHelper(){
+    private void saveButtonInitImageHelper() throws IOException, URISyntaxException {
         for(int i = 0; i < mMainboardCopy.size(); i++){
             Card card = mMainboardCopy.get(i);
-            if(!(card instanceof NonLand)){
-                continue;
-            }
-            if(!((NonLand)card).initImage){
-                try {
-                    ((NonLand) card).initializeImage(EditDeckFragment.this, i, getActivity(), true, 0);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (URISyntaxException e) {
-                    Log.e(LOG_TAG, "URISyntaxException- bad uri for card: " + card.getName());
-                    e.printStackTrace();
-                }
+            if(!card.imageInitialized){
+                card.initializeImage(EditDeckFragment.this, i, getActivity(), true, 0);
             }
         }
 
         for(int i = 0; i < mSideboardCopy.size(); i++){
             Card card = mSideboardCopy.get(i);
-            if(!(card instanceof NonLand)){
-                continue;
-            }
-            if(!((NonLand)card).initImage){
-                try {
-                    ((NonLand) card).initializeImage(EditDeckFragment.this, i, getActivity(), false, 0);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (URISyntaxException e) {
-                    Log.e(LOG_TAG, "URISyntaxException- bad uri for card: " + card.getName());
-                    e.printStackTrace();
-                }
+            if(!card.imageInitialized){
+                card.initializeImage(EditDeckFragment.this, i, getActivity(), false, 0);
+
             }
         }
+
+
     }
 
     private void tabsSetUp(){
@@ -605,7 +594,7 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
             mSideboardSet.add(card.getName());
         }
 
-        cardCounterSetup();
+        countCards();
 
     }
 

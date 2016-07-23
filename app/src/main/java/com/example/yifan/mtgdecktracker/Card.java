@@ -1,13 +1,27 @@
 package com.example.yifan.mtgdecktracker;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.v4.app.Fragment;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.example.yifan.mtgdecktracker.HorizRecyclerViewInVertical.SavedDecksActivity;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
 
 /**
  * Created by Yifan on 5/7/2016.
@@ -23,6 +37,20 @@ public abstract class Card implements Parcelable, Serializable{
 
     String imageURL;
     Bitmap cardImage;
+
+    public boolean imageInitialized = false;
+    ArrayList<Edition> editions;
+    int currentEditionIndex = -1;
+
+    public static Card getCardSubclassInstance(JSONObject jsonCard, int total) throws JSONException {
+        //some cards don't have a supertype, check if it does and also if said supertype denotes it is a basic land
+        if(jsonCard.has("supertypes") && jsonCard.getJSONArray("supertypes").getString(0).equals("basic")){
+            return new BasicLand(jsonCard, total);
+        }
+        else{
+            return new NonBasicLand(jsonCard, total);
+        }
+    }
 
     public Bitmap getCardImage() {
         return cardImage;
@@ -72,6 +100,25 @@ public abstract class Card implements Parcelable, Serializable{
         this.total = total;
     }
 
+    public void initializeImage(Fragment fragment, final int recyclerViewPosition, final Context context, final boolean mainboardCard, int editionIndex) throws IOException, URISyntaxException {
+        currentEditionIndex = editionIndex;
+        Glide.with(fragment)
+                .load(editions.get(currentEditionIndex).imageURL) //edition index is which printing of the card to load, usually editionIndex is called with 0 to load the most recent
+                .asBitmap()
+                .into(new SimpleTarget<Bitmap>() {
+                    @Override
+                    public void onResourceReady(Bitmap resource, GlideAnimation glideAnimation) {
+                        cardImage = resource;
+                        imageInitialized = true;
+                        if (context instanceof SavedDecksActivity) {
+                            ((SavedDecksActivity) context).initCardImageCallback(recyclerViewPosition, mainboardCard);
+                        }
+                    }
+
+                });
+
+    }
+
     private class BitmapDataObject implements Serializable {
         public byte[] imageByteArray;
     }
@@ -81,6 +128,7 @@ public abstract class Card implements Parcelable, Serializable{
         out.writeInt(total);
         out.writeObject(cost);
         out.writeObject(imageURL);
+        out.writeObject(editions);
 
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         if(cardImage != null){
@@ -97,6 +145,7 @@ public abstract class Card implements Parcelable, Serializable{
         this.total = in.readInt();
         this.cost = (String)in.readObject();
         this.imageURL = (String)in.readObject();
+        this.editions = (ArrayList<Edition>) in.readObject();
 
         BitmapDataObject bitmapDataObject = (BitmapDataObject)in.readObject();
         this.cardImage = BitmapFactory.decodeByteArray(bitmapDataObject.imageByteArray, 0, bitmapDataObject.imageByteArray.length);
@@ -108,6 +157,51 @@ public abstract class Card implements Parcelable, Serializable{
         this.cost = "NoData";
         this.imageURL = "NoData";
         this.cardImage = null;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(name);
+        dest.writeInt(cmc);
+        dest.writeInt(total);
+        dest.writeInt(inDeck);
+        dest.writeInt(notInDeck);
+        dest.writeString(cost);
+        dest.writeString(imageURL);
+        dest.writeValue(cardImage);
+        dest.writeByte((byte) (imageInitialized ? 1 : 0)); //if imageInitialized == true, byte == 1
+        if(editions == null){
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeList(editions);
+        }
+
+    }
+
+    public ArrayList<Edition> getEditions() {
+        return editions;
+    }
+
+    public void setCurrentEditionIndex(int currentEditionIndex) {
+        this.currentEditionIndex = currentEditionIndex;
+    }
+
+    public int getCurrentEditionIndex(){
+        return currentEditionIndex;
+    }
+
+    public ArrayList<Edition> fillEditionArray(JSONArray editionsJSONArr) throws JSONException {
+        ArrayList<Edition> editionsReturn = new ArrayList<>();
+        for(int i = editionsJSONArr.length() - 1; i >= 0; i--){ //add in reverse order, the card at the beginning of the arraylist oldest release and least likely to be a blank
+            editionsReturn.add(new Edition(editionsJSONArr.getJSONObject(i)));
+        }
+        return editionsReturn;
     }
 
 

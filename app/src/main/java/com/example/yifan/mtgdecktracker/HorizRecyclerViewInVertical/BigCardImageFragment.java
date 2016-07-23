@@ -1,6 +1,5 @@
 package com.example.yifan.mtgdecktracker.HorizRecyclerViewInVertical;
 
-
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -16,14 +15,15 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 
 import com.bumptech.glide.Glide;
+import com.example.yifan.mtgdecktracker.BasicLand;
 import com.example.yifan.mtgdecktracker.Card;
-import com.example.yifan.mtgdecktracker.NonLand;
+import com.example.yifan.mtgdecktracker.Edition;
+import com.example.yifan.mtgdecktracker.NonBasicLand;
 import com.example.yifan.mtgdecktracker.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-//todo: find good way to set which edition was selected
 public class BigCardImageFragment extends Fragment {
 
     private ImageButton mCloseButton;
@@ -68,11 +68,7 @@ public class BigCardImageFragment extends Fragment {
         rootView = inflater.inflate(R.layout.fragment_big_card_image, container, false);
         mBigCardImageView = (ImageView) rootView.findViewById(R.id.big_card_imageview);
         if(savedInstanceState != null){
-            /*this.selectedCard = (Card) savedInstanceState.get(SELECTED_CARD);
-            this.recyclerViewIndex = savedInstanceState.getInt(RECYCLER_VIEW_INDEX);
-            this.mainboardCard = savedInstanceState.getBoolean(MAINBOARD_CARD);
-            this.startingEditionIndex = savedInstanceState.getInt(STARTING_EDITION_INDEX);
-            */
+            // TODO: 7/22/2016 allow screen rotation
         }
         else{
             Bundle args = getArguments();
@@ -87,14 +83,21 @@ public class BigCardImageFragment extends Fragment {
         //set up setChoices
         setChoices = new ArrayList<>();
         imageURLs = new HashMap<>();
-        if(selectedCard instanceof NonLand){
-            ArrayList<NonLand.Edition> editions = ((NonLand) selectedCard).getEditions();
+        if(selectedCard instanceof NonBasicLand){
+            ArrayList<Edition> editions = (selectedCard).getEditions();
             Log.d(LOG_TAG, editions.toString());
-            for(NonLand.Edition editionItem: editions){
+            for(Edition editionItem: editions){
                 setChoices.add(editionItem.getSet());
                 imageURLs.put(editionItem.getSet(), editionItem.getImageURL());
             }
-
+        }
+        else if(selectedCard instanceof BasicLand){
+            ArrayList<Edition> editions = (selectedCard).getEditions();
+            Log.d(LOG_TAG, editions.toString());
+            for(Edition editionItem: editions){
+                setChoices.add(editionItem.getSet());
+                imageURLs.put(editionItem.getSet(), editionItem.getImageURL());
+            }
         }
 
 
@@ -118,9 +121,8 @@ public class BigCardImageFragment extends Fragment {
             public void onClick(View v) {
                 mBigCardImageView.buildDrawingCache();
                 selectedCard.setCardImage(Bitmap.createBitmap(mBigCardImageView.getDrawingCache()));
-                ((NonLand) selectedCard).setCurrentEditionIndex(mSetSpinner.getSelectedItemPosition());
+                selectedCard.setCurrentEditionIndex(mSetSpinner.getSelectedItemPosition());
                 hostActivity.initCardImageCallback(recyclerViewIndex, mainboardCard);
-
                 getActivity().getSupportFragmentManager().beginTransaction().remove(BigCardImageFragment.this).commit();
 
             }
@@ -130,7 +132,7 @@ public class BigCardImageFragment extends Fragment {
 
     private void spinnerSetUp(){
         //populate spinner choices
-        mSetAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, setChoices);
+        mSetAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, setChoices);
         mSetSpinner = (Spinner) rootView.findViewById(R.id.set_spinner);
         mSetSpinner.setAdapter(mSetAdapter);
         //set initial choice to what the initial image correlates to
@@ -143,6 +145,7 @@ public class BigCardImageFragment extends Fragment {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 currentSet = (String) parent.getItemAtPosition(position);
                 String imageURL = imageURLs.get(currentSet);
+                Log.d(LOG_TAG, imageURL);
                 Glide.with(BigCardImageFragment.this)
                         .load(imageURL)
                         .into(mBigCardImageView);

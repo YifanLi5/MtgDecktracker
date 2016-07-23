@@ -15,7 +15,7 @@ public interface FragmentActivityAdapterCommunicator {
 
     void getModifiedDeck(ArrayList<Card> mainboard, ArrayList<Card> sideboard, int deckIndex, String deckName); //EditDeckFragment gives back a modified deck to host activity
 
-    void initCardImageCallback(int position, boolean mainboardCard); //called within NonLand class by initializeImage inorder to have the horizontal adapter show the card images
+    void initCardImageCallback(int position, boolean mainboardCard); //called within NonBasicLand class by initializeImage inorder to have the horizontal adapter show the card images
 
     void openDrawer(int gravity); //opens drawer based on the drawer's gravity
 
