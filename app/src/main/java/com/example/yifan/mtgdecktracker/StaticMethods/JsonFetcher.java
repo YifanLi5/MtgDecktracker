@@ -1,4 +1,4 @@
-package com.example.yifan.mtgdecktracker;
+package com.example.yifan.mtgdecktracker.StaticMethods;
 
 import android.util.Log;
 

@@ -1,4 +1,4 @@
-package com.example.yifan.mtgdecktracker.HorizRecyclerViewInVertical;
+package com.example.yifan.mtgdecktracker.SavedDecksActivityClasses;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -83,8 +83,9 @@ public class BigCardImageFragment extends Fragment {
         //set up setChoices
         setChoices = new ArrayList<>();
         imageURLs = new HashMap<>();
+        ArrayList<Edition> editions = (selectedCard).getEditions();
         if(selectedCard instanceof NonBasicLand){
-            ArrayList<Edition> editions = (selectedCard).getEditions();
+
             Log.d(LOG_TAG, editions.toString());
             for(Edition editionItem: editions){
                 setChoices.add(editionItem.getSet());
@@ -92,15 +93,39 @@ public class BigCardImageFragment extends Fragment {
             }
         }
         else if(selectedCard instanceof BasicLand){
-            ArrayList<Edition> editions = (selectedCard).getEditions();
+
             Log.d(LOG_TAG, editions.toString());
-            for(Edition editionItem: editions){
-                setChoices.add(editionItem.getSet());
-                imageURLs.put(editionItem.getSet(), editionItem.getImageURL());
+            //used to number basic lands from the same set. A set can have multiple new printings of a basic land. The algo below appends a number to the end of them.
+            //ex) BFZ , BFZ, BFZ becomes BFZ 1, BFZ 2, BFZ 3...
+            for(int i = 0; i < editions.size(); i++){
+                //add in the first basic land of the set
+                int matchingSetNameCount = 1;
+                String currentSetName = editions.get(i).getSet();
+                setChoices.add(currentSetName + " " + matchingSetNameCount);
+                imageURLs.put(currentSetName + " " + matchingSetNameCount, editions.get(i).getImageURL());
+                
+                //check if not going out of bounds
+                if(i + 1 < editions.size()){
+                    String nextSetName = editions.get(i + 1).getSet();
+                    //check if successive basic lands are reprinted in the same set and appends a number to them
+                    while(currentSetName.equals(nextSetName)){
+                        matchingSetNameCount++;
+                        if(i + matchingSetNameCount < editions.size()){
+                            nextSetName = nextSetName + " " + matchingSetNameCount;
+                            setChoices.add(nextSetName);
+                            imageURLs.put(nextSetName, editions.get(i + matchingSetNameCount).getImageURL());
+                            nextSetName = editions.get(i + matchingSetNameCount).getSet();
+                        }
+                        else{
+                            break;
+                        }
+                    }
+                    //move up i to index into the next set, - 1 is because we initialize matchingSetNameCount initially to 1 to start numbering at 1.
+                    i += matchingSetNameCount - 1;
+                }
             }
+            Log.d(LOG_TAG, imageURLs.toString());
         }
-
-
         buttonSetUp();
         spinnerSetUp();
         return rootView;
@@ -145,6 +170,7 @@ public class BigCardImageFragment extends Fragment {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 currentSet = (String) parent.getItemAtPosition(position);
                 String imageURL = imageURLs.get(currentSet);
+                Log.i(LOG_TAG, imageURL);
                 Log.d(LOG_TAG, imageURL);
                 Glide.with(BigCardImageFragment.this)
                         .load(imageURL)

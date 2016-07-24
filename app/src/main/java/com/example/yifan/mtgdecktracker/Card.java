@@ -10,7 +10,7 @@ import android.support.v4.app.Fragment;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
-import com.example.yifan.mtgdecktracker.HorizRecyclerViewInVertical.SavedDecksActivity;
+import com.example.yifan.mtgdecktracker.SavedDecksActivityClasses.SavedDecksActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;

@@ -1,4 +1,4 @@
-package com.example.yifan.mtgdecktracker.HorizRecyclerViewInVertical;
+package com.example.yifan.mtgdecktracker.SavedDecksActivityClasses;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -21,11 +21,11 @@ import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.yifan.mtgdecktracker.ArrayAdapterNoFilter;
 import com.example.yifan.mtgdecktracker.Card;
-import com.example.yifan.mtgdecktracker.JsonFetcher;
+import com.example.yifan.mtgdecktracker.NonBasicLand;
 import com.example.yifan.mtgdecktracker.R;
-import com.example.yifan.mtgdecktracker.StaticUtilityMethods;
+import com.example.yifan.mtgdecktracker.StaticMethods.JsonFetcher;
+import com.example.yifan.mtgdecktracker.StaticMethods.StaticUtilityMethods;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -541,7 +541,14 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
         for(int i = 0; i < mMainboardCopy.size(); i++){
             Card card = mMainboardCopy.get(i);
             if(!card.imageInitialized){
-                card.initializeImage(EditDeckFragment.this, i, getActivity(), true, 0);
+                if(card instanceof NonBasicLand){
+                    card.initializeImage(EditDeckFragment.this, i, getActivity(), true, 0);
+                }
+                else{
+                    //fix for first edition in json array for basic lands being a placeholder image. So just get the second.
+                    card.initializeImage(EditDeckFragment.this, i, getActivity(), true, 1);
+                }
+
             }
         }
 

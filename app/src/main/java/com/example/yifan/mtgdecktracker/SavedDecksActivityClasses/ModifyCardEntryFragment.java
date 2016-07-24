@@ -1,4 +1,4 @@
-package com.example.yifan.mtgdecktracker.HorizRecyclerViewInVertical;
+package com.example.yifan.mtgdecktracker.SavedDecksActivityClasses;
 
 
 import android.os.Bundle;
@@ -16,7 +16,7 @@ import android.widget.Toast;
 
 import com.example.yifan.mtgdecktracker.Card;
 import com.example.yifan.mtgdecktracker.R;
-import com.example.yifan.mtgdecktracker.StaticUtilityMethods;
+import com.example.yifan.mtgdecktracker.StaticMethods.StaticUtilityMethods;
 
 
 public class ModifyCardEntryFragment extends Fragment {
