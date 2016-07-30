@@ -73,7 +73,7 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
 
     private ModifyCardEntryFragment modifyCardFragment;
     private static EditDeckFragment singletonInstance;
-    private FragmentActivityAdapterCommunicator hostActivity;
+    private SavedDeckActivityCommunicator hostActivity;
 
     //strings for bundle keys
     private static final String EDIT_EXISTING_DECK = "EditExistingDeck";
@@ -166,7 +166,7 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
         rootView = inflater.inflate(R.layout.fragment_edit_deck, container, false);
         mQuantityToAdd = (EditText) rootView.findViewById(R.id.card_quantity_field);
         mDeckNameField = (EditText) rootView.findViewById(R.id.deck_name_field);
-        hostActivity = (FragmentActivityAdapterCommunicator) getActivity();
+        hostActivity = (SavedDeckActivityCommunicator) getActivity();
 
         // TODO: 7/11/2016 see if this part can be simplified
         if(savedInstanceState != null){
@@ -480,7 +480,7 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
                     mSideboardOriginal = null;
                     Toast.makeText(getContext(), "Deck is Empty, if this was an existing deck it was deleted", Toast.LENGTH_SHORT).show();
                     if(getArguments().getBoolean(EDIT_EXISTING_DECK)){
-                        hostActivity.getModifiedDeck(mMainboardCopy, mSideboardCopy, getArguments().getInt(DECK_INDEX), mDeckName);
+                        hostActivity.getModifiedDeck(mMainboardCopy, mSideboardCopy, getArguments().getInt(DECK_INDEX), mDeckName, mainboardCardCounter);
                     }
                     hostActivity.closeDrawer(Gravity.START);
                 }
@@ -500,11 +500,11 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
                     }
 
                     if(getArguments().containsKey(DECK_INDEX)){ //check if fragment has index of where it is in the host activity's vertical recyclerview, this means that we are modifying an existing deck
-                        hostActivity.getModifiedDeck(mMainboardCopy, mSideboardCopy, getArguments().getInt(DECK_INDEX), mDeckName);
+                        hostActivity.getModifiedDeck(mMainboardCopy, mSideboardCopy, getArguments().getInt(DECK_INDEX), mDeckName, mainboardCardCounter);
                         hostActivity.closeDrawer(Gravity.START);
                     }
                     else{ //creating new deck
-                        hostActivity.getModifiedDeck(mMainboardCopy, mSideboardCopy, -1, mDeckName); //3rd argument is index in vertical adapter, -1 means creating new deck
+                        hostActivity.getModifiedDeck(mMainboardCopy, mSideboardCopy, -1, mDeckName, mainboardCardCounter); //3rd argument is index in vertical adapter, -1 means creating new deck
                         mMainboardAdapter.clear(); //after saving a new deck clear its contents from this fragment's listview to prepare to accept new deck as old data is still inside (user create subsequent new deck)
                         mQuantityToAdd.setText("");
                         mAutoCompleteEntryField.setText("");

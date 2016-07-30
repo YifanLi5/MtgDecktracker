@@ -31,7 +31,7 @@ public class BigCardImageFragment extends Fragment {
     private ImageView mBigCardImageView;
     private Spinner mSetSpinner;
     private ArrayAdapter<String> mSetAdapter;
-    private FragmentActivityAdapterCommunicator hostActivity;
+    private SavedDeckActivityCommunicator hostActivity;
     private View rootView;
     private Card selectedCard;
     private int recyclerViewIndex;
@@ -78,7 +78,7 @@ public class BigCardImageFragment extends Fragment {
             this.mainboardCard = args.getBoolean(MAINBOARD_CARD);
         }
 
-        hostActivity = (FragmentActivityAdapterCommunicator) getActivity();
+        hostActivity = (SavedDeckActivityCommunicator) getActivity();
 
         //set up setChoices
         setChoices = new ArrayList<>();

@@ -10,21 +10,32 @@ import java.util.ArrayList;
  * Created by Yifan on 5/7/2016.
  */
 public class Deck implements Serializable, Parcelable{
-    private static final int DEFAULT_AMT = 60;
-    private static final int SIDEBOARD_AMT = 15;
+
     private ArrayList<Card> mainBoard;
     private ArrayList<Card> sideBoard;
     private String deckName;
+    private int totalCardCount; //total number of cards in mainboard, NOT the same as mainBoard.size(). Card objects have a variable of how many copies of that certain card there are and is not considered by size().
 
     public Deck(){
-        mainBoard = new ArrayList<>(DEFAULT_AMT);
-        sideBoard = new ArrayList<>(SIDEBOARD_AMT);
+        mainBoard = new ArrayList<>();
+        sideBoard = new ArrayList<>();
     }
 
     public Deck(ArrayList<Card> mainBoard, ArrayList<Card> sideBoard, String deckName){
         this.mainBoard = mainBoard;
         this.sideBoard = sideBoard;
         this.deckName = deckName;
+    }
+
+    public Deck(ArrayList<Card> mainBoard, ArrayList<Card> sideBoard, String deckName, int totalCardCount){
+        this.mainBoard = mainBoard;
+        this.sideBoard = sideBoard;
+        this.deckName = deckName;
+        this.totalCardCount = totalCardCount;
+    }
+
+    public static Deck getCopy(Deck orig){
+        return new Deck((ArrayList<Card>)orig.mainBoard.clone(), (ArrayList<Card>)orig.sideBoard.clone(), orig.deckName, orig.totalCardCount);
     }
 
     public ArrayList<Card> getMainBoard() {
@@ -51,13 +62,24 @@ public class Deck implements Serializable, Parcelable{
         sideBoard.add(card);
     }
 
+    public int getTotalCardCount() {
+        return totalCardCount;
+    }
+
+    public void setTotalCardCount(int totalCardCount) {
+        this.totalCardCount = totalCardCount;
+    }
+
     @Override
     public String toString(){
         StringBuilder sb = new StringBuilder();
         int i = 1;
         for(Card card: mainBoard){
-            sb.append("Deck " + i + ": ");
-            sb.append(card.getName() + " ");
+            sb.append("Deck");
+            sb.append(i);
+            sb.append(": ");
+            sb.append(card.getName());
+            sb.append(" ");
         }
         return sb.toString();
     }

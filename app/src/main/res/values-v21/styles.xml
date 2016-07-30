@@ -6,8 +6,8 @@
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
-    
-    <style name = "ConfirmResetDialogFragment">
+
+    <style name="ConfirmResetDialogFragment">
         <item name="android:gravity">center_horizontal</item>
     </style>
 </resources>

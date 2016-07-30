@@ -34,6 +34,7 @@ public class NonBasicLand extends Card {
         this.cost = jsonCard.getString("cost");
         this.editions = fillEditionArray(jsonCard.getJSONArray("editions"));
         this.total = total;
+        this.inDeck = total;
     }
 
     public NonBasicLand(Parcel in) {

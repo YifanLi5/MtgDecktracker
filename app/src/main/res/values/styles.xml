@@ -21,7 +21,7 @@
 
     <style name="PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
-    <style name = "ConfirmResetDialogFragment">
+    <style name="ConfirmResetDialogFragment">
         <item name="android:gravity">center_horizontal</item>
     </style>
 

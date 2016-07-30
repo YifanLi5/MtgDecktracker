@@ -25,5 +25,8 @@
     <string name="play_deck">Play Deck</string>
     <string name="edit_deck">Edit Deck</string>
     <string name="delete_deck">Delete Deck</string>
+    <string name="title_activity_play_deck">PlayDeckActivity</string>
+    <string name="life_counter">life_counter</string>
+    <string name="extra_menu">extra_menu</string>
 
 </resources>

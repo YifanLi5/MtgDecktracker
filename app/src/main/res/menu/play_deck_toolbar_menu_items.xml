@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/life_counter_icon"
+        android:icon="@mipmap/ic_life_counter_icon"
+        android:title="@string/life_counter"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/extra_menu_icon"
+        android:icon="@mipmap/ic_extra_menu_icon"
+        android:title="@string/extra_menu"
+        app:showAsAction="ifRoom"/>
+
+</menu>

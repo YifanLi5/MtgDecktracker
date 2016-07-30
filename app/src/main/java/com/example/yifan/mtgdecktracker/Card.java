@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
@@ -28,6 +29,7 @@ import java.util.ArrayList;
  */
 public abstract class Card implements Parcelable, Serializable{
 
+    private static final String LOG_TAG = Card.class.getSimpleName();
     String name;
     int cmc; //converted mana cost
     int total; //total number of this specific card; total = InDeck + notInDeck
@@ -98,6 +100,43 @@ public abstract class Card implements Parcelable, Serializable{
 
     public void setTotal(int total) {
         this.total = total;
+    }
+
+    public int getInDeck() {
+        return inDeck;
+    }
+
+    public void setInDeck(int inDeck) {
+        this.inDeck = inDeck;
+    }
+
+    public int getNotInDeck() {
+        return notInDeck;
+    }
+
+    public void setNotInDeck(int notInDeck) {
+        this.notInDeck = notInDeck;
+    }
+
+    public void moveOutOfDeck(){
+        //operation only valid is there is at least 1 card inDeck
+        if(inDeck >= 1){
+            inDeck--;
+            notInDeck++;
+        }
+        else{
+            Log.e(LOG_TAG, "attempt to remove card when there isn't one to remove");
+        }
+    }
+
+    public void moveIntoDeck(){
+        if(notInDeck >= 1){
+            inDeck++;
+            notInDeck--;
+        }
+        else{
+            Log.e(LOG_TAG, "attempt to add card when there isn't one to add");
+        }
     }
 
     public void initializeImage(Fragment fragment, final int recyclerViewPosition, final Context context, final boolean mainboardCard, int editionIndex) throws IOException, URISyntaxException {

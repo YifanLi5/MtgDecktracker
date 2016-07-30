@@ -17,6 +17,7 @@ public class BasicLand extends Card {
         this.cost = jsonCard.getString("cost");
         this.editions = fillEditionArray(jsonCard.getJSONArray("editions"));
         this.total = total;
+        this.inDeck = total;
     }
 
     public BasicLand(Parcel in) {

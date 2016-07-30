@@ -28,7 +28,7 @@ public class ModifyCardEntryFragment extends Fragment {
     private Button mRemoveBtn;
     private Button mConfirmBtn;
     private ImageButton mCloseButton;
-    private FragmentActivityAdapterCommunicator hostActivity; //EditDeckFragment communicates with this Fragment thru the host activity, that host activity implements FragmentActivityAdapterCommunicator
+    private SavedDeckActivityCommunicator hostActivity; //EditDeckFragment communicates with this Fragment thru the host activity, that host activity implements SavedDeckActivityCommunicator
     private int positionClicked; //This fragment should hold the position of the item clicked in the listview so if the item is deleted we know which one to delete (which index to remove from the arraylist). Lessens errors with passing it internally.
     private static ModifyCardEntryFragment singletonInstance;
 
@@ -57,7 +57,7 @@ public class ModifyCardEntryFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        hostActivity = (FragmentActivityAdapterCommunicator) getActivity();
+        hostActivity = (SavedDeckActivityCommunicator) getActivity();
         hostActivity.lockOrUnlockdrawer(DrawerLayout.LOCK_MODE_LOCKED_OPEN, Gravity.END);
         rootView = inflater.inflate(R.layout.fragment_modify_card_entry, container, false);
         textViewSetUp(getArguments().getString(CARD_NAME), getArguments().getString(CARD_QUANTITY));
