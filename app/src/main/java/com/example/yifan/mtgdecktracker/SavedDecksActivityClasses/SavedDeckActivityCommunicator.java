@@ -1,4 +1,4 @@
-package com.example.yifan.mtgdecktracker.SavedDecksActivityClasses;
+package com.example.yifan.mtgdecktracker.savedDecksActivityClasses;
 
 import com.example.yifan.mtgdecktracker.Card;
 
@@ -27,7 +27,7 @@ public interface SavedDeckActivityCommunicator {
 
     void respondToDeleteDeckRequest(int recyclerViewIndex);
 
-
+    void startPlayDeckActivity(int index);
 
 }
 

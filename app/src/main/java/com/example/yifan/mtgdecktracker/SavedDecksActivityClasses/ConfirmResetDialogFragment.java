@@ -1,4 +1,4 @@
-package com.example.yifan.mtgdecktracker.SavedDecksActivityClasses;
+package com.example.yifan.mtgdecktracker.savedDecksActivityClasses;
 
 import android.app.AlertDialog.Builder;
 import android.app.Dialog;

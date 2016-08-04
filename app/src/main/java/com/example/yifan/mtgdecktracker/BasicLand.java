@@ -7,6 +7,8 @@ import android.os.Parcelable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+
 /**
  * Created by Yifan on 7/22/2016.
  */
@@ -31,7 +33,8 @@ public class BasicLand extends Card {
         cardImage = (Bitmap) in.readValue(Bitmap.class.getClassLoader());
         imageInitialized = in.readByte() != 0; //imageInitialized == true if byte != 0
         if(in.readByte() == 0x01){
-            in.readList(getEditions(), Edition.class.getClassLoader());
+            editions = new ArrayList<>();
+            in.readList(editions, Edition.class.getClassLoader());
         }
     }
 

@@ -34,6 +34,7 @@ public class Deck implements Serializable, Parcelable{
         this.totalCardCount = totalCardCount;
     }
 
+
     public static Deck getCopy(Deck orig){
         return new Deck((ArrayList<Card>)orig.mainBoard.clone(), (ArrayList<Card>)orig.sideBoard.clone(), orig.deckName, orig.totalCardCount);
     }
@@ -54,12 +55,12 @@ public class Deck implements Serializable, Parcelable{
         return deckName;
     }
 
-    public void addToMainboard(Card card){
-        mainBoard.add(card);
+    public boolean addToMainboard(Card card){
+        return mainBoard.add(card);
     }
 
-    public void addToSideBoard(Card card){
-        sideBoard.add(card);
+    public boolean addToSideBoard(Card card){
+        return sideBoard.add(card);
     }
 
     public int getTotalCardCount() {
@@ -73,31 +74,35 @@ public class Deck implements Serializable, Parcelable{
     @Override
     public String toString(){
         StringBuilder sb = new StringBuilder();
-        int i = 1;
+        sb.append("Deck Name: ");
+        sb.append(deckName);
+        sb.append("\nContents-\n");
         for(Card card: mainBoard){
-            sb.append("Deck");
-            sb.append(i);
-            sb.append(": ");
             sb.append(card.getName());
             sb.append(" ");
+            sb.append(card.getTotal());
+            sb.append("\n");
         }
+        sb.append("totalCardCount: ");
+        sb.append(totalCardCount);
         return sb.toString();
     }
 
     protected Deck(Parcel in) {
         if (in.readByte() == 0x01) {
-            mainBoard = new ArrayList<>();
+            mainBoard = new ArrayList<Card>();
             in.readList(mainBoard, Card.class.getClassLoader());
         } else {
             mainBoard = null;
         }
         if (in.readByte() == 0x01) {
-            sideBoard = new ArrayList<>();
+            sideBoard = new ArrayList<Card>();
             in.readList(sideBoard, Card.class.getClassLoader());
         } else {
             sideBoard = null;
         }
         deckName = in.readString();
+        totalCardCount = in.readInt();
     }
 
     @Override
@@ -120,6 +125,7 @@ public class Deck implements Serializable, Parcelable{
             dest.writeList(sideBoard);
         }
         dest.writeString(deckName);
+        dest.writeInt(totalCardCount);
     }
 
     @SuppressWarnings("unused")

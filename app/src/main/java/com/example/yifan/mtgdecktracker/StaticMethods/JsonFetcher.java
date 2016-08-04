@@ -1,4 +1,4 @@
-package com.example.yifan.mtgdecktracker.StaticMethods;
+package com.example.yifan.mtgdecktracker.staticMethods;
 
 import android.util.Log;
 
@@ -33,6 +33,49 @@ public class JsonFetcher {
     public static ArrayList<String> getCardsFromAutoComplete(String subname) throws UnsupportedEncodingException {
         String url = (AUTO_COMPLETE_URL_START + subname).replaceAll(" ", "-");
         return getCardNamesArrayListFromURL(url);
+    }
+
+    public static JSONObject getCardFromURL(String url){
+        HttpURLConnection urlConnection = null;
+        BufferedReader reader = null;
+
+        try{
+            URL targetURL = new URL(url);
+            urlConnection = (HttpURLConnection) targetURL.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.connect();
+
+            InputStream is = urlConnection.getInputStream();
+            if(is == null){
+                return null; //nothing recieved
+            }
+            reader = new BufferedReader(new InputStreamReader(is));
+            String jsonText = readAll(reader);
+            return new JSONObject(jsonText);
+
+        } catch (MalformedURLException e) {
+            Log.e(LOG_TAG, "MalformedURLException: error in url");
+            return null;
+        } catch (IOException e) {
+            Log.e(LOG_TAG, "IOException: error in getting data from url");
+            return null;
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, "JSONException: error in getting json");
+            return null;
+        }
+
+        finally{
+            if(urlConnection != null){
+                urlConnection.disconnect();
+            }
+            if(reader != null){
+                try{
+                    reader.close();
+                } catch (IOException e) {
+                    Log.e(LOG_TAG, "IOException: error in closing reader");
+                }
+            }
+        }
     }
 
     public static ArrayList<String> getCardNamesArrayListFromURL(String url){

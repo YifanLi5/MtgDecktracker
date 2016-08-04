@@ -1,4 +1,4 @@
-package com.example.yifan.mtgdecktracker.SavedDecksActivityClasses;
+package com.example.yifan.mtgdecktracker.savedDecksActivityClasses;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -24,8 +24,8 @@ import android.widget.Toast;
 import com.example.yifan.mtgdecktracker.Card;
 import com.example.yifan.mtgdecktracker.NonBasicLand;
 import com.example.yifan.mtgdecktracker.R;
-import com.example.yifan.mtgdecktracker.StaticMethods.JsonFetcher;
-import com.example.yifan.mtgdecktracker.StaticMethods.StaticUtilityMethods;
+import com.example.yifan.mtgdecktracker.staticMethods.JsonFetcher;
+import com.example.yifan.mtgdecktracker.staticMethods.StaticUtilityMethodsAndConstants;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -419,7 +419,7 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
                 //create nonland object, add it into mMainboard, update the listview to show the cards and respective quantities.
                 String quantityFieldEntry = mQuantityToAdd.getText().toString(); //make sure user has entered a number into the field, if not just add 1 copy of the card
                 int numToAdd;
-                if (!StaticUtilityMethods.isInteger(quantityFieldEntry)) {
+                if (!StaticUtilityMethodsAndConstants.isInteger(quantityFieldEntry)) {
                     numToAdd = 1;
                 } else {
                     numToAdd = Integer.parseInt(quantityFieldEntry);
@@ -432,10 +432,11 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
                     mQuantityToAdd.setText("");
                     //NonBasicLand newEntry = new NonBasicLand(selectedJSON, numToAdd);
                     Card newEntry = Card.getCardSubclassInstance(selectedJSON, numToAdd);
+                    Log.d(LOG_TAG, "name: " + newEntry.getName() + " total: " + newEntry.getTotal() + " inDeck: " + newEntry.getInDeck());
                     if(tabHost.getCurrentTab() == 0){ //in mainboard tab, add to mainboard
                         if (mMainboardSet.add(newEntry.getName())) { //check if adding duplicates
                             insertInCmcOrder(mMainboardCopy, newEntry);
-                            StaticUtilityMethods.hideKeyboardFrom(getContext(), rootView); //listview only updates after keyboard is pulled down, use this method
+                            StaticUtilityMethodsAndConstants.hideKeyboardFrom(getContext(), rootView); //listview only updates after keyboard is pulled down, use this method
                             mainboardCardCounter += numToAdd;
                             String temp = MAINBOARD_CARD_COUNT_STARTER + mainboardCardCounter;
                             mMainboardTotalCardsTV.setText(temp);
@@ -449,7 +450,7 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
                     else if(tabHost.getCurrentTab() == 1){ //in sideboard tab, add to sideboard
                         if(mSideboardSet.add(newEntry.getName())){
                             insertInCmcOrder(mSideboardCopy, newEntry);
-                            StaticUtilityMethods.hideKeyboardFrom(getContext(), rootView);
+                            StaticUtilityMethodsAndConstants.hideKeyboardFrom(getContext(), rootView);
                             sideboardCardCounter += numToAdd;
                             String temp = SIDEBOARD_CARD_COUNT_STARTER + mainboardCardCounter;
                             mSideboardTotalCardsTV.setText(temp);

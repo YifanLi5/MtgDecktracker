@@ -11,7 +11,7 @@ import android.util.Log;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
-import com.example.yifan.mtgdecktracker.SavedDecksActivityClasses.SavedDecksActivity;
+import com.example.yifan.mtgdecktracker.savedDecksActivityClasses.SavedDecksActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -100,6 +100,7 @@ public abstract class Card implements Parcelable, Serializable{
 
     public void setTotal(int total) {
         this.total = total;
+        this.inDeck = total;
     }
 
     public int getInDeck() {
@@ -118,24 +119,28 @@ public abstract class Card implements Parcelable, Serializable{
         this.notInDeck = notInDeck;
     }
 
-    public void moveOutOfDeck(){
+    public boolean moveOutOfDeck(){
         //operation only valid is there is at least 1 card inDeck
         if(inDeck >= 1){
             inDeck--;
             notInDeck++;
+            return true;
         }
         else{
             Log.e(LOG_TAG, "attempt to remove card when there isn't one to remove");
+            return false;
         }
     }
 
-    public void moveIntoDeck(){
+    public boolean moveIntoDeck(){
         if(notInDeck >= 1){
             inDeck++;
             notInDeck--;
+            return true;
         }
         else{
             Log.e(LOG_TAG, "attempt to add card when there isn't one to add");
+            return false;
         }
     }
 
@@ -165,6 +170,7 @@ public abstract class Card implements Parcelable, Serializable{
     private void writeObject(java.io.ObjectOutputStream out) throws IOException {
         out.writeObject(name);
         out.writeInt(total);
+        out.writeInt(inDeck);
         out.writeObject(cost);
         out.writeObject(imageURL);
         out.writeObject(editions);
@@ -182,6 +188,7 @@ public abstract class Card implements Parcelable, Serializable{
     private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
         this.name = (String)in.readObject();
         this.total = in.readInt();
+        this.inDeck = in.readInt();
         this.cost = (String)in.readObject();
         this.imageURL = (String)in.readObject();
         this.editions = (ArrayList<Edition>) in.readObject();
@@ -193,6 +200,7 @@ public abstract class Card implements Parcelable, Serializable{
     private void readObjectNoData() throws ObjectStreamException {
         this.name = "NoData";
         this.total = 0;
+        this.inDeck = 0;
         this.cost = "NoData";
         this.imageURL = "NoData";
         this.cardImage = null;

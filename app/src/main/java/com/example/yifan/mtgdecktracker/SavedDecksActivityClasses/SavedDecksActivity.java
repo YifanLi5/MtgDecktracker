@@ -1,6 +1,7 @@
-package com.example.yifan.mtgdecktracker.SavedDecksActivityClasses;
+package com.example.yifan.mtgdecktracker.savedDecksActivityClasses;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
@@ -23,6 +24,8 @@ import android.view.View;
 import com.example.yifan.mtgdecktracker.Card;
 import com.example.yifan.mtgdecktracker.Deck;
 import com.example.yifan.mtgdecktracker.R;
+import com.example.yifan.mtgdecktracker.playDeckActivityClasses.PlayDeckActivity;
+import com.example.yifan.mtgdecktracker.staticMethods.StaticUtilityMethodsAndConstants;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -35,9 +38,8 @@ import java.util.ArrayList;
 
 public class SavedDecksActivity extends AppCompatActivity implements SavedDeckActivityCommunicator, ConfirmResetDialogFragment.ConfirmResetDialogCallbacks {
 
-    private static final String SAVED_DECKS = "SavedDecks";
+    private static final String SAVED_INSTANCE_STATED_DECKS = "SavedInstanceStateDecks";
     private static final String LOG_TAG = SavedDecksActivity.class.getSimpleName();
-    private static final String INTERNAL_STORAGE_FILENAME = "MTGDecktracker Saved Decks";
     private Toolbar toolbar;
     private ArrayList<Deck> savedDecks;
     private EditDeckFragment mEditDeckFragment = null;
@@ -47,7 +49,6 @@ public class SavedDecksActivity extends AppCompatActivity implements SavedDeckAc
     private int recyclerViewDeletionIndex;
 
     public static final String INTENT_KEY = "IntentKey";
-    public static final String DECK_KEY = "DeckKey";
 
     private DrawerLayout mDrawerLayout;
     @Override
@@ -80,7 +81,7 @@ public class SavedDecksActivity extends AppCompatActivity implements SavedDeckAc
 
         if(savedInstanceState != null){
             Log.i(LOG_TAG, "restore savedDecks from savedInstanceState");
-            savedDecks = savedInstanceState.getParcelableArrayList(SAVED_DECKS);
+            savedDecks = savedInstanceState.getParcelableArrayList(SAVED_INSTANCE_STATED_DECKS);
         }
         else{
             Log.i(LOG_TAG, "restore savedDecks from memory");
@@ -159,7 +160,7 @@ public class SavedDecksActivity extends AppCompatActivity implements SavedDeckAc
         FileOutputStream fos = null;
         ObjectOutputStream oos = null;
         try {
-            fos = openFileOutput(INTERNAL_STORAGE_FILENAME, Context.MODE_PRIVATE);
+            fos = openFileOutput(StaticUtilityMethodsAndConstants.INTERNAL_STORAGE_FILENAME, Context.MODE_PRIVATE);
             oos = new ObjectOutputStream(fos);
             oos.writeObject(savedDecks);
         } catch (FileNotFoundException e) {
@@ -183,7 +184,7 @@ public class SavedDecksActivity extends AppCompatActivity implements SavedDeckAc
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList(SAVED_DECKS, savedDecks);
+        outState.putParcelableArrayList(SAVED_INSTANCE_STATED_DECKS, savedDecks);
     }
 
     @Override
@@ -281,6 +282,15 @@ public class SavedDecksActivity extends AppCompatActivity implements SavedDeckAc
         dialog.show(getSupportFragmentManager(), "FromActivity");
     }
 
+    @Override
+    public void startPlayDeckActivity(int index) {
+        //Intent playDeckActivityIntent = PlayDeckActivity.getStartingIntent(getApplicationContext(), deck);
+        Log.d(LOG_TAG, "attempt to start playdeck");
+        Intent playDeckActivityIntent = new Intent(this, PlayDeckActivity.class);
+        playDeckActivityIntent.putExtra(INTENT_KEY, index);
+        startActivity(playDeckActivityIntent);
+    }
+
     //add in button for creating new deck
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -321,7 +331,7 @@ public class SavedDecksActivity extends AppCompatActivity implements SavedDeckAc
         FileInputStream fis = null;
         ObjectInputStream ois = null;
         try {
-            fis = openFileInput(INTERNAL_STORAGE_FILENAME);
+            fis = openFileInput(StaticUtilityMethodsAndConstants.INTERNAL_STORAGE_FILENAME);
             ois = new ObjectInputStream(fis);
             return (ArrayList<Deck>) ois.readObject();
         } catch (FileNotFoundException e) {

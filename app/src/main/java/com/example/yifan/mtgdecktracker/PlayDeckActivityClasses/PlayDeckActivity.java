@@ -1,4 +1,4 @@
-package com.example.yifan.mtgdecktracker.PlayDeckActivityClasses;
+package com.example.yifan.mtgdecktracker.playDeckActivityClasses;
 
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +9,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -16,8 +17,14 @@ import android.widget.Toast;
 import com.example.yifan.mtgdecktracker.Card;
 import com.example.yifan.mtgdecktracker.Deck;
 import com.example.yifan.mtgdecktracker.R;
-import com.example.yifan.mtgdecktracker.SavedDecksActivityClasses.SavedDecksActivity;
+import com.example.yifan.mtgdecktracker.savedDecksActivityClasses.SavedDecksActivity;
+import com.example.yifan.mtgdecktracker.staticMethods.StaticUtilityMethodsAndConstants;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.StreamCorruptedException;
 import java.util.ArrayList;
 
 public class PlayDeckActivity extends AppCompatActivity implements PlayDeckActivityCommunicator{
@@ -39,17 +46,20 @@ public class PlayDeckActivity extends AppCompatActivity implements PlayDeckActiv
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(LOG_TAG, "playdeck activity started");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_play_deck);
 
         Intent intent = getIntent();
-        playingDeck = intent.getParcelableExtra(SavedDecksActivity.INTENT_KEY);
-        playingDeck = Deck.getCopy(playingDeck);
-
+        int index = intent.getIntExtra(SavedDecksActivity.INTENT_KEY, -1);
+        if(index != -1){
+            playingDeck = getSelectedDeck(index);
+            Log.d(LOG_TAG, playingDeck.toString());
+        }
 
         toolbarSetup();
         recyclerViewSetup();
-
+        Log.d(LOG_TAG, "adapter items: " + String.valueOf(mInDeckAdapter.getItemCount()) + " arraylist items: " + mInDeckCards.size());
     }
 
     @Override
@@ -92,47 +102,100 @@ public class PlayDeckActivity extends AppCompatActivity implements PlayDeckActiv
 
     private void recyclerViewSetup(){
         mInDeckRV = (RecyclerView) findViewById(R.id.in_deck_recycler_view);
-        mNotInDeckRV = (RecyclerView) findViewById(R.id.out_of_deck_recycler_view);
         mInDeckRV.setHasFixedSize(true);
-        mNotInDeckRV.setHasFixedSize(true);
 
         mInDeckCards = playingDeck.getMainBoard();
-        mNotInDeckCards = new ArrayList<>();
         mInDeckAdapter = PlayDeckContentsDataAdapter.getInDeckAdapter(getApplicationContext(), mInDeckCards, playingDeck.getTotalCardCount());
-        mNotInDeckAdapter = PlayDeckContentsDataAdapter.getOutOfDeckAdapter(getApplicationContext(), mNotInDeckCards, playingDeck.getTotalCardCount());
-
         mInDeckRV.setAdapter(mInDeckAdapter);
+
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+
+        mInDeckRV.setLayoutManager(linearLayoutManager);
+
+        mNotInDeckRV = (RecyclerView) findViewById(R.id.out_of_deck_recycler_view);
+        mNotInDeckRV.setHasFixedSize(true);
+
+        mNotInDeckCards = new ArrayList<>();
+        mNotInDeckAdapter = PlayDeckContentsDataAdapter.getOutOfDeckAdapter(getApplicationContext(), mNotInDeckCards);
         mNotInDeckRV.setAdapter(mNotInDeckAdapter);
-        mInDeckRV.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         mNotInDeckRV.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
         ItemTouchHelper inDeckHelper = new ItemTouchHelper(new InDeckCardSwipeCallback(this));
         ItemTouchHelper notInDeckHelper = new ItemTouchHelper(new NotInDeckCardSwipeCallback(this));
         inDeckHelper.attachToRecyclerView(mInDeckRV);
         notInDeckHelper.attachToRecyclerView(mNotInDeckRV);
+
+        mInDeckAdapter.notifyDataSetChanged();
     }
 
     //used by a swipe listener to move cards from one recycler view to another, card objects are never removed from mInDeckRV rather the card object swiped modifies its inDeck and notInDeck variables.
     public void moveFromInDeckToOutOfDeck(int position){
         Card targetCard = mInDeckCards.get(position);
-        targetCard.moveOutOfDeck();
-        //lists store references therefore can just add the reference into mNotInDeckCards list. Any changes to the card object is reflected in the card object referenced by mInDeckCards and mNotInDeckCards
-        mNotInDeckCards.add(targetCard);
-        mInDeckAdapter.notifyDataSetChanged();
-        mNotInDeckAdapter.notifyDataSetChanged(); //the adapter knows to differentiate between creating a not in deck vs in deck card view
+        if(targetCard.moveOutOfDeck()){
+            mInDeckAdapter.decrementTotalCardCount();
+            //lists store references therefore can just add the reference into mNotInDeckCards list. Any changes to the card object is reflected in the card object referenced by mInDeckCards and mNotInDeckCards
+            if(!(targetCard.getNotInDeck() > 1)){ //if this card has not been added into the OutOfDeck list add it, if it has been added then its value will be incremented
+                mNotInDeckCards.add(targetCard); //prevents duplicate entries in OutOfDeck list
+            }
+            mInDeckAdapter.notifyDataSetChanged();
+            mNotInDeckAdapter.notifyDataSetChanged(); //the adapter knows to differentiate between creating a not in deck vs in deck card view
+        }
+        else{
+            mInDeckAdapter.notifyItemChanged(position);
+        }
     }
 
     public void moveFromOutOfDeckToInDeck(int position){
         Card targetCard = mNotInDeckCards.get(position);
-        targetCard.moveIntoDeck();
-        mInDeckAdapter.notifyDataSetChanged();
-        if(targetCard.getNotInDeck() == 0){ //remove not in deck cards if the card objects notInDeck variable is 0 indicating all cards of that name went back into the deck
-            mNotInDeckAdapter.notifyItemRemoved(position);
+        if(targetCard.moveIntoDeck()){
+            mInDeckAdapter.incrementTotalCardCount();
+            if(targetCard.getNotInDeck() == 0){ //remove not in deck card if the card objects notInDeck variable is 0 indicating all cards of that name went back into the deck
+                mNotInDeckCards.remove(position);
+                mNotInDeckAdapter.notifyItemRemoved(position);
+            }
+            else{
+                mNotInDeckAdapter.notifyItemChanged(position);
+            }
+            mInDeckAdapter.notifyDataSetChanged();
         }
-        else{
-            mNotInDeckAdapter.notifyItemChanged(position);
-        }
-
     }
+
+    //this activity recieves the index of the deck (as an intent extra) to play which is stored in the phones internal storage
+    //this method retrieves that deck
+    @SuppressWarnings("unchecked")
+    private Deck getSelectedDeck(int index){
+        FileInputStream fis = null;
+        ObjectInputStream ois = null;
+        try {
+            fis = openFileInput(StaticUtilityMethodsAndConstants.INTERNAL_STORAGE_FILENAME);
+            ois = new ObjectInputStream(fis);
+            ArrayList<Deck> decks = (ArrayList<Deck>) ois.readObject();
+            return decks.get(index);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (StreamCorruptedException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        finally {
+            try{
+                if(fis != null){
+                    fis.close();
+                }
+                if(ois != null){
+                    ois.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        //no saved decks
+        return null;
+    }
+
 
 }

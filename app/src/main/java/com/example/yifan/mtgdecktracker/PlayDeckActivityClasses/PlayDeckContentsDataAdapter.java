@@ -1,8 +1,9 @@
-package com.example.yifan.mtgdecktracker.PlayDeckActivityClasses;
+package com.example.yifan.mtgdecktracker.playDeckActivityClasses;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
  */
 public class PlayDeckContentsDataAdapter extends RecyclerView.Adapter<PlayDeckContentsDataAdapter.SingleItem>{
 
+    private static final String LOG_TAG = PlayDeckContentsDataAdapter.class.getSimpleName();
     private ArrayList<Card> cards;
     private Context mContext;
     private boolean usedForInDeck; //if adapter used for In Deck, then we need to show the draw probability in the cardProbabilityTV, otherwise don't show anything in that TV
@@ -30,8 +32,8 @@ public class PlayDeckContentsDataAdapter extends RecyclerView.Adapter<PlayDeckCo
         return instance;
     }
 
-    public static PlayDeckContentsDataAdapter getOutOfDeckAdapter(Context context, ArrayList<Card> cards, int cardsRemainingInDeck){
-        PlayDeckContentsDataAdapter instance = new PlayDeckContentsDataAdapter(context, cards, cardsRemainingInDeck);
+    public static PlayDeckContentsDataAdapter getOutOfDeckAdapter(Context context, ArrayList<Card> cards){
+        PlayDeckContentsDataAdapter instance = new PlayDeckContentsDataAdapter(context, cards, 0);
         instance.usedForInDeck = false;
         return instance;
     }
@@ -40,6 +42,23 @@ public class PlayDeckContentsDataAdapter extends RecyclerView.Adapter<PlayDeckCo
         this.mContext = context;
         this.cards = cards;
         this.cardsRemainingInDeck = cardsRemainingInDeck;
+    }
+
+    public PlayDeckContentsDataAdapter(Context context, ArrayList<Card> cards, int cardsRemainingInDeck, boolean usedForInDeck){
+        this.mContext = context;
+        this.cards = cards;
+        this.cardsRemainingInDeck = cardsRemainingInDeck;
+        this.usedForInDeck = usedForInDeck;
+    }
+
+    public void incrementTotalCardCount(){
+        cardsRemainingInDeck++;
+    }
+
+    public void decrementTotalCardCount(){
+        if(cardsRemainingInDeck != 0){
+            cardsRemainingInDeck--;
+        }
     }
 
     @Override
@@ -54,8 +73,11 @@ public class PlayDeckContentsDataAdapter extends RecyclerView.Adapter<PlayDeckCo
         holder.setCardImage(singleItem.getCardImage());
         holder.setCardNameTVText(singleItem.getName());
         if(usedForInDeck){
+            double probability = ((double)singleItem.getInDeck() / cardsRemainingInDeck) * 100; //both num and denom are ints, need to cast one to make division return a double
+            Log.d(LOG_TAG, "inDeck: " + singleItem.getInDeck() + "\ncardsRemainingInDeck: " + cardsRemainingInDeck + "\nprobability: " + String.format("%.2f", probability));
+
             holder.setCardQuantityTVText(singleItem.getInDeck());
-            holder.setCardProbabilityTVText(singleItem.getInDeck() / cardsRemainingInDeck); //draw % = amount in deck / total cards in deck
+            holder.setCardProbabilityTVText(String.format("%.2f", probability)); //draw % = amount in deck / total cards in deck
         }
         else{
             holder.setCardQuantityTVText(singleItem.getNotInDeck());
@@ -64,7 +86,7 @@ public class PlayDeckContentsDataAdapter extends RecyclerView.Adapter<PlayDeckCo
 
     @Override
     public int getItemCount() {
-        return 0;
+        return (cards != null ? cards.size() : 0);
     }
 
     public class SingleItem extends RecyclerView.ViewHolder{
@@ -85,7 +107,7 @@ public class PlayDeckContentsDataAdapter extends RecyclerView.Adapter<PlayDeckCo
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
+                    v.setVisibility(View.GONE);
                 }
             });
         }
@@ -100,7 +122,7 @@ public class PlayDeckContentsDataAdapter extends RecyclerView.Adapter<PlayDeckCo
             String formatedQuantity = "x" + quantity;
             this.cardQuantityTV.setText(formatedQuantity);
         }
-        public void setCardProbabilityTVText(double probability){
+        public void setCardProbabilityTVText(String probability){
             String formatedProbability = probability + "%";
             this.cardProbabilityTV.setText(formatedProbability);
         }

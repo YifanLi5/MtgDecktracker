@@ -1,4 +1,4 @@
-package com.example.yifan.mtgdecktracker.StaticMethods;
+package com.example.yifan.mtgdecktracker.staticMethods;
 
 import android.app.Activity;
 import android.content.Context;
@@ -10,9 +10,11 @@ import android.view.inputmethod.InputMethodManager;
 /**
  * Created by Yifan on 6/17/2016.
  */
-public class StaticUtilityMethods {
+public class StaticUtilityMethodsAndConstants {
 
-    private StaticUtilityMethods(){}
+    public static final String INTERNAL_STORAGE_FILENAME = "MTGDecktracker Saved Decks";
+
+    private StaticUtilityMethodsAndConstants(){}
 
     public static boolean isInteger(String str) {
         if (str == null) {

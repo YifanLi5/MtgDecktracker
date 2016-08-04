@@ -49,11 +49,13 @@ public class Edition implements Serializable, Parcelable {
         dest.writeString(imageURL);
     }
 
-    public static final Creator<Edition> CREATOR = new Creator<Edition>() {
+    @SuppressWarnings("unused")
+    public static final Parcelable.Creator<Edition> CREATOR = new Parcelable.Creator<Edition>() {
+        @Override
         public Edition createFromParcel(Parcel in) {
             return new Edition(in);
         }
-
+        @Override
         public Edition[] newArray(int size) {
             return new Edition[size];
         }

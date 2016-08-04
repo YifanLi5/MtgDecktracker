@@ -1,4 +1,4 @@
-package com.example.yifan.mtgdecktracker.SavedDecksActivityClasses;
+package com.example.yifan.mtgdecktracker.savedDecksActivityClasses;
 
 
 import android.os.Bundle;
@@ -16,7 +16,7 @@ import android.widget.Toast;
 
 import com.example.yifan.mtgdecktracker.Card;
 import com.example.yifan.mtgdecktracker.R;
-import com.example.yifan.mtgdecktracker.StaticMethods.StaticUtilityMethods;
+import com.example.yifan.mtgdecktracker.staticMethods.StaticUtilityMethodsAndConstants;
 
 
 public class ModifyCardEntryFragment extends Fragment {
@@ -75,9 +75,9 @@ public class ModifyCardEntryFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 hostActivity.setCardCountCallback(0, positionClicked, getArguments().getBoolean(MAINBOARD_CHANGE));
-                StaticUtilityMethods.hideKeyboardFrom(getContext(), rootView);
+                StaticUtilityMethodsAndConstants.hideKeyboardFrom(getContext(), rootView);
                 hostActivity.closeDrawer(Gravity.END);
-                //StaticUtilityMethods.closeThisFragment(getActivity(), ModifyCardEntryFragment.this);
+                //StaticUtilityMethodsAndConstants.closeThisFragment(getActivity(), ModifyCardEntryFragment.this);
             }
         });
 
@@ -87,9 +87,9 @@ public class ModifyCardEntryFragment extends Fragment {
                 String newCardQuantity = mCardQuantity.getText().toString();
                 try{
                     hostActivity.setCardCountCallback(Integer.parseInt(newCardQuantity), positionClicked, getArguments().getBoolean(MAINBOARD_CHANGE));
-                    StaticUtilityMethods.hideKeyboardFrom(getContext(), rootView);
+                    StaticUtilityMethodsAndConstants.hideKeyboardFrom(getContext(), rootView);
                     hostActivity.closeDrawer(Gravity.END);
-                    //StaticUtilityMethods.closeThisFragment(getActivity(), ModifyCardEntryFragment.this);
+                    //StaticUtilityMethodsAndConstants.closeThisFragment(getActivity(), ModifyCardEntryFragment.this);
                 }
                 catch(NumberFormatException ex){
                     Toast.makeText(getContext(), "invalid number for quantity", Toast.LENGTH_SHORT).show();
@@ -100,9 +100,9 @@ public class ModifyCardEntryFragment extends Fragment {
         mCloseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                StaticUtilityMethods.hideKeyboardFrom(getContext(), rootView);
+                StaticUtilityMethodsAndConstants.hideKeyboardFrom(getContext(), rootView);
                 hostActivity.closeDrawer(Gravity.END);
-                //StaticUtilityMethods.closeThisFragment(getActivity(), ModifyCardEntryFragment.this);
+                //StaticUtilityMethodsAndConstants.closeThisFragment(getActivity(), ModifyCardEntryFragment.this);
             }
         });
     }

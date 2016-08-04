@@ -1,10 +1,9 @@
-package com.example.yifan.mtgdecktracker.SavedDecksActivityClasses;
+package com.example.yifan.mtgdecktracker.savedDecksActivityClasses;
 
 import android.content.Context;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -36,7 +35,6 @@ public class DecksVerticalRecyclerAdapter extends RecyclerView.Adapter<DecksVert
     @Override
     public ItemRowHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.horizontal_item_layout, null);
-
         ItemRowHolder mh = new ItemRowHolder(v, i);
         return mh;
     }
@@ -85,7 +83,7 @@ public class DecksVerticalRecyclerAdapter extends RecyclerView.Adapter<DecksVert
                         public boolean onMenuItemClick(MenuItem item) {
                             switch(item.getItemId()){
                                 case R.id.play_deck:
-                                    Log.i(LOG_TAG, "click on playdeck, to be implemented");
+                                    ((SavedDecksActivity) mContext).startPlayDeckActivity(i);
                                     return true;
                                 case R.id.edit_deck:
                                     ((SavedDecksActivity) mContext).respondToAdapterEditDeckButton(savedDecks.get(i).getMainBoard(), savedDecks.get(i).getSideBoard(), deckName, itemRowHolder.deckIndex);
