@@ -19,6 +19,7 @@ import java.util.ArrayList;
  * Created by Yifan on 7/27/2016.
  */
 public class PlayDeckContentsDataAdapter extends RecyclerView.Adapter<PlayDeckContentsDataAdapter.SingleItem>{
+    //lalalalalaalalalalaall
 
     private static final String LOG_TAG = PlayDeckContentsDataAdapter.class.getSimpleName();
     private ArrayList<Card> cards;
@@ -72,6 +73,7 @@ public class PlayDeckContentsDataAdapter extends RecyclerView.Adapter<PlayDeckCo
         Card singleItem = cards.get(position);
         holder.setCardImage(singleItem.getCardImage());
         holder.setCardNameTVText(singleItem.getName());
+
         if(usedForInDeck){
             double probability = ((double)singleItem.getInDeck() / cardsRemainingInDeck) * 100; //both num and denom are ints, need to cast one to make division return a double
             Log.d(LOG_TAG, "inDeck: " + singleItem.getInDeck() + "\ncardsRemainingInDeck: " + cardsRemainingInDeck + "\nprobability: " + String.format("%.2f", probability));
@@ -81,6 +83,15 @@ public class PlayDeckContentsDataAdapter extends RecyclerView.Adapter<PlayDeckCo
         }
         else{
             holder.setCardQuantityTVText(singleItem.getNotInDeck());
+            //the out of deck arraylist is the same as the indeck arraylist, however if a card object has 0 out of deck, it is not shown in the out of deck recyclerview
+            //this allows the same cards outside of deck to be matched beneath the cards inside of deck
+            if(singleItem.getNotInDeck() == 0){
+                holder.hideItem();
+            }
+            else if(singleItem.getNotInDeck() >= 1){
+                holder.showItem();
+            }
+
         }
     }
 
@@ -95,6 +106,7 @@ public class PlayDeckContentsDataAdapter extends RecyclerView.Adapter<PlayDeckCo
         private TextView cardNameTV;
         private TextView cardQuantityTV;
         private TextView cardProbabilityTV;
+        private View singleItemView;
         protected int index;
 
         public SingleItem(View view) {
@@ -103,15 +115,22 @@ public class PlayDeckContentsDataAdapter extends RecyclerView.Adapter<PlayDeckCo
             this.cardNameTV = (TextView) view.findViewById(R.id.card_name);
             this.cardQuantityTV = (TextView) view.findViewById(R.id.card_quantity);
             this.cardProbabilityTV = (TextView) view.findViewById(R.id.card_draw_probability);
+            this.singleItemView = view;
 
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    v.setVisibility(View.GONE);
+
                 }
             });
         }
 
+        public void hideItem(){
+            singleItemView.setVisibility(View.INVISIBLE);
+        }
+        public void showItem(){
+            singleItemView.setVisibility(View.VISIBLE);
+        }
         public void setCardImage(Bitmap bm){
             this.cardImage.setImageBitmap(bm);
         }

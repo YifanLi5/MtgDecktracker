@@ -26,12 +26,12 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.StreamCorruptedException;
 import java.util.ArrayList;
+//lalalalalaalalalalaall
 
 public class PlayDeckActivity extends AppCompatActivity implements PlayDeckActivityCommunicator{
     private static final String LOG_TAG = PlayDeckActivity.class.getSimpleName();
     private Deck playingDeck;
-    private ArrayList<Card> mInDeckCards;
-    private ArrayList<Card> mNotInDeckCards;
+    private ArrayList<Card> playingCards;
     private RecyclerView mInDeckRV;
     private RecyclerView mNotInDeckRV;
     private PlayDeckContentsDataAdapter mInDeckAdapter;
@@ -59,7 +59,7 @@ public class PlayDeckActivity extends AppCompatActivity implements PlayDeckActiv
 
         toolbarSetup();
         recyclerViewSetup();
-        Log.d(LOG_TAG, "adapter items: " + String.valueOf(mInDeckAdapter.getItemCount()) + " arraylist items: " + mInDeckCards.size());
+
     }
 
     @Override
@@ -104,8 +104,8 @@ public class PlayDeckActivity extends AppCompatActivity implements PlayDeckActiv
         mInDeckRV = (RecyclerView) findViewById(R.id.in_deck_recycler_view);
         mInDeckRV.setHasFixedSize(true);
 
-        mInDeckCards = playingDeck.getMainBoard();
-        mInDeckAdapter = PlayDeckContentsDataAdapter.getInDeckAdapter(getApplicationContext(), mInDeckCards, playingDeck.getTotalCardCount());
+        playingCards = playingDeck.getMainBoard(); //both adapters refer to the same arraylist, the adapter based on usage
+        mInDeckAdapter = PlayDeckContentsDataAdapter.getInDeckAdapter(getApplicationContext(), playingCards, playingDeck.getTotalCardCount());
         mInDeckRV.setAdapter(mInDeckAdapter);
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
@@ -116,8 +116,7 @@ public class PlayDeckActivity extends AppCompatActivity implements PlayDeckActiv
         mNotInDeckRV = (RecyclerView) findViewById(R.id.out_of_deck_recycler_view);
         mNotInDeckRV.setHasFixedSize(true);
 
-        mNotInDeckCards = new ArrayList<>();
-        mNotInDeckAdapter = PlayDeckContentsDataAdapter.getOutOfDeckAdapter(getApplicationContext(), mNotInDeckCards);
+        mNotInDeckAdapter = PlayDeckContentsDataAdapter.getOutOfDeckAdapter(getApplicationContext(), playingCards);
         mNotInDeckRV.setAdapter(mNotInDeckAdapter);
         mNotInDeckRV.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
@@ -131,33 +130,23 @@ public class PlayDeckActivity extends AppCompatActivity implements PlayDeckActiv
 
     //used by a swipe listener to move cards from one recycler view to another, card objects are never removed from mInDeckRV rather the card object swiped modifies its inDeck and notInDeck variables.
     public void moveFromInDeckToOutOfDeck(int position){
-        Card targetCard = mInDeckCards.get(position);
+        Card targetCard = playingCards.get(position);
         if(targetCard.moveOutOfDeck()){
             mInDeckAdapter.decrementTotalCardCount();
-            //lists store references therefore can just add the reference into mNotInDeckCards list. Any changes to the card object is reflected in the card object referenced by mInDeckCards and mNotInDeckCards
-            if(!(targetCard.getNotInDeck() > 1)){ //if this card has not been added into the OutOfDeck list add it, if it has been added then its value will be incremented
-                mNotInDeckCards.add(targetCard); //prevents duplicate entries in OutOfDeck list
-            }
             mInDeckAdapter.notifyDataSetChanged();
             mNotInDeckAdapter.notifyDataSetChanged(); //the adapter knows to differentiate between creating a not in deck vs in deck card view
         }
-        else{
+        else{ //this is so that if the user swipes a card that doesn't have any indeck, it isn't deleted
             mInDeckAdapter.notifyItemChanged(position);
         }
     }
 
     public void moveFromOutOfDeckToInDeck(int position){
-        Card targetCard = mNotInDeckCards.get(position);
+        Card targetCard = playingCards.get(position);
         if(targetCard.moveIntoDeck()){
             mInDeckAdapter.incrementTotalCardCount();
-            if(targetCard.getNotInDeck() == 0){ //remove not in deck card if the card objects notInDeck variable is 0 indicating all cards of that name went back into the deck
-                mNotInDeckCards.remove(position);
-                mNotInDeckAdapter.notifyItemRemoved(position);
-            }
-            else{
-                mNotInDeckAdapter.notifyItemChanged(position);
-            }
             mInDeckAdapter.notifyDataSetChanged();
+            mNotInDeckAdapter.notifyItemChanged(position);
         }
     }
 
