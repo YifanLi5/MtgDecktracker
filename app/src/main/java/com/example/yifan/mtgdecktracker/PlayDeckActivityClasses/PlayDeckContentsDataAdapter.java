@@ -19,7 +19,6 @@ import java.util.ArrayList;
  * Created by Yifan on 7/27/2016.
  */
 public class PlayDeckContentsDataAdapter extends RecyclerView.Adapter<PlayDeckContentsDataAdapter.SingleItem>{
-    //lalalalalaalalalalaall
 
     private static final String LOG_TAG = PlayDeckContentsDataAdapter.class.getSimpleName();
     private ArrayList<Card> cards;

@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.StreamCorruptedException;
 import java.util.ArrayList;
-//lalalalalaalalalalaall
 
 public class PlayDeckActivity extends AppCompatActivity implements PlayDeckActivityCommunicator{
     private static final String LOG_TAG = PlayDeckActivity.class.getSimpleName();
