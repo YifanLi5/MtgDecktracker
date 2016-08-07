@@ -7,14 +7,16 @@ package com.example.yifan.mtgdecktracker.playDeckActivityClasses;
 public interface PlayDeckActivityCommunicator {
     void moveFromInDeckToOutOfDeck(int position);
     void moveFromOutOfDeckToInDeck(int position);
+    void changeCardsRemaining(int cardsRemaining);
 }
 
 
 /* TODO: 7/30/2016
 - pass in location of cards in phone storage rather than pass images of cards (goes over Parcelable limit)                          DONE
-- Make swipe able to move cards from inDeckRV to notInDeckRV and have statistics on the cards change (draw % and amount in deck)
-- Have the cards in inDeckRV show correct quantity in deck, and draw probabilities
-- Have cards in notInDeckRV show quantites not in deck
+- Make swipe able to move cards from inDeckRV to notInDeckRV and have statistics on the cards change (draw % and amount in deck)    DONE
+- Have the cards in inDeckRV show correct quantity in deck, and draw probabilities                                                  DONE
+- Have cards in notInDeckRV show quantites not in deck                                                                              DONE
+- Make the indeck and outofdeck RVs scroll together
 - implement life counter fragment
-- implement the more options menu to give the option to sideboard, restart and end game. Sideboard ability not included
+- implement the more options menu to give the option to sideboard, restart and end game. functionality is seperate                  DONE
  */

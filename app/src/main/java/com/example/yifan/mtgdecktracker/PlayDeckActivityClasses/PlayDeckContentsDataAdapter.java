@@ -48,11 +48,17 @@ public class PlayDeckContentsDataAdapter extends RecyclerView.Adapter<PlayDeckCo
 
     public void incrementTotalCardCount(){
         cardsRemainingInDeck++;
+        if(mContext instanceof PlayDeckActivity){
+            ((PlayDeckActivityCommunicator) mContext).changeCardsRemaining(cardsRemainingInDeck);
+        }
     }
 
     public void decrementTotalCardCount(){
         if(cardsRemainingInDeck != 0){
             cardsRemainingInDeck--;
+            if(mContext instanceof PlayDeckActivity){
+                ((PlayDeckActivityCommunicator) mContext).changeCardsRemaining(cardsRemainingInDeck);
+            }
         }
     }
 

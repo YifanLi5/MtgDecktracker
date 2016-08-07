@@ -12,6 +12,7 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.yifan.mtgdecktracker.Card;
@@ -35,6 +36,7 @@ public class PlayDeckActivity extends AppCompatActivity implements PlayDeckActiv
     private RecyclerView mNotInDeckRV;
     private PlayDeckContentsDataAdapter mInDeckAdapter;
     private PlayDeckContentsDataAdapter mNotInDeckAdapter;
+    private TextView mCardsRemainingTV;
 
     private static final String PLAYING_DECK_KEY = "PlayingDeckKey";
 
@@ -50,9 +52,11 @@ public class PlayDeckActivity extends AppCompatActivity implements PlayDeckActiv
         Log.d(LOG_TAG, "playdeck activity started");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_play_deck);
+        mCardsRemainingTV = (TextView) findViewById(R.id.cards_remaining);
 
         if(savedInstanceState != null){
             playingDeck = savedInstanceState.getParcelable(PLAYING_DECK_KEY);
+
         }
         else{
             Intent intent = getIntent();
@@ -62,7 +66,7 @@ public class PlayDeckActivity extends AppCompatActivity implements PlayDeckActiv
                 Log.d(LOG_TAG, playingDeck.toString());
             }
         }
-
+        changeCardsRemaining(playingDeck.getTotalCardCount());
         toolbarSetup();
         recyclerViewSetup();
 
@@ -117,7 +121,7 @@ public class PlayDeckActivity extends AppCompatActivity implements PlayDeckActiv
         mInDeckRV.setHasFixedSize(true);
 
         playingCards = playingDeck.getMainBoard(); //both adapters refer to the same arraylist, the adapter based on usage
-        mInDeckAdapter = PlayDeckContentsDataAdapter.getInDeckAdapter(getApplicationContext(), playingCards, playingDeck.getTotalCardCount());
+        mInDeckAdapter = PlayDeckContentsDataAdapter.getInDeckAdapter(this, playingCards, playingDeck.getTotalCardCount());
         mInDeckRV.setAdapter(mInDeckAdapter);
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
@@ -128,7 +132,7 @@ public class PlayDeckActivity extends AppCompatActivity implements PlayDeckActiv
         mNotInDeckRV = (RecyclerView) findViewById(R.id.out_of_deck_recycler_view);
         mNotInDeckRV.setHasFixedSize(true);
 
-        mNotInDeckAdapter = PlayDeckContentsDataAdapter.getOutOfDeckAdapter(getApplicationContext(), playingCards);
+        mNotInDeckAdapter = PlayDeckContentsDataAdapter.getOutOfDeckAdapter(this, playingCards);
         mNotInDeckRV.setAdapter(mNotInDeckAdapter);
         mNotInDeckRV.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
@@ -160,6 +164,12 @@ public class PlayDeckActivity extends AppCompatActivity implements PlayDeckActiv
             mInDeckAdapter.notifyDataSetChanged();
             mNotInDeckAdapter.notifyItemChanged(position);
         }
+    }
+
+    @Override
+    public void changeCardsRemaining(int cardsRemaining) {
+        String cardsRemainingString = "Cards Remaining: " + cardsRemaining;
+        mCardsRemainingTV.setText(cardsRemainingString);
     }
 
     //this activity recieves the index of the deck (as an intent extra) to play which is stored in the phones internal storage
