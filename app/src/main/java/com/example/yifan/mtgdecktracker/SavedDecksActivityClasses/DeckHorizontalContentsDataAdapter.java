@@ -14,7 +14,9 @@ import com.example.yifan.mtgdecktracker.R;
 
 import java.util.ArrayList;
 
-//Adapter for the horizontal cards
+/**
+ * Adapter for the horizontal recycler views inside SavedDecksActivity. i.e: the RVs that show the individual cards
+ */
 public class DeckHorizontalContentsDataAdapter extends RecyclerView.Adapter<DeckHorizontalContentsDataAdapter.SingleItemRowHolder> {
 
     private ArrayList<Card> deckContents;
@@ -29,9 +31,8 @@ public class DeckHorizontalContentsDataAdapter extends RecyclerView.Adapter<Deck
 
     @Override
     public SingleItemRowHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.saved_decks_single_card, null);
-        SingleItemRowHolder mh = new SingleItemRowHolder(v);
-        return mh;
+        View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.saved_decks_single_card, viewGroup, false);
+        return new SingleItemRowHolder(v);
     }
 
     @Override
@@ -42,7 +43,7 @@ public class DeckHorizontalContentsDataAdapter extends RecyclerView.Adapter<Deck
         String cardDetails = singleItem.getName() + "\nx" + singleItem.getTotal();
         holder.cardNameTV.setText(cardDetails);
         holder.setCardImage(singleItem.getCardImage());
-        holder.index = i;
+        holder.index = holder.getAdapterPosition();
     }
 
     @Override

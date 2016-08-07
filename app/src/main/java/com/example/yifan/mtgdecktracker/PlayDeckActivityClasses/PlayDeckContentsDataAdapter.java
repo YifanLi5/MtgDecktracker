@@ -14,9 +14,11 @@ import com.example.yifan.mtgdecktracker.Card;
 import com.example.yifan.mtgdecktracker.R;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 /**
  * Created by Yifan on 7/27/2016.
+ * Adapter used for both the inDeck and notInDeck recyclerviews
  */
 public class PlayDeckContentsDataAdapter extends RecyclerView.Adapter<PlayDeckContentsDataAdapter.SingleItem>{
 
@@ -44,13 +46,6 @@ public class PlayDeckContentsDataAdapter extends RecyclerView.Adapter<PlayDeckCo
         this.cardsRemainingInDeck = cardsRemainingInDeck;
     }
 
-    public PlayDeckContentsDataAdapter(Context context, ArrayList<Card> cards, int cardsRemainingInDeck, boolean usedForInDeck){
-        this.mContext = context;
-        this.cards = cards;
-        this.cardsRemainingInDeck = cardsRemainingInDeck;
-        this.usedForInDeck = usedForInDeck;
-    }
-
     public void incrementTotalCardCount(){
         cardsRemainingInDeck++;
     }
@@ -63,7 +58,7 @@ public class PlayDeckContentsDataAdapter extends RecyclerView.Adapter<PlayDeckCo
 
     @Override
     public SingleItem onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.play_deck_single_card, null);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.play_deck_single_card, parent, false);
         return new SingleItem(v);
     }
 
@@ -75,10 +70,10 @@ public class PlayDeckContentsDataAdapter extends RecyclerView.Adapter<PlayDeckCo
 
         if(usedForInDeck){
             double probability = ((double)singleItem.getInDeck() / cardsRemainingInDeck) * 100; //both num and denom are ints, need to cast one to make division return a double
-            Log.d(LOG_TAG, "inDeck: " + singleItem.getInDeck() + "\ncardsRemainingInDeck: " + cardsRemainingInDeck + "\nprobability: " + String.format("%.2f", probability));
+            Log.d(LOG_TAG, "inDeck: " + singleItem.getInDeck() + "\ncardsRemainingInDeck: " + cardsRemainingInDeck + "\nprobability: " + String.format(Locale.ENGLISH, "%.2f", probability));
 
             holder.setCardQuantityTVText(singleItem.getInDeck());
-            holder.setCardProbabilityTVText(String.format("%.2f", probability)); //draw % = amount in deck / total cards in deck
+            holder.setCardProbabilityTVText(String.format(Locale.ENGLISH, "%.2f", probability)); //draw % = amount in deck / total cards in deck
         }
         else{
             holder.setCardQuantityTVText(singleItem.getNotInDeck());
@@ -106,7 +101,6 @@ public class PlayDeckContentsDataAdapter extends RecyclerView.Adapter<PlayDeckCo
         private TextView cardQuantityTV;
         private TextView cardProbabilityTV;
         private View singleItemView;
-        protected int index;
 
         public SingleItem(View view) {
             super(view);

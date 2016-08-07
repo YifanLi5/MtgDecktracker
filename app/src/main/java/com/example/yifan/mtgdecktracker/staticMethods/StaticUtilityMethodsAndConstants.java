@@ -9,6 +9,7 @@ import android.view.inputmethod.InputMethodManager;
 
 /**
  * Created by Yifan on 6/17/2016.
+ * Contains constants and static methods used in the project
  */
 public class StaticUtilityMethodsAndConstants {
 

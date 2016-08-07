@@ -81,6 +81,7 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
     private static final String MAINBOARD_CONTENTS = "MainContents";
     private static final String SIDEBOARD_CONTENTS = "SideboardContents";
     private static final String DECK_INDEX = "DeckIndex";
+    private static final String IS_DECK_MODIFIED = "IsDeckModified";
 
     public EditDeckFragment() {
         // Required empty public constructor
@@ -112,10 +113,10 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
         }
         else{
             Bundle lastArgs = singletonInstance.getArguments();
-            if(lastArgs.getBoolean(EDIT_EXISTING_DECK) &&  lastArgs.getInt(DECK_INDEX) == deckIndex){ //check if the last state was editing an existing deck and if we are rediting the same deck
+            if(lastArgs.getBoolean(EDIT_EXISTING_DECK) &&  lastArgs.getInt(DECK_INDEX) == deckIndex && !lastArgs.getBoolean(IS_DECK_MODIFIED)){ //check if the last state was editing an existing deck and if we are rediting the same deck
                 return singletonInstance; //then no changes necessary.
             }
-            else{ //fragment already exists but editing new deck
+            else{ //fragment already exists but editing new deck, or deck changed
                 singletonInstance = new EditDeckFragment();
                 Bundle args = new Bundle();
                 args.putInt(DECK_INDEX, deckIndex);
@@ -130,7 +131,6 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
     }
 
     //used when creating a new deck
-    // FIXME: 7/12/2016 Adding new deck retains card counts previous deck edited
     public static EditDeckFragment getInstance(String deckName, int newDeckNumber){
         Log.d("Testing FSM", "testing create new deck");
         if(singletonInstance == null){ //fragment isn't created, create it in create deck mode with empty mMainboard
@@ -243,7 +243,7 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList(MAINBOARD_CONTENTS, mMainboardOriginal); //this will make a flip overwrite changes
+        outState.putParcelableArrayList(MAINBOARD_CONTENTS, mMainboardOriginal);
         outState.putString(DECK_NAME, mDeckName);
 
     }
@@ -286,7 +286,9 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
     //callback methods used to edit quantities or delete already added cards
     public void changeMainboardCardQuantityCallback(int newQuantity, int positionClicked) {
         //listviews comes from data in mMainboard or mSideboard, therefore can just modify this arraylist then call notifyDataChanged()
-        if (newQuantity == 0) {
+        Bundle args = getArguments();
+        args.putBoolean(IS_DECK_MODIFIED, true); //set flag that we have modified the deck, this means that we need to reinitialize this fragment if the user tries to edit the same deck rather than just returning it
+        if (newQuantity == 0) {                  //this is so that changes are reflected. This fixes the issue that occurs if the activity is recreated (screen rotation).
             deleteMainboardCard(positionClicked);
         }
         else {
@@ -311,6 +313,8 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
     }
 
     public void changeSideboardCardQuantityCallback(int newQuantity, int positionClicked) {
+        Bundle args = getArguments();
+        args.putBoolean(IS_DECK_MODIFIED, true);
         if(newQuantity == 0){
             deleteSideboardCard(positionClicked);
         }
@@ -427,6 +431,8 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
 
                 //using constructor NonBasicLand(JsonObject, int)
                 try {
+                    Bundle args = getArguments();
+                    args.putBoolean(IS_DECK_MODIFIED, true);
                     //reset text fields
                     mAutoCompleteEntryField.setText("");
                     mQuantityToAdd.setText("");
@@ -443,7 +449,7 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
                             mMainboardAdapter.notifyDataSetChanged();
 
                         } else {
-                            Toast.makeText(getContext(), "Card already added into Mainboard, modify quantities by touching the list.", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getContext(), "Card already exists in mainboard.", Toast.LENGTH_LONG).show();
                         }
 
                     }
@@ -456,7 +462,7 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
                             mSideboardTotalCardsTV.setText(temp);
                             mSideboardAdapter.notifyDataSetChanged();
                         } else{
-                            Toast.makeText(getContext(), "Card already added into Sideboard, modify quantities by touching the list.", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getContext(), "Card already exists in sideboard.", Toast.LENGTH_LONG).show();
                         }
                     }
 

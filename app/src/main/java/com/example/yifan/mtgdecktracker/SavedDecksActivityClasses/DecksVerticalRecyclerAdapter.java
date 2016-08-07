@@ -34,9 +34,8 @@ public class DecksVerticalRecyclerAdapter extends RecyclerView.Adapter<DecksVert
 
     @Override
     public ItemRowHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.horizontal_item_layout, null);
-        ItemRowHolder mh = new ItemRowHolder(v, i);
-        return mh;
+        View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.horizontal_item_layout, viewGroup, false);
+        return new ItemRowHolder(v, i);
     }
 
     public DeckHorizontalContentsDataAdapter getMainboardDataAdapter() {
@@ -48,7 +47,7 @@ public class DecksVerticalRecyclerAdapter extends RecyclerView.Adapter<DecksVert
     }
 
     @Override
-    public void onBindViewHolder(final ItemRowHolder itemRowHolder, final int i) {
+    public void onBindViewHolder(final ItemRowHolder itemRowHolder, int i) {
 
         final String deckName = savedDecks.get(i).getDeckName();
 
@@ -83,15 +82,13 @@ public class DecksVerticalRecyclerAdapter extends RecyclerView.Adapter<DecksVert
                         public boolean onMenuItemClick(MenuItem item) {
                             switch(item.getItemId()){
                                 case R.id.play_deck:
-                                    ((SavedDecksActivity) mContext).startPlayDeckActivity(i);
+                                    ((SavedDecksActivity) mContext).startPlayDeckActivity(itemRowHolder.getAdapterPosition());
                                     return true;
                                 case R.id.edit_deck:
-                                    ((SavedDecksActivity) mContext).respondToAdapterEditDeckButton(savedDecks.get(i).getMainBoard(), savedDecks.get(i).getSideBoard(), deckName, itemRowHolder.deckIndex);
+                                    ((SavedDecksActivity) mContext).respondToAdapterEditDeckButton(savedDecks.get(itemRowHolder.getAdapterPosition()).getMainBoard(), savedDecks.get(itemRowHolder.getAdapterPosition()).getSideBoard(), deckName, itemRowHolder.deckIndex);
                                     return true;
-
-                                // TODO: 7/12/2016 move this nested listener outside, also have confirmation before deleting deck
                                 case R.id.delete_deck:
-                                    ((SavedDecksActivity) mContext).respondToDeleteDeckRequest(i);
+                                    ((SavedDecksActivity) mContext).respondToDeleteDeckRequest(itemRowHolder.getAdapterPosition());
                                     return true;
                             }
                             return false;
@@ -102,10 +99,6 @@ public class DecksVerticalRecyclerAdapter extends RecyclerView.Adapter<DecksVert
             }
         });
 
-
-    }
-
-    public void deleteDeck(int i){
 
     }
 

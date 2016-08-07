@@ -82,6 +82,7 @@ public class SavedDecksActivity extends AppCompatActivity implements SavedDeckAc
         if(savedInstanceState != null){
             Log.i(LOG_TAG, "restore savedDecks from savedInstanceState");
             savedDecks = savedInstanceState.getParcelableArrayList(SAVED_INSTANCE_STATED_DECKS);
+            Log.d(LOG_TAG, savedDecks.toString());
         }
         else{
             Log.i(LOG_TAG, "restore savedDecks from memory");

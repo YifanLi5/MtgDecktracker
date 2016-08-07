@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
 
     android:background="?android:selectableItemBackground"
     android:orientation="vertical"
@@ -21,7 +21,7 @@
             android:layout_centerVertical="true"
             android:layout_gravity="center_vertical"
             android:layout_toLeftOf="@+id/dropdown_menu_btn"
-            android:text="Sample title"
+            android:text="Deck title"
             android:textColor="@android:color/black"
             android:textSize="18sp" />
 
@@ -57,7 +57,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:minHeight="160dp"
             android:layout_weight="4"
             android:orientation="horizontal" />
 
@@ -73,7 +72,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:minHeight="160dp"
             android:layout_weight="4"
             android:orientation="horizontal" />
 

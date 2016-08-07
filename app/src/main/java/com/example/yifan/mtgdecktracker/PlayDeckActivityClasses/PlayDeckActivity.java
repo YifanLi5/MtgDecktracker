@@ -36,6 +36,8 @@ public class PlayDeckActivity extends AppCompatActivity implements PlayDeckActiv
     private PlayDeckContentsDataAdapter mInDeckAdapter;
     private PlayDeckContentsDataAdapter mNotInDeckAdapter;
 
+    private static final String PLAYING_DECK_KEY = "PlayingDeckKey";
+
     //used to package up proper intent to start this activity
     public static Intent getStartingIntent(Context context, Deck deck){
         Intent startIntent = new Intent(context, PlayDeckActivity.class);
@@ -49,11 +51,16 @@ public class PlayDeckActivity extends AppCompatActivity implements PlayDeckActiv
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_play_deck);
 
-        Intent intent = getIntent();
-        int index = intent.getIntExtra(SavedDecksActivity.INTENT_KEY, -1);
-        if(index != -1){
-            playingDeck = getSelectedDeck(index);
-            Log.d(LOG_TAG, playingDeck.toString());
+        if(savedInstanceState != null){
+            playingDeck = savedInstanceState.getParcelable(PLAYING_DECK_KEY);
+        }
+        else{
+            Intent intent = getIntent();
+            int index = intent.getIntExtra(SavedDecksActivity.INTENT_KEY, -1);
+            if(index != -1){ //-1 means error, no index to look for deck
+                playingDeck = getSelectedDeck(index);
+                Log.d(LOG_TAG, playingDeck.toString());
+            }
         }
 
         toolbarSetup();
@@ -80,6 +87,12 @@ public class PlayDeckActivity extends AppCompatActivity implements PlayDeckActiv
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(PLAYING_DECK_KEY, playingDeck);
     }
 
     private void toolbarSetup(){

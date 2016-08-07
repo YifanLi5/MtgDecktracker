@@ -1,7 +1,6 @@
 package com.example.yifan.mtgdecktracker.savedDecksActivityClasses;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,11 +14,12 @@ import java.util.ArrayList;
 
 /**
  * Created by Yifan on 6/12/2016.
+ * adapter used for the EditDeckFragment's listviews
  */
 public class DeckCreationAdapter extends ArrayAdapter<Card> {
     private static String LOG_TAG = DeckCreationAdapter.class.getSimpleName();
 
-    public DeckCreationAdapter(Context context, int resource){
+    public DeckCreationAdapter(Context context, int resource) {
         super(context, resource);
     }
 
@@ -29,18 +29,33 @@ public class DeckCreationAdapter extends ArrayAdapter<Card> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        LayoutInflater inflater = LayoutInflater.from(getContext());
-        View singleCardView = inflater.inflate(R.layout.card_info_in_listview, parent, false);
+        CardInfoHolder cardInfoHolder;
 
-        TextView cardNameText = (TextView) singleCardView.findViewById(R.id.card_name_inboard);
-        TextView cardQuantityText = (TextView) singleCardView.findViewById(R.id.card_quantity_inboard);
+        if(convertView == null){
+            LayoutInflater inflater = LayoutInflater.from(getContext());
+            convertView = inflater.inflate(R.layout.card_info_in_listview, parent, false);
+            cardInfoHolder = new CardInfoHolder(convertView);
+            convertView.setTag(cardInfoHolder);
+        }
+        else{
+            cardInfoHolder = (CardInfoHolder) convertView.getTag();
+        }
 
         Card card = getItem(position);
-        Log.d(LOG_TAG, "name: " + card.getName());
-        Log.d(LOG_TAG, "total: " + card.getTotal());
-        cardNameText.setText(card.getName());
-        cardQuantityText.setText("x"+String.valueOf(card.getTotal()));//explicitly cast int (card.getTotal()) to String b/c setText looks for string resource based on id
-        return singleCardView;
+        cardInfoHolder.cardNameTV.setText(card.getName());
+        String cardQuantityString = "x" + String.valueOf(card.getTotal());
+        cardInfoHolder.cardQuantityTV.setText(cardQuantityString);
+
+        return convertView;
     }
 
+    static class CardInfoHolder {
+        TextView cardNameTV;
+        TextView cardQuantityTV;
+
+        public CardInfoHolder(View view){
+            cardNameTV = (TextView) view.findViewById(R.id.card_name_inboard);
+            cardQuantityTV = (TextView) view.findViewById(R.id.card_quantity_inboard);
+        }
+    }
 }
