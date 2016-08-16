@@ -11,7 +11,7 @@ import android.util.Log;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
-import com.example.yifan.mtgdecktracker.savedDecksActivityClasses.SavedDecksActivity;
+import com.example.yifan.mtgdecktracker.saved_deck_classes.SavedDecksActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;

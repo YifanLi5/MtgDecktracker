@@ -1,4 +1,4 @@
-package com.example.yifan.mtgdecktracker.playDeckActivityClasses;
+package com.example.yifan.mtgdecktracker.play_deck_classes;
 
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -6,11 +6,11 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 /**
  * Created by Yifan on 7/30/2016.
  */
-public class NotInDeckCardSwipeCallback extends ItemTouchHelper.SimpleCallback{
+public class InDeckCardSwipeCallback extends ItemTouchHelper.SimpleCallback{
     private PlayDeckActivityCommunicator activity;
 
-    public NotInDeckCardSwipeCallback(PlayDeckActivityCommunicator activity){
-        super(ItemTouchHelper.UP | ItemTouchHelper.DOWN, ItemTouchHelper.UP); //set to respond to up swipes
+    public InDeckCardSwipeCallback(PlayDeckActivityCommunicator activity){
+        super(ItemTouchHelper.UP | ItemTouchHelper.DOWN, ItemTouchHelper.DOWN); //set to respond to down swipes
         this.activity = activity;
     }
 
@@ -22,6 +22,6 @@ public class NotInDeckCardSwipeCallback extends ItemTouchHelper.SimpleCallback{
 
     @Override
     public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-        activity.moveFromOutOfDeckToInDeck(viewHolder.getAdapterPosition());
+        activity.moveFromInDeckToOutOfDeck(viewHolder.getAdapterPosition());
     }
 }

@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:padding="10dp"
     android:background="@color/white"
-    tools:context="com.example.yifan.mtgdecktracker.savedDecksActivityClasses.BigCardImageFragment">
+    tools:context="com.example.yifan.mtgdecktracker.saved_deck_classes.BigCardImageFragment">
 
     <ImageButton
         android:layout_width="25dp"

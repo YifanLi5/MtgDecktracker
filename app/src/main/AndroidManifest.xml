@@ -10,7 +10,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-        <activity android:name=".savedDecksActivityClasses.SavedDecksActivity">
+        <activity android:name=".saved_deck_classes.SavedDecksActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -18,7 +18,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".playDeckActivityClasses.PlayDeckActivity"
+            android:name=".play_deck_classes.PlayDeckActivity"
             android:label="@string/title_activity_play_deck"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"></activity>
     </application>

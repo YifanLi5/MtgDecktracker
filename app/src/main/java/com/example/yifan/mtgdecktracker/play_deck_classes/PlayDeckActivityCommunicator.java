@@ -1,4 +1,4 @@
-package com.example.yifan.mtgdecktracker.playDeckActivityClasses;
+package com.example.yifan.mtgdecktracker.play_deck_classes;
 
 /**
  * Created by Yifan on 7/30/2016.

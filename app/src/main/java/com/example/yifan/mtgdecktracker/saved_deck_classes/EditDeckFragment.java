@@ -1,4 +1,4 @@
-package com.example.yifan.mtgdecktracker.savedDecksActivityClasses;
+package com.example.yifan.mtgdecktracker.saved_deck_classes;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -24,8 +24,8 @@ import android.widget.Toast;
 import com.example.yifan.mtgdecktracker.Card;
 import com.example.yifan.mtgdecktracker.NonBasicLand;
 import com.example.yifan.mtgdecktracker.R;
-import com.example.yifan.mtgdecktracker.staticMethods.JsonFetcher;
-import com.example.yifan.mtgdecktracker.staticMethods.StaticUtilityMethodsAndConstants;
+import com.example.yifan.mtgdecktracker.statics_and_constants.JsonFetcher;
+import com.example.yifan.mtgdecktracker.statics_and_constants.StaticUtilityMethodsAndConstants;
 
 import org.json.JSONException;
 import org.json.JSONObject;

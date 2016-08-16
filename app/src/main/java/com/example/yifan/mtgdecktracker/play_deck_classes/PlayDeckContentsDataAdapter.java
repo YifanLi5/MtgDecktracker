@@ -1,4 +1,4 @@
-package com.example.yifan.mtgdecktracker.playDeckActivityClasses;
+package com.example.yifan.mtgdecktracker.play_deck_classes;
 
 import android.content.Context;
 import android.graphics.Bitmap;

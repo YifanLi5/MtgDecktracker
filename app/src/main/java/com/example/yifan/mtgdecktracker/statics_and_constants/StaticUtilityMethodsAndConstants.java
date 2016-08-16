@@ -1,4 +1,4 @@
-package com.example.yifan.mtgdecktracker.staticMethods;
+package com.example.yifan.mtgdecktracker.statics_and_constants;
 
 import android.app.Activity;
 import android.content.Context;

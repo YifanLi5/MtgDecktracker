@@ -1,4 +1,4 @@
-package com.example.yifan.mtgdecktracker.savedDecksActivityClasses;
+package com.example.yifan.mtgdecktracker.saved_deck_classes;
 
 import android.content.Context;
 import android.support.v7.widget.LinearLayoutManager;

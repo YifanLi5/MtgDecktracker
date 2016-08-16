@@ -1,4 +1,4 @@
-package com.example.yifan.mtgdecktracker.savedDecksActivityClasses;
+package com.example.yifan.mtgdecktracker.saved_deck_classes;
 
 import com.example.yifan.mtgdecktracker.Card;
 

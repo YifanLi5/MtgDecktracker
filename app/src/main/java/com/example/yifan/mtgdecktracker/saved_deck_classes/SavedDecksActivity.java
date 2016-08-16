@@ -1,4 +1,4 @@
-package com.example.yifan.mtgdecktracker.savedDecksActivityClasses;
+package com.example.yifan.mtgdecktracker.saved_deck_classes;
 
 import android.content.Context;
 import android.content.Intent;
@@ -24,8 +24,8 @@ import android.view.View;
 import com.example.yifan.mtgdecktracker.Card;
 import com.example.yifan.mtgdecktracker.Deck;
 import com.example.yifan.mtgdecktracker.R;
-import com.example.yifan.mtgdecktracker.playDeckActivityClasses.PlayDeckActivity;
-import com.example.yifan.mtgdecktracker.staticMethods.StaticUtilityMethodsAndConstants;
+import com.example.yifan.mtgdecktracker.play_deck_classes.PlayDeckActivity;
+import com.example.yifan.mtgdecktracker.statics_and_constants.StaticUtilityMethodsAndConstants;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
