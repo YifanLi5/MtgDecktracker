@@ -12,6 +12,7 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,12 +29,69 @@ import java.io.ObjectInputStream;
 import java.io.StreamCorruptedException;
 import java.util.ArrayList;
 
+import aligningrecyclerview.AligningRecyclerView;
+import aligningrecyclerview.AlignmentManager;
+
 public class PlayDeckActivity extends AppCompatActivity implements PlayDeckActivityCommunicator{
     private static final String LOG_TAG = PlayDeckActivity.class.getSimpleName();
     private Deck playingDeck;
     private ArrayList<Card> playingCards;
-    private RecyclerView mInDeckRV;
-    private RecyclerView mNotInDeckRV;
+    private AligningRecyclerView mInDeckRV;
+    private AligningRecyclerView mNotInDeckRV;
+
+    //listeners used to synchronize scrolling of mInDeckRV and mNotInDeckRV
+    private RecyclerView.OnScrollListener mInDeckOSL = new RecyclerView.OnScrollListener() {
+        @Override
+        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            Log.d(LOG_TAG, "scroll inDeck by: " + dx);
+            if(dx != 0){ //starting the activity triggers this listener for some reason with dx of 0. This needs to be here to prevent mNotInDeckOSL from being removed initially. IDK why this happens.
+                /*
+                need to remove listener for other RV, otherwise triggering one scroll listener scrolls the other RV.
+                Scrolling the other RV triggers the original scroll listener which then again scrolls the other RV.
+                (similar to mutually recursive functions)
+                 */
+                mNotInDeckRV.removeOnScrollListener(mNotInDeckOSL);
+                mNotInDeckRV.scrollBy(dx,0); //scroll the other RV
+            }
+            super.onScrolled(recyclerView, dx, dy);
+
+        }
+
+        @Override
+        public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+            /*
+            when the RV stops scrolling we re-add the listener for other RV, preventing the listeners from chaining together scrolling.
+             */
+            if(newState == RecyclerView.SCROLL_STATE_IDLE){
+                Log.d(LOG_TAG, "adding new mNotInDeckOSL");
+                mNotInDeckRV.addOnScrollListener(mNotInDeckOSL);
+            }
+            super.onScrollStateChanged(recyclerView, newState);
+        }
+    };
+
+    private RecyclerView.OnScrollListener mNotInDeckOSL = new RecyclerView.OnScrollListener() {
+        @Override
+        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            Log.d(LOG_TAG, "scroll notInDeck by: " + dx);
+            if(dx != 0){
+                mInDeckRV.removeOnScrollListener(mInDeckOSL);
+                mInDeckRV.scrollBy(dx,0);
+            }
+            super.onScrolled(recyclerView, dx, dy);
+
+        }
+
+        @Override
+        public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+            if(newState == RecyclerView.SCROLL_STATE_IDLE){
+                Log.d(LOG_TAG, "adding new mInDeckOSL");
+                mInDeckRV.addOnScrollListener(mInDeckOSL);
+            }
+            super.onScrollStateChanged(recyclerView, newState);
+        }
+    };
+
     private PlayDeckContentsDataAdapter mInDeckAdapter;
     private PlayDeckContentsDataAdapter mNotInDeckAdapter;
     private TextView mCardsRemainingTV;
@@ -41,9 +99,9 @@ public class PlayDeckActivity extends AppCompatActivity implements PlayDeckActiv
     private static final String PLAYING_DECK_KEY = "PlayingDeckKey";
 
     //used to package up proper intent to start this activity
-    public static Intent getStartingIntent(Context context, Deck deck){
+    public static Intent getStartingIntent(Context context, int index){
         Intent startIntent = new Intent(context, PlayDeckActivity.class);
-        startIntent.putExtra(SavedDecksActivity.INTENT_KEY, (Parcelable) deck);
+        startIntent.putExtra(SavedDecksActivity.INTENT_KEY, index);
         return startIntent;
     }
 
@@ -82,11 +140,12 @@ public class PlayDeckActivity extends AppCompatActivity implements PlayDeckActiv
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.life_counter_icon:
-                Toast.makeText(getApplicationContext(), "life counter WIP", Toast.LENGTH_SHORT).show();
+                Log.d(LOG_TAG, "force scroll");
+                mInDeckRV.scrollBy(10, 0);
                 break;
-            // TODO: 7/27/2016 change this icon to something better
+
             case R.id.extra_menu_icon:
-                Toast.makeText(getApplicationContext(), "extra menu WIP", Toast.LENGTH_SHORT).show();
+                mInDeckRV.scrollBy(-10, 0);
                 break;
         }
 
@@ -117,10 +176,10 @@ public class PlayDeckActivity extends AppCompatActivity implements PlayDeckActiv
     }
 
     private void recyclerViewSetup(){
-        mInDeckRV = (RecyclerView) findViewById(R.id.in_deck_recycler_view);
+        mInDeckRV = (AligningRecyclerView) findViewById(R.id.in_deck_recycler_view);
         mInDeckRV.setHasFixedSize(true);
 
-        playingCards = playingDeck.getMainBoard(); //both adapters refer to the same arraylist, the adapter based on usage
+        playingCards = playingDeck.getMainBoard(); //both adapters refer to the same arraylist but display different attributes of the card objects
         mInDeckAdapter = PlayDeckContentsDataAdapter.getInDeckAdapter(this, playingCards, playingDeck.getTotalCardCount());
         mInDeckRV.setAdapter(mInDeckAdapter);
 
@@ -129,20 +188,24 @@ public class PlayDeckActivity extends AppCompatActivity implements PlayDeckActiv
 
         mInDeckRV.setLayoutManager(linearLayoutManager);
 
-        mNotInDeckRV = (RecyclerView) findViewById(R.id.out_of_deck_recycler_view);
+        mNotInDeckRV = (AligningRecyclerView) findViewById(R.id.out_of_deck_recycler_view);
         mNotInDeckRV.setHasFixedSize(true);
 
         mNotInDeckAdapter = PlayDeckContentsDataAdapter.getOutOfDeckAdapter(this, playingCards);
         mNotInDeckRV.setAdapter(mNotInDeckAdapter);
         mNotInDeckRV.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
+        //setup for swiping to remove cards
         ItemTouchHelper inDeckHelper = new ItemTouchHelper(new InDeckCardSwipeCallback(this));
         ItemTouchHelper notInDeckHelper = new ItemTouchHelper(new NotInDeckCardSwipeCallback(this));
         inDeckHelper.attachToRecyclerView(mInDeckRV);
         notInDeckHelper.attachToRecyclerView(mNotInDeckRV);
 
-        mInDeckAdapter.notifyDataSetChanged();
+        mInDeckRV.addOnScrollListener(mInDeckOSL);
+
+        mNotInDeckRV.addOnScrollListener(mNotInDeckOSL);
     }
+
 
     //used by a swipe listener to move cards from one recycler view to another, card objects are never removed from mInDeckRV rather the card object swiped modifies its inDeck and notInDeck variables.
     public void moveFromInDeckToOutOfDeck(int position){
@@ -150,11 +213,12 @@ public class PlayDeckActivity extends AppCompatActivity implements PlayDeckActiv
         if(targetCard.moveOutOfDeck()){
             mInDeckAdapter.decrementTotalCardCount();
             mInDeckAdapter.notifyDataSetChanged();
-            mNotInDeckAdapter.notifyDataSetChanged(); //the adapter knows to differentiate between creating a not in deck vs in deck card view
+            mNotInDeckAdapter.notifyDataSetChanged();
         }
         else{ //this is so that if the user swipes a card that doesn't have any indeck, it isn't deleted
             mInDeckAdapter.notifyItemChanged(position);
         }
+
     }
 
     public void moveFromOutOfDeckToInDeck(int position){
@@ -172,8 +236,7 @@ public class PlayDeckActivity extends AppCompatActivity implements PlayDeckActiv
         mCardsRemainingTV.setText(cardsRemainingString);
     }
 
-    //this activity recieves the index of the deck (as an intent extra) to play which is stored in the phones internal storage
-    //this method retrieves that deck
+    //retrieve the deck object from the ArrayList<Deck> stored on the device
     @SuppressWarnings("unchecked")
     private Deck getSelectedDeck(int index){
         FileInputStream fis = null;

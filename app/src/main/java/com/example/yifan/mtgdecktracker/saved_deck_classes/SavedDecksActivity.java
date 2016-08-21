@@ -285,10 +285,7 @@ public class SavedDecksActivity extends AppCompatActivity implements SavedDeckAc
 
     @Override
     public void startPlayDeckActivity(int index) {
-        //Intent playDeckActivityIntent = PlayDeckActivity.getStartingIntent(getApplicationContext(), deck);
-        Log.d(LOG_TAG, "attempt to start playdeck");
-        Intent playDeckActivityIntent = new Intent(this, PlayDeckActivity.class);
-        playDeckActivityIntent.putExtra(INTENT_KEY, index);
+        Intent playDeckActivityIntent = PlayDeckActivity.getStartingIntent(getApplicationContext(), index);
         startActivity(playDeckActivityIntent);
     }
 

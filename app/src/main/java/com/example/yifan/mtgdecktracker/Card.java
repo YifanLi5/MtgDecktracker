@@ -33,8 +33,8 @@ public abstract class Card implements Parcelable, Serializable{
     String name;
     int cmc; //converted mana cost
     int total; //total number of this specific card; total = InDeck + notInDeck
-    int inDeck; //number of this card remaining in deck
-    int notInDeck; //number not in deck, i.e: in graveyard, hand, field, exile
+    transient int inDeck; //number of this card remaining in deck
+    transient int notInDeck; //number not in deck, i.e: in graveyard, hand, field, exile
     String cost;
 
     String imageURL;

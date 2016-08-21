@@ -17,10 +17,8 @@
 
         <ImageView
             android:id="@+id/card_image"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minHeight="140dp"
-            android:minWidth="100dp"
+            android:layout_width="100dp"
+            android:layout_height="140dp"
             android:layout_gravity="center_horizontal"
             android:scaleType="fitXY"
             android:adjustViewBounds="true"

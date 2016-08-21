@@ -15,7 +15,9 @@ public class StaticUtilityMethodsAndConstants {
 
     public static final String INTERNAL_STORAGE_FILENAME = "MTGDecktracker Saved Decks";
 
-    private StaticUtilityMethodsAndConstants(){}
+    private StaticUtilityMethodsAndConstants(){
+        throw new UnsupportedOperationException("No instances.");
+    }
 
     public static boolean isInteger(String str) {
         if (str == null) {

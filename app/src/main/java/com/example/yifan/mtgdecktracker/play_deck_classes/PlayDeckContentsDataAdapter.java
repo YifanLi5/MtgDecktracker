@@ -79,11 +79,11 @@ public class PlayDeckContentsDataAdapter extends RecyclerView.Adapter<PlayDeckCo
             Log.d(LOG_TAG, "inDeck: " + singleItem.getInDeck() + "\ncardsRemainingInDeck: " + cardsRemainingInDeck + "\nprobability: " + String.format(Locale.ENGLISH, "%.2f", probability));
 
             holder.setCardQuantityTVText(singleItem.getInDeck());
-            holder.setCardProbabilityTVText(String.format(Locale.ENGLISH, "%.2f", probability)); //draw % = amount in deck / total cards in deck
+            holder.setCardProbabilityTVText(String.format(Locale.ENGLISH, "%.2f", probability)); //draw % == amount in deck / total cards in deck
         }
         else{
             holder.setCardQuantityTVText(singleItem.getNotInDeck());
-            //the out of deck arraylist is the same as the indeck arraylist, however if a card object has 0 out of deck, it is not shown in the out of deck recyclerview
+            //if a card object has 0 out of deck, it is not shown in the out of deck recyclerview
             //this allows the same cards outside of deck to be matched beneath the cards inside of deck
             if(singleItem.getNotInDeck() == 0){
                 holder.hideItem();
@@ -119,7 +119,7 @@ public class PlayDeckContentsDataAdapter extends RecyclerView.Adapter<PlayDeckCo
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
+                    Log.d(LOG_TAG, (String) cardNameTV.getText() + " clicked");
                 }
             });
         }
