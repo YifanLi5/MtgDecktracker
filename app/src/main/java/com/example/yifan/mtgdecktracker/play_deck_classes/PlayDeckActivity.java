@@ -43,52 +43,9 @@ public class PlayDeckActivity extends AppCompatActivity implements PlayDeckActiv
     private RecyclerView.OnScrollListener mInDeckOSL = new RecyclerView.OnScrollListener() {
         @Override
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-            Log.d(LOG_TAG, "scroll inDeck by: " + dx);
-            if(dx != 0){ //starting the activity triggers this listener for some reason with dx of 0. This needs to be here to prevent mNotInDeckOSL from being removed initially. IDK why this happens.
-                /*
-                need to remove listener for other RV, otherwise triggering one scroll listener scrolls the other RV.
-                Scrolling the other RV triggers the original scroll listener which then again scrolls the other RV.
-                (similar to mutually recursive functions)
-                 */
-                mNotInDeckRV.removeOnScrollListener(mNotInDeckOSL);
-                mNotInDeckRV.scrollBy(dx,0); //scroll the other RV
-            }
+            mNotInDeckRV.scrollBy(dx,0); //scroll the other RV
             super.onScrolled(recyclerView, dx, dy);
 
-        }
-
-        @Override
-        public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-            /*
-            when the RV stops scrolling we re-add the listener for other RV, preventing the listeners from chaining together scrolling.
-             */
-            if(newState == RecyclerView.SCROLL_STATE_IDLE){
-                Log.d(LOG_TAG, "adding new mNotInDeckOSL");
-                mNotInDeckRV.addOnScrollListener(mNotInDeckOSL);
-            }
-            super.onScrollStateChanged(recyclerView, newState);
-        }
-    };
-
-    private RecyclerView.OnScrollListener mNotInDeckOSL = new RecyclerView.OnScrollListener() {
-        @Override
-        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-            Log.d(LOG_TAG, "scroll notInDeck by: " + dx);
-            if(dx != 0){
-                mInDeckRV.removeOnScrollListener(mInDeckOSL);
-                mInDeckRV.scrollBy(dx,0);
-            }
-            super.onScrolled(recyclerView, dx, dy);
-
-        }
-
-        @Override
-        public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-            if(newState == RecyclerView.SCROLL_STATE_IDLE){
-                Log.d(LOG_TAG, "adding new mInDeckOSL");
-                mInDeckRV.addOnScrollListener(mInDeckOSL);
-            }
-            super.onScrollStateChanged(recyclerView, newState);
         }
     };
 
@@ -202,8 +159,7 @@ public class PlayDeckActivity extends AppCompatActivity implements PlayDeckActiv
         notInDeckHelper.attachToRecyclerView(mNotInDeckRV);
 
         mInDeckRV.addOnScrollListener(mInDeckOSL);
-
-        mNotInDeckRV.addOnScrollListener(mNotInDeckOSL);
+        //AlignmentManager.join(AligningRecyclerView.ALIGN_ORIENTATION_HORIZONTAL, mInDeckRV, mNotInDeckRV);
     }
 
 
@@ -218,6 +174,9 @@ public class PlayDeckActivity extends AppCompatActivity implements PlayDeckActiv
         else{ //this is so that if the user swipes a card that doesn't have any indeck, it isn't deleted
             mInDeckAdapter.notifyItemChanged(position);
         }
+        int difference = mInDeckRV.computeHorizontalScrollOffset() - mNotInDeckRV.computeHorizontalScrollOffset();
+        mNotInDeckRV.smoothScrollBy(difference, 0);
+
 
     }
 
@@ -228,6 +187,8 @@ public class PlayDeckActivity extends AppCompatActivity implements PlayDeckActiv
             mInDeckAdapter.notifyDataSetChanged();
             mNotInDeckAdapter.notifyItemChanged(position);
         }
+        int difference = mInDeckRV.computeHorizontalScrollOffset() - mNotInDeckRV.computeHorizontalScrollOffset();
+        mNotInDeckRV.smoothScrollBy(difference, 0);
     }
 
     @Override

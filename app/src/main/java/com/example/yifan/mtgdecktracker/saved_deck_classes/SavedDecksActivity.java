@@ -109,12 +109,6 @@ public class SavedDecksActivity extends AppCompatActivity implements SavedDeckAc
         private final int[] ATTRS = new int[]{android.R.attr.listDivider};
         private Drawable mDivider;
 
-        public VerticalItemDecoration(Context context) {
-            final TypedArray styledAttributes = context.obtainStyledAttributes(ATTRS);
-            mDivider = styledAttributes.getDrawable(0);
-            styledAttributes.recycle();
-        }
-
         public VerticalItemDecoration(Context context, int resId) {
             mDivider = ContextCompat.getDrawable(context, resId);
         }
