@@ -168,7 +168,6 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
         mDeckNameField = (EditText) rootView.findViewById(R.id.deck_name_field);
         hostActivity = (SavedDeckActivityCommunicator) getActivity();
 
-        // TODO: 7/11/2016 see if this part can be simplified
         if(savedInstanceState != null){
             this.mDeckName = savedInstanceState.getString(DECK_NAME);
             this.mMainboardOriginal = savedInstanceState.getParcelableArrayList(MAINBOARD_CONTENTS);
@@ -615,7 +614,6 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
     @Override
     public void onNegativeClick(DialogFragment dialog) {
         //do nothing
-        Log.i(LOG_TAG, "no clicked");
     }
 
     private void autoCompleteSetUp() {

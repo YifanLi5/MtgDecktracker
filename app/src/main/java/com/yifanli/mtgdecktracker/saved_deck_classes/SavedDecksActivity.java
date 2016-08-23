@@ -70,6 +70,7 @@ public class SavedDecksActivity extends AppCompatActivity implements SavedDeckAc
             @Override
             public void onDrawerClosed(View drawerView) {
                 mDrawerLayout.closeDrawer(Gravity.RIGHT); //when the left drawer (EditDeckFragment) is closed the right drawer (ModifyCardEntryFragment) also needs to close as the right operates on the left
+
             }
 
             @Override

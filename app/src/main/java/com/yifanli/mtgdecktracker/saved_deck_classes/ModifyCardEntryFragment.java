@@ -26,6 +26,7 @@ public class ModifyCardEntryFragment extends Fragment {
     private EditText mCardQuantity;
     private SavedDeckActivityCommunicator hostActivity; //EditDeckFragment communicates with this Fragment thru the host activity, that host activity implements SavedDeckActivityCommunicator
     private int positionClicked; //This fragment should hold the position of the item clicked in the listview so if the item is deleted we know which one to delete (which index to remove from the arraylist). Lessens errors with passing it internally.
+    private static ModifyCardEntryFragment singletonInstance;
 
     private static final String CARD_NAME = "CardName";
     private static final String CARD_QUANTITY = "CardQuantity";
@@ -37,9 +38,8 @@ public class ModifyCardEntryFragment extends Fragment {
         // this needs to be public b/c android backgrounds needs it to be
     }
 
-    //singleton design pattern to prevent multiple instances from being created
     public static ModifyCardEntryFragment newInstance(Card card, int positionClicked, boolean mainboardChange){
-        ModifyCardEntryFragment singletonInstance = new ModifyCardEntryFragment();
+        singletonInstance = new ModifyCardEntryFragment();
         Bundle args = new Bundle();
         args.putString(CARD_NAME, card.getName());
         args.putString(CARD_QUANTITY, String.valueOf(card.getTotal()));
@@ -84,7 +84,7 @@ public class ModifyCardEntryFragment extends Fragment {
                     hostActivity.setCardCountCallback(Integer.parseInt(newCardQuantity), positionClicked, getArguments().getBoolean(MAINBOARD_CHANGE));
                     StaticUtilityMethodsAndConstants.hideKeyboardFrom(getContext(), rootView);
                     hostActivity.closeDrawer(Gravity.END);
-                    //StaticUtilityMethodsAndConstants.closeThisFragment(getActivity(), ModifyCardEntryFragment.this);
+                    StaticUtilityMethodsAndConstants.closeThisFragment(getActivity(), ModifyCardEntryFragment.this);
                 }
                 catch(NumberFormatException ex){
                     Toast.makeText(getContext(), "invalid number for quantity", Toast.LENGTH_SHORT).show();
@@ -97,7 +97,7 @@ public class ModifyCardEntryFragment extends Fragment {
             public void onClick(View v) {
                 StaticUtilityMethodsAndConstants.hideKeyboardFrom(getContext(), rootView);
                 hostActivity.closeDrawer(Gravity.END);
-                //StaticUtilityMethodsAndConstants.closeThisFragment(getActivity(), ModifyCardEntryFragment.this);
+
             }
         });
     }
@@ -109,8 +109,5 @@ public class ModifyCardEntryFragment extends Fragment {
         mCardQuantity.setText(startingCardQuantity);
     }
 
-    public int getPositionClicked() {
-        return positionClicked;
-    }
 
 }
