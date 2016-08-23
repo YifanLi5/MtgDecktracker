@@ -1,6 +1,6 @@
-package com.example.yifan.mtgdecktracker.saved_deck_classes;
+package com.yifanli.mtgdecktracker.saved_deck_classes;
 
-import com.example.yifan.mtgdecktracker.Card;
+import com.yifanli.mtgdecktracker.deck_data_classes.Card;
 
 import java.util.ArrayList;
 

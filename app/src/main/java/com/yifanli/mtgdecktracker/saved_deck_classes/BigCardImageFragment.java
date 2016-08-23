@@ -1,4 +1,4 @@
-package com.example.yifan.mtgdecktracker.saved_deck_classes;
+package com.yifanli.mtgdecktracker.saved_deck_classes;
 
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
@@ -16,11 +16,11 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 
 import com.bumptech.glide.Glide;
-import com.example.yifan.mtgdecktracker.BasicLand;
-import com.example.yifan.mtgdecktracker.Card;
-import com.example.yifan.mtgdecktracker.Edition;
-import com.example.yifan.mtgdecktracker.NonBasicLand;
-import com.example.yifan.mtgdecktracker.R;
+import com.yifanli.mtgdecktracker.R;
+import com.yifanli.mtgdecktracker.deck_data_classes.BasicLand;
+import com.yifanli.mtgdecktracker.deck_data_classes.Card;
+import com.yifanli.mtgdecktracker.deck_data_classes.Edition;
+import com.yifanli.mtgdecktracker.deck_data_classes.NonBasicLand;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,8 +37,9 @@ public class BigCardImageFragment extends Fragment {
     private boolean isMainboardCard;
     private int currentEditionIndex;
 
+    //set in this case =/= HashSet but release sets in MTG
     private ArrayList<String> mtgSetChoices; //used to populate the spinner
-    private HashMap<String, String> imageURLMap; //key = mtgSetChoices items, value = the imageURL associated with the set. Easy to retrieve image url from setChoice
+    private HashMap<String, String> imageURLMap; //key = mtgSetChoices items, value = the imageURL associated with the set. Easy to retrieve image url from the user's set choice
 
     //keys for initialization
     private static final String SELECTED_CARD = "SelectedCard";

@@ -1,4 +1,4 @@
-package com.example.yifan.mtgdecktracker;
+package com.yifanli.mtgdecktracker.deck_data_classes;
 
 import android.graphics.Bitmap;
 import android.os.Parcel;

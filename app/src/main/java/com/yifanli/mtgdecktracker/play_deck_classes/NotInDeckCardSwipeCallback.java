@@ -1,4 +1,4 @@
-package com.example.yifan.mtgdecktracker.play_deck_classes;
+package com.yifanli.mtgdecktracker.play_deck_classes;
 
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;

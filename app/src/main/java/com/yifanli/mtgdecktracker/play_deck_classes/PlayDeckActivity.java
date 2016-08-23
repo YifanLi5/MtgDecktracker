@@ -1,9 +1,8 @@
-package com.example.yifan.mtgdecktracker.play_deck_classes;
+package com.yifanli.mtgdecktracker.play_deck_classes;
 
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -12,15 +11,13 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.example.yifan.mtgdecktracker.Card;
-import com.example.yifan.mtgdecktracker.Deck;
-import com.example.yifan.mtgdecktracker.R;
-import com.example.yifan.mtgdecktracker.saved_deck_classes.SavedDecksActivity;
-import com.example.yifan.mtgdecktracker.statics_and_constants.StaticUtilityMethodsAndConstants;
+import com.yifanli.mtgdecktracker.R;
+import com.yifanli.mtgdecktracker.deck_data_classes.Card;
+import com.yifanli.mtgdecktracker.deck_data_classes.Deck;
+import com.yifanli.mtgdecktracker.saved_deck_classes.SavedDecksActivity;
+import com.yifanli.mtgdecktracker.statics_and_constants.StaticUtilityMethodsAndConstants;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -30,7 +27,6 @@ import java.io.StreamCorruptedException;
 import java.util.ArrayList;
 
 import aligningrecyclerview.AligningRecyclerView;
-import aligningrecyclerview.AlignmentManager;
 
 public class PlayDeckActivity extends AppCompatActivity implements PlayDeckActivityCommunicator{
     private static final String LOG_TAG = PlayDeckActivity.class.getSimpleName();

@@ -30,7 +30,7 @@
         <fragment
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:name="com.example.yifan.mtgdecktracker.saved_deck_classes.EditDeckFragment"
+            android:name="com.yifanli.mtgdecktracker.saved_deck_classes.EditDeckFragment"
             android:id="@+id/edit_deck_fragment_container"
             tools:layout="@layout/fragment_edit_deck" />
     </FrameLayout>

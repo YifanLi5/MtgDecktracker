@@ -1,8 +1,7 @@
-package com.example.yifan.mtgdecktracker.saved_deck_classes;
+package com.yifanli.mtgdecktracker.saved_deck_classes;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -21,11 +20,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.example.yifan.mtgdecktracker.Card;
-import com.example.yifan.mtgdecktracker.Deck;
-import com.example.yifan.mtgdecktracker.R;
-import com.example.yifan.mtgdecktracker.play_deck_classes.PlayDeckActivity;
-import com.example.yifan.mtgdecktracker.statics_and_constants.StaticUtilityMethodsAndConstants;
+import com.yifanli.mtgdecktracker.R;
+import com.yifanli.mtgdecktracker.deck_data_classes.Card;
+import com.yifanli.mtgdecktracker.deck_data_classes.Deck;
+import com.yifanli.mtgdecktracker.play_deck_classes.PlayDeckActivity;
+import com.yifanli.mtgdecktracker.statics_and_constants.StaticUtilityMethodsAndConstants;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

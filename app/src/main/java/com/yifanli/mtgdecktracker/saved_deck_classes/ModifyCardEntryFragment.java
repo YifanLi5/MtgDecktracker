@@ -1,4 +1,4 @@
-package com.example.yifan.mtgdecktracker.saved_deck_classes;
+package com.yifanli.mtgdecktracker.saved_deck_classes;
 
 
 import android.os.Bundle;
@@ -14,23 +14,18 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.yifan.mtgdecktracker.Card;
-import com.example.yifan.mtgdecktracker.R;
-import com.example.yifan.mtgdecktracker.statics_and_constants.StaticUtilityMethodsAndConstants;
+import com.yifanli.mtgdecktracker.R;
+import com.yifanli.mtgdecktracker.deck_data_classes.Card;
+import com.yifanli.mtgdecktracker.statics_and_constants.StaticUtilityMethodsAndConstants;
 
 
 public class ModifyCardEntryFragment extends Fragment {
 
     private static final String LOG_TAG = ModifyCardEntryFragment.class.getSimpleName();
     private View rootView;
-    private TextView mCardName;
     private EditText mCardQuantity;
-    private Button mRemoveBtn;
-    private Button mConfirmBtn;
-    private ImageButton mCloseButton;
     private SavedDeckActivityCommunicator hostActivity; //EditDeckFragment communicates with this Fragment thru the host activity, that host activity implements SavedDeckActivityCommunicator
     private int positionClicked; //This fragment should hold the position of the item clicked in the listview so if the item is deleted we know which one to delete (which index to remove from the arraylist). Lessens errors with passing it internally.
-    private static ModifyCardEntryFragment singletonInstance;
 
     private static final String CARD_NAME = "CardName";
     private static final String CARD_QUANTITY = "CardQuantity";
@@ -44,7 +39,7 @@ public class ModifyCardEntryFragment extends Fragment {
 
     //singleton design pattern to prevent multiple instances from being created
     public static ModifyCardEntryFragment newInstance(Card card, int positionClicked, boolean mainboardChange){
-        singletonInstance = new ModifyCardEntryFragment();
+        ModifyCardEntryFragment singletonInstance = new ModifyCardEntryFragment();
         Bundle args = new Bundle();
         args.putString(CARD_NAME, card.getName());
         args.putString(CARD_QUANTITY, String.valueOf(card.getTotal()));
@@ -67,9 +62,9 @@ public class ModifyCardEntryFragment extends Fragment {
     }
 
     private void buttonsSetUp(){
-        mRemoveBtn = (Button) rootView.findViewById(R.id.remove_card);
-        mConfirmBtn = (Button) rootView.findViewById(R.id.confirm_btn);
-        mCloseButton = (ImageButton) rootView.findViewById(R.id.close_btn);
+        Button mRemoveBtn = (Button) rootView.findViewById(R.id.remove_card);
+        Button mConfirmBtn = (Button) rootView.findViewById(R.id.confirm_btn);
+        ImageButton mCloseButton = (ImageButton) rootView.findViewById(R.id.close_btn);
 
         mRemoveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -108,7 +103,7 @@ public class ModifyCardEntryFragment extends Fragment {
     }
 
     private void textViewSetUp(String cardName, String startingCardQuantity){
-        mCardName = (TextView) rootView.findViewById(R.id.card_name);
+        TextView mCardName = (TextView) rootView.findViewById(R.id.card_name);
         mCardQuantity = (EditText) rootView.findViewById(R.id.card_quantity);
         mCardName.setText(cardName);
         mCardQuantity.setText(startingCardQuantity);

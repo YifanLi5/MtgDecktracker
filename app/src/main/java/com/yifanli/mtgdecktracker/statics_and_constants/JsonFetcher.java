@@ -1,4 +1,4 @@
-package com.example.yifan.mtgdecktracker.statics_and_constants;
+package com.yifanli.mtgdecktracker.statics_and_constants;
 
 import android.util.Log;
 

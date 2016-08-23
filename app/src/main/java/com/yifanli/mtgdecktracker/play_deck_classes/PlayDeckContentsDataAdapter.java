@@ -1,4 +1,4 @@
-package com.example.yifan.mtgdecktracker.play_deck_classes;
+package com.yifanli.mtgdecktracker.play_deck_classes;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -10,8 +10,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.yifan.mtgdecktracker.Card;
-import com.example.yifan.mtgdecktracker.R;
+import com.yifanli.mtgdecktracker.R;
+import com.yifanli.mtgdecktracker.deck_data_classes.Card;
 
 import java.util.ArrayList;
 import java.util.Locale;
