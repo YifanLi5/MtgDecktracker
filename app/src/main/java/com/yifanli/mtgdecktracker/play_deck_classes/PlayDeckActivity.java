@@ -26,14 +26,12 @@ import java.io.ObjectInputStream;
 import java.io.StreamCorruptedException;
 import java.util.ArrayList;
 
-import aligningrecyclerview.AligningRecyclerView;
-
 public class PlayDeckActivity extends AppCompatActivity implements PlayDeckActivityCommunicator{
     private static final String LOG_TAG = PlayDeckActivity.class.getSimpleName();
     private Deck playingDeck;
     private ArrayList<Card> playingCards;
-    private AligningRecyclerView mInDeckRV;
-    private AligningRecyclerView mNotInDeckRV;
+    private RecyclerView mInDeckRV;
+    private RecyclerView mNotInDeckRV;
 
     //listeners used to synchronize scrolling of mInDeckRV and mNotInDeckRV
     private RecyclerView.OnScrollListener mInDeckOSL = new RecyclerView.OnScrollListener() {
@@ -129,7 +127,7 @@ public class PlayDeckActivity extends AppCompatActivity implements PlayDeckActiv
     }
 
     private void recyclerViewSetup(){
-        mInDeckRV = (AligningRecyclerView) findViewById(R.id.in_deck_recycler_view);
+        mInDeckRV = (RecyclerView) findViewById(R.id.in_deck_recycler_view);
         mInDeckRV.setHasFixedSize(true);
 
         playingCards = playingDeck.getMainBoard(); //both adapters refer to the same arraylist but display different attributes of the card objects
@@ -141,7 +139,7 @@ public class PlayDeckActivity extends AppCompatActivity implements PlayDeckActiv
 
         mInDeckRV.setLayoutManager(linearLayoutManager);
 
-        mNotInDeckRV = (AligningRecyclerView) findViewById(R.id.out_of_deck_recycler_view);
+        mNotInDeckRV = (RecyclerView) findViewById(R.id.out_of_deck_recycler_view);
         mNotInDeckRV.setHasFixedSize(true);
 
         mNotInDeckAdapter = PlayDeckContentsDataAdapter.getOutOfDeckAdapter(this, playingCards);
@@ -155,7 +153,7 @@ public class PlayDeckActivity extends AppCompatActivity implements PlayDeckActiv
         notInDeckHelper.attachToRecyclerView(mNotInDeckRV);
 
         mInDeckRV.addOnScrollListener(mInDeckOSL);
-        //AlignmentManager.join(AligningRecyclerView.ALIGN_ORIENTATION_HORIZONTAL, mInDeckRV, mNotInDeckRV);
+
     }
 
 
@@ -227,6 +225,4 @@ public class PlayDeckActivity extends AppCompatActivity implements PlayDeckActiv
         //no saved decks
         return null;
     }
-
-
 }

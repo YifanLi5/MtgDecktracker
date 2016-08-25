@@ -61,7 +61,7 @@
         </RelativeLayout>
 
 
-        <aligningrecyclerview.AligningRecyclerView
+        <android.support.v7.widget.RecyclerView
             android:id="@+id/in_deck_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -76,7 +76,7 @@
             android:gravity="left"
             android:layout_weight="1"/>
 
-        <aligningrecyclerview.AligningRecyclerView
+        <android.support.v7.widget.RecyclerView
             android:id="@+id/out_of_deck_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
