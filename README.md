@@ -6,3 +6,5 @@ Will display:
 - probability to draw cards.
 
 ![Demo](http://i.giphy.com/l0Hluo7Ft2KaVA2dy.gif)
+
+Project is still a WIP. 
