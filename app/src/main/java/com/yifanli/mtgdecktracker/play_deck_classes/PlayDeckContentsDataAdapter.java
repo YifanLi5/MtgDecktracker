@@ -119,7 +119,7 @@ public class PlayDeckContentsDataAdapter extends RecyclerView.Adapter<PlayDeckCo
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.d(LOG_TAG, (String) cardNameTV.getText() + " clicked");
+                    Log.d(LOG_TAG, cardNameTV.getText() + " clicked");
                 }
             });
         }
@@ -137,12 +137,12 @@ public class PlayDeckContentsDataAdapter extends RecyclerView.Adapter<PlayDeckCo
             this.cardNameTV.setText(cardName);
         }
         public void setCardQuantityTVText(int quantity){
-            String formatedQuantity = "x" + quantity;
-            this.cardQuantityTV.setText(formatedQuantity);
+            String formattedQuantity = "x" + quantity;
+            this.cardQuantityTV.setText(formattedQuantity);
         }
         public void setCardProbabilityTVText(String probability){
-            String formatedProbability = probability + "%";
-            this.cardProbabilityTV.setText(formatedProbability);
+            String formattedProbability = probability + "%";
+            this.cardProbabilityTV.setText(formattedProbability);
         }
     }
 

@@ -30,10 +30,9 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:padding="5dp"
-            android:text="Testing very long name to make sure text wraps nicely asdlkfjasdklgasdhjkghsjdklghasjdkghjasdklghaksljh"
+            android:text="Sample title"
             android:maxLines="5"
             android:lines="1"
-            android:singleLine="false"
             android:textColor="@android:color/black"
             android:textSize="@dimen/font_size_small" />
 
@@ -46,16 +45,6 @@
             android:text="x123"
             android:textColor="@android:color/black"
             android:textSize="@dimen/font_size_small" />
-
-        <TextView
-            android:id="@+id/card_draw_probability"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:padding="5dp"
-            android:textColor="@android:color/black"
-            android:textSize="@dimen/font_size_small"/>
-
 
     </LinearLayout>
 
