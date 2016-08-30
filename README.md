@@ -5,6 +5,8 @@ Will display:
 - counts of individual cards in and outside of deck
 - probability to draw cards.
 
-![Demo](http://i.giphy.com/l0Hluo7Ft2KaVA2dy.gif)
+![Demo1](http://i.giphy.com/3oz8xNVnnzskT5pwMU.gif)
+
+![Demo2](http://i.giphy.com/l0Hluo7Ft2KaVA2dy.gif)
 
 Project is still a WIP. 
