@@ -1,9 +1,13 @@
 #**MtgDecktracker**
 
 Android application to keep count of a player's Magic: The Gathering cards while ingame. 
+
 Will display:
 - counts of individual cards in and outside of deck
 - probability to draw cards.
+
+Cards are recieved in JSON from DeckBrew Api: https://deckbrew.com/api/ 
+
 
 #**Demo Gifs**
 
