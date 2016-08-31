@@ -170,7 +170,6 @@ public abstract class Card implements Parcelable, Serializable{
     private void writeObject(java.io.ObjectOutputStream out) throws IOException {
         out.writeObject(name);
         out.writeInt(total);
-        out.writeInt(inDeck);
         out.writeObject(cost);
         out.writeObject(imageURL);
         out.writeObject(editions);
@@ -188,7 +187,6 @@ public abstract class Card implements Parcelable, Serializable{
     private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
         this.name = (String)in.readObject();
         this.total = in.readInt();
-        this.inDeck = in.readInt();
         this.cost = (String)in.readObject();
         this.imageURL = (String)in.readObject();
         this.editions = (ArrayList<Edition>) in.readObject();

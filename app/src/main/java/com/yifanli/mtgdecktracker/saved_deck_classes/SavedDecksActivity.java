@@ -326,6 +326,7 @@ public class SavedDecksActivity extends AppCompatActivity implements SavedDeckAc
             fis = openFileInput(StaticUtilityMethodsAndConstants.INTERNAL_STORAGE_FILENAME);
             ois = new ObjectInputStream(fis);
             return (ArrayList<Deck>) ois.readObject();
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (StreamCorruptedException e) {
