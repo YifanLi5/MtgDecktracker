@@ -8,14 +8,14 @@ import java.util.ArrayList;
 
 /**
  * Created by Yifan on 5/7/2016.
- * object representing a deck
+ * object for representing a deck
  */
 public class Deck implements Serializable, Parcelable{
 
-    private ArrayList<Card> mainBoard;
-    private ArrayList<Card> sideBoard;
     private String deckName;
     private int totalCardCount; //total number of cards in mainboard, NOT the same as mainBoard.size(). Card objects have a variable of how many copies of that certain card there are and is not considered by size().
+    private ArrayList<Card> mainBoard;
+    private ArrayList<Card> sideBoard;
 
     public Deck(ArrayList<Card> mainBoard, ArrayList<Card> sideBoard, String deckName){
         this.mainBoard = mainBoard;

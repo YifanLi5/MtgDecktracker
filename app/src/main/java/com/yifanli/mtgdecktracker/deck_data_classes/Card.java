@@ -7,6 +7,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
@@ -18,6 +19,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
@@ -38,7 +40,7 @@ public abstract class Card implements Parcelable, Serializable{
     String cost;
 
     String imageURL;
-    Bitmap cardImage;
+    transient Bitmap cardImage;
 
     public boolean imageInitialized = false;
     ArrayList<Edition> editions;
@@ -163,10 +165,6 @@ public abstract class Card implements Parcelable, Serializable{
 
     }
 
-    private class BitmapDataObject implements Serializable {
-        public byte[] imageByteArray;
-    }
-
     private void writeObject(java.io.ObjectOutputStream out) throws IOException {
         out.writeObject(name);
         out.writeInt(total);
@@ -177,9 +175,8 @@ public abstract class Card implements Parcelable, Serializable{
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         if(cardImage != null){
             cardImage.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
-            BitmapDataObject bitmapDataObject  = new BitmapDataObject();
-            bitmapDataObject.imageByteArray = byteArrayOutputStream.toByteArray();
-            out.writeObject(bitmapDataObject);
+            byte[] imageByteArray = byteArrayOutputStream.toByteArray();
+            out.writeObject(imageByteArray);
         }
 
     }
@@ -190,9 +187,17 @@ public abstract class Card implements Parcelable, Serializable{
         this.cost = (String)in.readObject();
         this.imageURL = (String)in.readObject();
         this.editions = (ArrayList<Edition>) in.readObject();
+        try{
+            byte[] imageByteArray = (byte[]) in.readObject();
+            this.cardImage = BitmapFactory.decodeByteArray(imageByteArray, 0, imageByteArray.length);
+        }
+        catch(EOFException eof){
+            eof.printStackTrace();
+            Log.e(LOG_TAG, "setting cards to blank");
+            imageInitialized = false;
+        }
 
-        BitmapDataObject bitmapDataObject = (BitmapDataObject)in.readObject();
-        this.cardImage = BitmapFactory.decodeByteArray(bitmapDataObject.imageByteArray, 0, bitmapDataObject.imageByteArray.length);
+
     }
 
     private void readObjectNoData() throws ObjectStreamException {

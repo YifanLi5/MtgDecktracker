@@ -20,19 +20,27 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
 import com.yifanli.mtgdecktracker.R;
 import com.yifanli.mtgdecktracker.deck_data_classes.Card;
 import com.yifanli.mtgdecktracker.deck_data_classes.Deck;
+import com.yifanli.mtgdecktracker.deck_data_classes.JsonSerialerDeSerializer;
 import com.yifanli.mtgdecktracker.play_deck_classes.PlayDeckActivity;
 import com.yifanli.mtgdecktracker.statics_and_constants.StaticUtilityMethodsAndConstants;
 
+import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.StreamCorruptedException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 public class SavedDecksActivity extends AppCompatActivity implements SavedDeckActivityCommunicator, ConfirmResetDialogFragment.ConfirmResetDialogCallbacks {
@@ -85,7 +93,7 @@ public class SavedDecksActivity extends AppCompatActivity implements SavedDeckAc
             Log.d(LOG_TAG, savedDecks.toString());
         }
         else{
-            Log.i(LOG_TAG, "restore savedDecks from memory");
+            Log.i(LOG_TAG, "attempt to restore savedDecks from memory");
             savedDecks = loadSavedDecks();
         }
 
@@ -152,28 +160,7 @@ public class SavedDecksActivity extends AppCompatActivity implements SavedDeckAc
     protected void onPause() {
         Log.i(LOG_TAG, "attempt save");
         super.onPause();
-        FileOutputStream fos = null;
-        ObjectOutputStream oos = null;
-        try {
-            fos = openFileOutput(StaticUtilityMethodsAndConstants.INTERNAL_STORAGE_FILENAME, Context.MODE_PRIVATE);
-            oos = new ObjectOutputStream(fos);
-            oos.writeObject(savedDecks);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try{
-                if (fos != null){
-                    fos.close();
-                }
-                if (oos != null){
-                    oos.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        saveDeckData(true);
     }
 
     @Override
@@ -318,37 +305,79 @@ public class SavedDecksActivity extends AppCompatActivity implements SavedDeckAc
         //do nothing
     }
 
-    @SuppressWarnings("unchecked")
-    private ArrayList<Deck> loadSavedDecks(){
-        FileInputStream fis = null;
-        ObjectInputStream ois = null;
-        try {
-            fis = openFileInput(StaticUtilityMethodsAndConstants.INTERNAL_STORAGE_FILENAME);
-            ois = new ObjectInputStream(fis);
-            return (ArrayList<Deck>) ois.readObject();
+    private void saveDeckData(boolean prettyPrintDebug){
+        Gson gson;
+        String gsonStr;
+        if(prettyPrintDebug){
+            GsonBuilder builder = new GsonBuilder();
+            builder.setPrettyPrinting();
+            gson = builder.create();
+            gsonStr = gson.toJson(savedDecks);
+            Log.i(LOG_TAG, gsonStr);
+        }
+        else{
+            gson = new Gson();
+            gsonStr = gson.toJson(savedDecks);
+        }
 
+        FileOutputStream outputStream = null;
+        try{
+            outputStream = openFileOutput(StaticUtilityMethodsAndConstants.INTERNAL_STORAGE_FILENAME, MODE_PRIVATE);
+            outputStream.write(gsonStr.getBytes());
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (StreamCorruptedException e) {
+            Log.e(LOG_TAG, "no file?");
             e.printStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+            Log.e(LOG_TAG, "unable to convert gsonStr to bytes");
             e.printStackTrace();
         }
         finally {
             try{
-                if(fis != null){
-                    fis.close();
-                }
-                if(ois != null){
-                    ois.close();
+                if(outputStream != null){
+                    outputStream.close();
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        //no saved decks
+
+
+    }
+
+    @SuppressWarnings("unchecked")
+    private ArrayList<Deck> loadSavedDecks() {
+        //get the gson string file
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(Card.class, new JsonSerialerDeSerializer());
+        Gson gson = gsonBuilder.create();
+        Type savedDecksType = new TypeToken<ArrayList<Card>>(){}.getType();
+        FileInputStream inputStream = null;
+        BufferedReader reader = null;
+        try{
+            inputStream = openFileInput(StaticUtilityMethodsAndConstants.INTERNAL_STORAGE_FILENAME);
+            reader = new BufferedReader(new InputStreamReader(inputStream));
+            return gson.fromJson(reader, savedDecksType);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            Log.e(LOG_TAG, "no file found");
+        } catch (JsonSyntaxException e){
+            e.printStackTrace();
+            Log.e(LOG_TAG, "invalid json");
+        }
+        finally {
+            try{
+                if(inputStream != null){
+                    inputStream.close();
+                }
+                if(reader != null){
+                    reader.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.e(LOG_TAG, "error closing stream");
+            }
+        }
+        Log.e(LOG_TAG, "unable to load decks, returing empty decks");
         return new ArrayList<>();
     }
 }
