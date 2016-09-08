@@ -635,7 +635,7 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
         mAutoCompleteEntryField.getText().clear();
         mAutoCompleteEntryField.setAdapter(mAutoCompleteAdapter);
         mAutoCompleteEntryField.addTextChangedListener(new TextWatcher() {
-            final static long DELAY = 300; //delay for user to input before autocomplete attempt in ms
+            final static long DELAY = 100; //delay for user to input before autocomplete attempt in ms
             Timer showResultsTimer;
 
             @Override

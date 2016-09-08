@@ -37,9 +37,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.StreamCorruptedException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
@@ -94,7 +91,12 @@ public class SavedDecksActivity extends AppCompatActivity implements SavedDeckAc
         }
         else{
             Log.i(LOG_TAG, "attempt to restore savedDecks from memory");
-            savedDecks = loadSavedDecks();
+            try{
+                savedDecks = loadSavedDecks();
+            }
+            catch(Exception e){
+                e.printStackTrace();
+            }
         }
 
         setSupportActionBar(toolbar);
@@ -109,6 +111,7 @@ public class SavedDecksActivity extends AppCompatActivity implements SavedDeckAc
         mDecksRecycler.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         mDecksRecycler.setAdapter(verticalRecyclerAdapter);
         mDecksRecycler.addItemDecoration(new VerticalItemDecoration(this, R.drawable.recycler_view_divider));
+        loadStoredImages();
 
     }
 
@@ -158,9 +161,12 @@ public class SavedDecksActivity extends AppCompatActivity implements SavedDeckAc
 
     @Override
     protected void onPause() {
-        Log.i(LOG_TAG, "attempt save");
         super.onPause();
-        saveDeckData(true);
+        Log.i(LOG_TAG, "attempt save");
+        for(Deck deck: savedDecks){
+            deck.compressCardsInDeck();
+        }
+        saveDeckData();
     }
 
     @Override
@@ -305,21 +311,14 @@ public class SavedDecksActivity extends AppCompatActivity implements SavedDeckAc
         //do nothing
     }
 
-    private void saveDeckData(boolean prettyPrintDebug){
-        Gson gson;
-        String gsonStr;
-        if(prettyPrintDebug){
-            GsonBuilder builder = new GsonBuilder();
-            builder.setPrettyPrinting();
-            gson = builder.create();
-            gsonStr = gson.toJson(savedDecks);
-            Log.i(LOG_TAG, gsonStr);
-        }
-        else{
-            gson = new Gson();
-            gsonStr = gson.toJson(savedDecks);
-        }
-
+    private void saveDeckData(){
+        GsonBuilder builder = new GsonBuilder();
+        builder.registerTypeAdapter(Card.class, new JsonSerialerDeSerializer());
+        builder.setPrettyPrinting();
+        Gson gson = builder.create();
+        Type savedDecksType = new TypeToken<ArrayList<Deck>>(){}.getType();
+        String gsonStr = gson.toJson(savedDecks, savedDecksType);
+        Log.i("gson debug", "what is saved\n" + gsonStr);
         FileOutputStream outputStream = null;
         try{
             outputStream = openFileOutput(StaticUtilityMethodsAndConstants.INTERNAL_STORAGE_FILENAME, MODE_PRIVATE);
@@ -347,10 +346,11 @@ public class SavedDecksActivity extends AppCompatActivity implements SavedDeckAc
     @SuppressWarnings("unchecked")
     private ArrayList<Deck> loadSavedDecks() {
         //get the gson string file
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.registerTypeAdapter(Card.class, new JsonSerialerDeSerializer());
-        Gson gson = gsonBuilder.create();
-        Type savedDecksType = new TypeToken<ArrayList<Card>>(){}.getType();
+        GsonBuilder builder = new GsonBuilder();
+        builder.setPrettyPrinting();
+        builder.registerTypeAdapter(Card.class, new JsonSerialerDeSerializer());
+        Gson gson = builder.create();
+        Type savedDecksType = new TypeToken<ArrayList<Deck>>(){}.getType();
         FileInputStream inputStream = null;
         BufferedReader reader = null;
         try{
@@ -377,7 +377,20 @@ public class SavedDecksActivity extends AppCompatActivity implements SavedDeckAc
                 Log.e(LOG_TAG, "error closing stream");
             }
         }
-        Log.e(LOG_TAG, "unable to load decks, returing empty decks");
+        Log.i(LOG_TAG, "no deck loaded");
         return new ArrayList<>();
+    }
+
+    private void loadStoredImages(){
+        for(Deck deck: savedDecks){
+            ArrayList<Card> cards = deck.getMainBoard();
+            for(int i = 0; i < cards.size(); i++){
+                cards.get(i).initializeImage(getApplicationContext(), true, i);
+            }
+            cards = deck.getSideBoard();
+            for(int i = 0; i < cards.size(); i++){
+                cards.get(i).initializeImage(getApplicationContext(), false, i);
+            }
+        }
     }
 }

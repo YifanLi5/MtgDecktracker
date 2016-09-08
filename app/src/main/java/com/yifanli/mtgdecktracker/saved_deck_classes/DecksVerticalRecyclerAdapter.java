@@ -134,8 +134,6 @@ public class DecksVerticalRecyclerAdapter extends RecyclerView.Adapter<DecksVert
             dropdownMenu = new PopupMenu(mContext, v);
             dropdownMenu.inflate(R.menu.deck_dropdown_menu_items);
         }
-
-
     }
 
 }

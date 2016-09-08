@@ -7,7 +7,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
@@ -40,9 +39,11 @@ public abstract class Card implements Parcelable, Serializable{
     String cost;
 
     String imageURL;
+
+    byte[] imageByteArray;
     transient Bitmap cardImage;
 
-    public boolean imageInitialized = false;
+    public transient boolean imageInitialized = false;
     ArrayList<Edition> editions;
     int currentEditionIndex = -1;
 
@@ -146,6 +147,18 @@ public abstract class Card implements Parcelable, Serializable{
         }
     }
 
+    /**
+     * initializes image from internet (from URL)
+     * The vertical recyclerView position is not needed because the edit deck fragment (which calls this) determines where the vertical position is.
+     * @param fragment: the fragment that the method is called from
+     * @param recyclerViewPosition: the position in the horizontal recyclerViews denoting where the card is
+     *                            used to refresh that specific card so that the image can be displayed
+     * @param context: the activity that hosts where the cards are
+     * @param mainboardCard: determines whether the recyclerViewPosition refers to the mainboard RV or sideboard RV
+     * @param editionIndex: determines which edition's (MTG set) image to load
+     * @throws IOException
+     * @throws URISyntaxException
+     */
     public void initializeImage(Fragment fragment, final int recyclerViewPosition, final Context context, final boolean mainboardCard, int editionIndex) throws IOException, URISyntaxException {
         currentEditionIndex = editionIndex;
         Glide.with(fragment)
@@ -163,6 +176,30 @@ public abstract class Card implements Parcelable, Serializable{
 
                 });
 
+    }
+
+    public void initializeImage(final Context context, final boolean mainboardCard, final int recyclerViewPosition){
+        Glide.with(context)
+                .load(imageByteArray)
+                .asBitmap()
+                .into(new SimpleTarget<Bitmap>() {
+                    @Override
+                    public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                        cardImage = resource;
+                        imageInitialized = true;
+                        if (context instanceof SavedDecksActivity) {
+                            ((SavedDecksActivity) context).initCardImageCallback(recyclerViewPosition, mainboardCard);
+                        }
+                    }
+                });
+    }
+
+    public void compressImageToByteArray(){
+        if(imageInitialized && cardImage != null){
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            cardImage.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+            imageByteArray = byteArrayOutputStream.toByteArray();
+        }
     }
 
     private void writeObject(java.io.ObjectOutputStream out) throws IOException {
