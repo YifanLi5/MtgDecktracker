@@ -13,17 +13,23 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
 import com.yifanli.mtgdecktracker.R;
 import com.yifanli.mtgdecktracker.deck_data_classes.Card;
 import com.yifanli.mtgdecktracker.deck_data_classes.Deck;
+import com.yifanli.mtgdecktracker.deck_data_classes.JsonSerialerDeSerializer;
 import com.yifanli.mtgdecktracker.saved_deck_classes.SavedDecksActivity;
 import com.yifanli.mtgdecktracker.statics_and_constants.StaticUtilityMethodsAndConstants;
 
+import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.StreamCorruptedException;
+import java.io.InputStreamReader;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 public class PlayDeckActivity extends AppCompatActivity implements PlayDeckActivityCommunicator{
@@ -33,7 +39,7 @@ public class PlayDeckActivity extends AppCompatActivity implements PlayDeckActiv
     private RecyclerView mInDeckRV;
     private RecyclerView mNotInDeckRV;
 
-    //listeners used to synchronize scrolling of mInDeckRV and mNotInDeckRV
+    //listener used to synchronize scrolling of mInDeckRV and mNotInDeckRV
     private RecyclerView.OnScrollListener mInDeckOSL = new RecyclerView.OnScrollListener() {
         @Override
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -73,6 +79,7 @@ public class PlayDeckActivity extends AppCompatActivity implements PlayDeckActiv
             if(index != -1){ //-1 means error, no index to look for deck
                 playingDeck = getSelectedDeck(index);
                 Log.d(LOG_TAG, playingDeck.toString());
+
             }
         }
         changeCardsRemaining(playingDeck.getTotalCardCount());
@@ -153,7 +160,7 @@ public class PlayDeckActivity extends AppCompatActivity implements PlayDeckActiv
         notInDeckHelper.attachToRecyclerView(mNotInDeckRV);
 
         mInDeckRV.addOnScrollListener(mInDeckOSL);
-
+        loadStoredImages();
     }
 
 
@@ -191,38 +198,61 @@ public class PlayDeckActivity extends AppCompatActivity implements PlayDeckActiv
         mCardsRemainingTV.setText(cardsRemainingString);
     }
 
+    @Override
+    public void initCardImageCallback(final int position) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mNotInDeckAdapter.notifyItemChanged(position);
+                mInDeckAdapter.notifyItemChanged(position);
+            }
+        });
+
+
+    }
+
+    private void loadStoredImages(){
+        for(int i = 0; i < playingCards.size(); i++){
+            playingCards.get(i).initializeImage(getApplicationContext(), true, i);
+        }
+    }
+
     //retrieve the deck object from the ArrayList<Deck> stored on the device
     @SuppressWarnings("unchecked")
     private Deck getSelectedDeck(int index){
-        FileInputStream fis = null;
-        ObjectInputStream ois = null;
-        try {
-            fis = openFileInput(StaticUtilityMethodsAndConstants.INTERNAL_STORAGE_FILENAME);
-            ois = new ObjectInputStream(fis);
-            ArrayList<Deck> decks = (ArrayList<Deck>) ois.readObject();
-            return decks.get(index);
+        GsonBuilder builder = new GsonBuilder();
+        builder.registerTypeAdapter(Card.class, new JsonSerialerDeSerializer());
+        Gson gson = builder.create();
+        Type savedDecksType = new TypeToken<ArrayList<Deck>>(){}.getType();
+        FileInputStream inputStream = null;
+        BufferedReader reader = null;
+        try{
+            inputStream = openFileInput(StaticUtilityMethodsAndConstants.INTERNAL_STORAGE_FILENAME);
+            reader = new BufferedReader(new InputStreamReader(inputStream));
+            ArrayList<Deck> decks = gson.fromJson(reader, savedDecksType);
+            Deck selectedDeck = decks.get(index);
+            selectedDeck.setInDeckQuantities();
+            return selectedDeck;
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-        } catch (StreamCorruptedException e) {
+            Log.e(LOG_TAG, "no file found");
+        } catch (JsonSyntaxException e){
             e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            Log.e(LOG_TAG, "invalid json");
         }
         finally {
             try{
-                if(fis != null){
-                    fis.close();
+                if(inputStream != null){
+                    inputStream.close();
                 }
-                if(ois != null){
-                    ois.close();
+                if(reader != null){
+                    reader.close();
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+                Log.e(LOG_TAG, "error closing stream");
             }
         }
-        //no saved decks
         return null;
     }
 }

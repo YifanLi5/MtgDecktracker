@@ -11,6 +11,7 @@ import android.util.Log;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
+import com.yifanli.mtgdecktracker.play_deck_classes.PlayDeckActivity;
 import com.yifanli.mtgdecktracker.saved_deck_classes.SavedDecksActivity;
 
 import org.json.JSONArray;
@@ -34,13 +35,13 @@ public abstract class Card implements Parcelable, Serializable{
     String name;
     int cmc; //converted mana cost
     int total; //total number of this specific card; total = InDeck + notInDeck
-    transient int inDeck; //number of this card remaining in deck
-    transient int notInDeck; //number not in deck, i.e: in graveyard, hand, field, exile
+    transient int inDeck; //number of this card remaining in deck, set to total when game starts
+    transient int notInDeck = 0; //number not in deck, i.e: in graveyard, hand, field, exile. By default (before game starts) is 0.
     String cost;
 
     String imageURL;
 
-    byte[] imageByteArray;
+    byte[] imageByteArray; //the byte array used to store the bitmap
     transient Bitmap cardImage;
 
     public transient boolean imageInitialized = false;
@@ -110,16 +111,12 @@ public abstract class Card implements Parcelable, Serializable{
         return inDeck;
     }
 
-    public void setInDeck(int inDeck) {
-        this.inDeck = inDeck;
+    public void setInDeck() {
+        this.inDeck = this.total;
     }
 
     public int getNotInDeck() {
         return notInDeck;
-    }
-
-    public void setNotInDeck(int notInDeck) {
-        this.notInDeck = notInDeck;
     }
 
     public boolean moveOutOfDeck(){
@@ -189,6 +186,9 @@ public abstract class Card implements Parcelable, Serializable{
                         imageInitialized = true;
                         if (context instanceof SavedDecksActivity) {
                             ((SavedDecksActivity) context).initCardImageCallback(recyclerViewPosition, mainboardCard);
+                        }
+                        else if(context instanceof PlayDeckActivity) {
+                            ((PlayDeckActivity) context).initCardImageCallback(recyclerViewPosition);
                         }
                     }
                 });

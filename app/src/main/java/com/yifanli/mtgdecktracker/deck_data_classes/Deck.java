@@ -62,6 +62,16 @@ public class Deck implements Serializable, Parcelable{
         this.totalCardCount = totalCardCount;
     }
 
+    public void setInDeckQuantities(){
+        for(Card card: mainBoard){
+            card.setInDeck();
+        }
+
+        for(Card card: sideBoard){
+            card.setInDeck();
+        }
+    }
+
     public void compressCardsInDeck(){
         for(Card card: mainBoard){
             card.compressImageToByteArray();

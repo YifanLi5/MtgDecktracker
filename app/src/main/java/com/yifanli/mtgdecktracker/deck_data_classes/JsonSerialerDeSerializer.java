@@ -34,7 +34,7 @@ public class JsonSerialerDeSerializer implements JsonSerializer<Card>, JsonDeser
     @Override
     public Card deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         JsonObject jsonObj = json.getAsJsonObject();
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        Gson gson = new GsonBuilder().create();
         String printOut = gson.toJson(jsonObj);
         Log.i(LOG_TAG, printOut);
         String type = jsonObj.get("type").getAsString();

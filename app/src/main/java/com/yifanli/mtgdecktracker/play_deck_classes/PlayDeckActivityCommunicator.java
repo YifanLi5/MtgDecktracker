@@ -8,6 +8,7 @@ public interface PlayDeckActivityCommunicator {
     void moveFromInDeckToOutOfDeck(int position);
     void moveFromOutOfDeckToInDeck(int position);
     void changeCardsRemaining(int cardsRemaining);
+    void initCardImageCallback(int position);
 }
 
 
@@ -16,7 +17,7 @@ public interface PlayDeckActivityCommunicator {
 - Make swipe able to move cards from inDeckRV to notInDeckRV and have statistics on the cards change (draw % and amount in deck)    DONE
 - Have the cards in inDeckRV show correct quantity in deck, and draw probabilities                                                  DONE
 - Have cards in notInDeckRV show quantites not in deck                                                                              DONE
-- Make the indeck and outofdeck RVs scroll together
+- Make the indeck and outofdeck RVs scroll together                                                                                 DONE
 - implement life counter fragment
 - implement the more options menu to give the option to sideboard, restart and end game. functionality is seperate                  DONE
  */

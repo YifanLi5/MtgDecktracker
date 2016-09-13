@@ -93,6 +93,7 @@ public class SavedDecksActivity extends AppCompatActivity implements SavedDeckAc
             Log.i(LOG_TAG, "attempt to restore savedDecks from memory");
             try{
                 savedDecks = loadSavedDecks();
+                loadStoredImages();
             }
             catch(Exception e){
                 e.printStackTrace();
@@ -111,7 +112,7 @@ public class SavedDecksActivity extends AppCompatActivity implements SavedDeckAc
         mDecksRecycler.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         mDecksRecycler.setAdapter(verticalRecyclerAdapter);
         mDecksRecycler.addItemDecoration(new VerticalItemDecoration(this, R.drawable.recycler_view_divider));
-        loadStoredImages();
+
 
     }
 
@@ -314,7 +315,7 @@ public class SavedDecksActivity extends AppCompatActivity implements SavedDeckAc
     private void saveDeckData(){
         GsonBuilder builder = new GsonBuilder();
         builder.registerTypeAdapter(Card.class, new JsonSerialerDeSerializer());
-        builder.setPrettyPrinting();
+        //builder.setPrettyPrinting();
         Gson gson = builder.create();
         Type savedDecksType = new TypeToken<ArrayList<Deck>>(){}.getType();
         String gsonStr = gson.toJson(savedDecks, savedDecksType);
