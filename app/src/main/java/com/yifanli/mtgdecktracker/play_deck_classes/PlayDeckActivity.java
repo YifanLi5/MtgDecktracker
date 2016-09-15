@@ -212,8 +212,9 @@ public class PlayDeckActivity extends AppCompatActivity implements PlayDeckActiv
     }
 
     private void loadStoredImages(){
+
         for(int i = 0; i < playingCards.size(); i++){
-            playingCards.get(i).initializeImage(getApplicationContext(), true, i);
+            playingCards.get(i).initializeImage(PlayDeckActivity.this, true, i, 0);
         }
     }
 

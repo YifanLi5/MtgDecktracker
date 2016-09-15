@@ -15,18 +15,20 @@ import com.yifanli.mtgdecktracker.deck_data_classes.Card;
 import java.util.ArrayList;
 
 /**
- * Adapter for the horizontal recycler views inside SavedDecksActivity. i.e: the RVs that show the individual cards
+ * VerticalRVAdapterRewrite for the horizontal recycler views inside SavedDecksActivity. i.e: the RVs that show the individual cards
  */
 public class DeckHorizontalContentsDataAdapter extends RecyclerView.Adapter<DeckHorizontalContentsDataAdapter.SingleItemRowHolder> {
 
     private ArrayList<Card> deckContents;
     private Context mContext;
     private boolean mainboardAdapter;
+    private VerticalRVAdapterRewrite.DeckHolder deckHolder;
 
-    public DeckHorizontalContentsDataAdapter(Context context, ArrayList<Card> contents, boolean mainboardAdapter) {
+    public DeckHorizontalContentsDataAdapter(Context context, ArrayList<Card> contents, boolean mainboardAdapter, VerticalRVAdapterRewrite.DeckHolder deckHolder) {
         this.deckContents = contents;
         this.mContext = context;
         this.mainboardAdapter = mainboardAdapter;
+        this.deckHolder = deckHolder;
     }
 
     @Override
@@ -68,7 +70,7 @@ public class DeckHorizontalContentsDataAdapter extends RecyclerView.Adapter<Deck
                 public void onClick(View v) {
                     if (mContext instanceof SavedDecksActivity){
                         Card clickedCard = deckContents.get(index);
-                        ((SavedDecksActivity) mContext).respondToCardImageClick(clickedCard, index, mainboardAdapter, clickedCard.getCurrentEditionIndex());
+                        ((SavedDecksActivity) mContext).respondToCardImageClick(clickedCard, deckHolder.getAdapterPosition(), index, mainboardAdapter, clickedCard.getCurrentEditionIndex());
                     }
                 }
             });

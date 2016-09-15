@@ -15,7 +15,7 @@ public interface SavedDeckActivityCommunicator {
 
     void getModifiedDeck(ArrayList<Card> mainboard, ArrayList<Card> sideboard, int deckIndex, String deckName, int totalMainboardCardCount); //EditDeckFragment gives back a modified deck to host activity
 
-    void initCardImageCallback(int position, boolean mainboardCard); //called within NonBasicLand class by initializeImage inorder to have the horizontal adapter show the card images
+    void initCardImageCallback(int verticalPosition, int horizontalPosition, boolean mainboardCard); //called within NonBasicLand class by initializeImage inorder to have the horizontal adapter show the card images
 
     void openDrawer(int gravity); //opens drawer based on the drawer's gravity
 
@@ -23,7 +23,7 @@ public interface SavedDeckActivityCommunicator {
 
     void lockOrUnlockdrawer(int lockmode, int gravity); //locks or unlocks drawer based on the drawer's gravity
 
-    void respondToCardImageClick(Card selectedCard, int recyclerViewIndex, boolean mainboardCard, int startingEditionIndex);
+    void respondToCardImageClick(Card selectedCard, int verticalViewIndex, int horizontalViewIndex, boolean mainboardCard, int startingEditionIndex);
 
     void respondToDeleteDeckRequest(int recyclerViewIndex);
 

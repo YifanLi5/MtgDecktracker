@@ -38,14 +38,6 @@ public class DecksVerticalRecyclerAdapter extends RecyclerView.Adapter<DecksVert
         return new ItemRowHolder(v, i);
     }
 
-    public DeckHorizontalContentsDataAdapter getMainboardDataAdapter() {
-        return mainboardDataAdapter;
-    }
-
-    public DeckHorizontalContentsDataAdapter getSideboardDataAdapter() {
-        return sideboardDataAdapter;
-    }
-
     @Override
     public void onBindViewHolder(final ItemRowHolder itemRowHolder, int i) {
 
@@ -57,16 +49,16 @@ public class DecksVerticalRecyclerAdapter extends RecyclerView.Adapter<DecksVert
         itemRowHolder.itemTitle.setText(deckName);
         itemRowHolder.deckIndex = i;
 
-        mainboardDataAdapter = new DeckHorizontalContentsDataAdapter(mContext, mainboard, true);
-        sideboardDataAdapter = new DeckHorizontalContentsDataAdapter(mContext, sideboard, false);
+        //mainboardDataAdapter = new DeckHorizontalContentsDataAdapter(mContext, mainboard, true);
+        //sideboardDataAdapter = new DeckHorizontalContentsDataAdapter(mContext, sideboard, false);
 
-        itemRowHolder.mainboard_recycler_view.setHasFixedSize(true);
-        itemRowHolder.mainboard_recycler_view.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
-        itemRowHolder.mainboard_recycler_view.setAdapter(mainboardDataAdapter);
+        itemRowHolder.mainboardRecyclerView.setHasFixedSize(true);
+        itemRowHolder.mainboardRecyclerView.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
+        itemRowHolder.mainboardRecyclerView.setAdapter(mainboardDataAdapter);
 
-        itemRowHolder.sideboard_recycler_view.setHasFixedSize(true);
-        itemRowHolder.sideboard_recycler_view.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
-        itemRowHolder.sideboard_recycler_view.setAdapter(sideboardDataAdapter);
+        itemRowHolder.sideboardRecyclerView.setHasFixedSize(true);
+        itemRowHolder.sideboardRecyclerView.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
+        itemRowHolder.sideboardRecyclerView.setAdapter(sideboardDataAdapter);
 
         //set the listener for the dropdown menu to show the menu
         itemRowHolder.dropdownBtn.setOnClickListener(new View.OnClickListener() {
@@ -110,8 +102,11 @@ public class DecksVerticalRecyclerAdapter extends RecyclerView.Adapter<DecksVert
     public class ItemRowHolder extends RecyclerView.ViewHolder {
 
         protected TextView itemTitle;
-        protected RecyclerView mainboard_recycler_view;
-        protected RecyclerView sideboard_recycler_view;
+
+
+
+        protected RecyclerView mainboardRecyclerView;
+        protected RecyclerView sideboardRecyclerView;
         protected ImageButton dropdownBtn;
         protected PopupMenu dropdownMenu;
         protected int deckIndex;
@@ -120,20 +115,26 @@ public class DecksVerticalRecyclerAdapter extends RecyclerView.Adapter<DecksVert
             super(view);
             this.deckIndex = deckIndex;
             this.itemTitle = (TextView) view.findViewById(R.id.itemTitle);
-            this.mainboard_recycler_view = (RecyclerView) view.findViewById(R.id.mainboard_recycler_view);
-            this.sideboard_recycler_view = (RecyclerView) view.findViewById(R.id.sideboard_recycler_view);
+            this.mainboardRecyclerView = (RecyclerView) view.findViewById(R.id.mainboard_recycler_view);
+            this.sideboardRecyclerView = (RecyclerView) view.findViewById(R.id.sideboard_recycler_view);
             this.dropdownBtn = (ImageButton) view.findViewById(R.id.dropdown_menu_btn);
 
         }
 
-        public RecyclerView getMainboard_recycler_view() {
-            return mainboard_recycler_view;
+        public RecyclerView getMainboardRecyclerView() {
+            return mainboardRecyclerView;
+        }
+
+        public RecyclerView getSideboardRecyclerView() {
+            return sideboardRecyclerView;
         }
 
         private void dropdownMenuSetUp(View v) {
             dropdownMenu = new PopupMenu(mContext, v);
             dropdownMenu.inflate(R.menu.deck_dropdown_menu_items);
         }
+
+
     }
 
 }

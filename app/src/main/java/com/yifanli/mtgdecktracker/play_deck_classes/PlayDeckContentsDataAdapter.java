@@ -18,7 +18,7 @@ import java.util.Locale;
 
 /**
  * Created by Yifan on 7/27/2016.
- * Adapter used for both the inDeck and notInDeck recyclerviews
+ * VerticalRVAdapterRewrite used for both the inDeck and notInDeck recyclerviews
  */
 public class PlayDeckContentsDataAdapter extends RecyclerView.Adapter<PlayDeckContentsDataAdapter.SingleItem>{
 

@@ -6,7 +6,6 @@ import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -47,7 +46,7 @@ public class SavedDecksActivity extends AppCompatActivity implements SavedDeckAc
     private Toolbar toolbar;
     private ArrayList<Deck> savedDecks;
     private EditDeckFragment mEditDeckFragment = null;
-    private DecksVerticalRecyclerAdapter verticalRecyclerAdapter;
+    private VerticalRVAdapterRewrite verticalRecyclerAdapter;
     private RecyclerView mDecksRecycler;
     private BigCardImageFragment bigCardImageFragment;
     private int recyclerViewDeletionIndex;
@@ -93,7 +92,7 @@ public class SavedDecksActivity extends AppCompatActivity implements SavedDeckAc
             Log.i(LOG_TAG, "attempt to restore savedDecks from memory");
             try{
                 savedDecks = loadSavedDecks();
-                loadStoredImages();
+
             }
             catch(Exception e){
                 e.printStackTrace();
@@ -108,17 +107,16 @@ public class SavedDecksActivity extends AppCompatActivity implements SavedDeckAc
 
         mDecksRecycler = (RecyclerView) findViewById(R.id.decks_recycler_view);
         mDecksRecycler.setHasFixedSize(true);
-        verticalRecyclerAdapter = new DecksVerticalRecyclerAdapter(this, savedDecks);
+        verticalRecyclerAdapter = new VerticalRVAdapterRewrite(this, savedDecks);
         mDecksRecycler.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         mDecksRecycler.setAdapter(verticalRecyclerAdapter);
         mDecksRecycler.addItemDecoration(new VerticalItemDecoration(this, R.drawable.recycler_view_divider));
 
-
+        loadStoredImages();
     }
 
     //divider (gray line) for the vertical recycler view (containing decks)
     private class VerticalItemDecoration extends RecyclerView.ItemDecoration {
-        private final int[] ATTRS = new int[]{android.R.attr.listDivider};
         private Drawable mDivider;
 
         public VerticalItemDecoration(Context context, int resId) {
@@ -146,27 +144,9 @@ public class SavedDecksActivity extends AppCompatActivity implements SavedDeckAc
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        //create the fragment initially so I don't need to have check whether I need to add or replace in fragment manager
-        //handle properly resuming activity, i.e check if the fragment has been previously created so not to attempt to create duplicate and crash
-        Fragment frag = getSupportFragmentManager().findFragmentById(R.id.edit_deck_fragment_container);
-
-        if(frag == null || !(frag instanceof EditDeckFragment)){
-            mEditDeckFragment = EditDeckFragment.getInstance("InitialPlaceHolderInstance", -1);
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.edit_deck_fragment_container, mEditDeckFragment)
-                    .commit();
-        }
-    }
-
-    @Override
     protected void onPause() {
         super.onPause();
         Log.i(LOG_TAG, "attempt save");
-        for(Deck deck: savedDecks){
-            deck.compressCardsInDeck();
-        }
         saveDeckData();
     }
 
@@ -224,17 +204,21 @@ public class SavedDecksActivity extends AppCompatActivity implements SavedDeckAc
     }
 
     @Override
-    public void initCardImageCallback(final int position, final boolean mainboardCard) { //after the image is ready this is called from the Nonland class or changed in the BigCardImageFragment
+    public void initCardImageCallback(final int verticalPosition, final int horizontalPosition, final boolean mainboardCard) { //after the image is ready this is called from the Nonland class or changed in the BigCardImageFragment
         runOnUiThread(new Runnable() { //this method does a ui update therefore runs ought to on ui thread
             @Override
             public void run() {
                 if(mainboardCard){
-                    DeckHorizontalContentsDataAdapter mainboardRecyclerViewAdapter = verticalRecyclerAdapter.getMainboardDataAdapter();
-                    mainboardRecyclerViewAdapter.notifyItemChanged(position);
+                    RecyclerView.ViewHolder vertialVH = mDecksRecycler.findViewHolderForAdapterPosition(verticalPosition);
+                    if(vertialVH instanceof VerticalRVAdapterRewrite.DeckHolder){
+                        ((VerticalRVAdapterRewrite.DeckHolder) vertialVH).mainboardDataAdapter.notifyItemChanged(horizontalPosition);
+                    }
                 }
                 else{
-                    DeckHorizontalContentsDataAdapter sideboardRecyclerViewAdapter = verticalRecyclerAdapter.getSideboardDataAdapter();
-                    sideboardRecyclerViewAdapter.notifyItemChanged(position);
+                    RecyclerView.ViewHolder vertialVH = mDecksRecycler.findViewHolderForAdapterPosition(verticalPosition);
+                    if(vertialVH instanceof VerticalRVAdapterRewrite.DeckHolder){
+                        ((VerticalRVAdapterRewrite.DeckHolder) vertialVH).sideboardDataAdapter.notifyItemChanged(horizontalPosition);
+                    }
                 }
             }
         });
@@ -257,8 +241,8 @@ public class SavedDecksActivity extends AppCompatActivity implements SavedDeckAc
     }
 
     @Override
-    public void respondToCardImageClick(Card selectedCard, int recyclerViewIndex, boolean mainboardCard, int startingEditionIndex) {
-        bigCardImageFragment = BigCardImageFragment.getInstance(selectedCard, recyclerViewIndex, mainboardCard, startingEditionIndex);
+    public void respondToCardImageClick(Card selectedCard, int verticalViewIndex, int horizontalViewIndex, boolean mainboardCard, int startingEditionIndex) {
+        bigCardImageFragment = BigCardImageFragment.getInstance(selectedCard, verticalViewIndex, horizontalViewIndex, mainboardCard, startingEditionIndex);
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.big_card_image_fragment_container, bigCardImageFragment)
                 .commit();
@@ -383,14 +367,15 @@ public class SavedDecksActivity extends AppCompatActivity implements SavedDeckAc
     }
 
     private void loadStoredImages(){
-        for(Deck deck: savedDecks){
-            ArrayList<Card> cards = deck.getMainBoard();
-            for(int i = 0; i < cards.size(); i++){
-                cards.get(i).initializeImage(getApplicationContext(), true, i);
+        for(int verticalPosition = 0; verticalPosition < savedDecks.size(); verticalPosition++){
+            ArrayList<Card> cards = savedDecks.get(verticalPosition).getMainBoard();
+
+            for(int horizontalPosition = 0; horizontalPosition < cards.size(); horizontalPosition++){
+                cards.get(horizontalPosition).initializeImage(SavedDecksActivity.this, true, verticalPosition, horizontalPosition);
             }
-            cards = deck.getSideBoard();
-            for(int i = 0; i < cards.size(); i++){
-                cards.get(i).initializeImage(getApplicationContext(), false, i);
+            cards = savedDecks.get(verticalPosition).getSideBoard();
+            for(int horizontalPosition = 0; horizontalPosition < cards.size(); horizontalPosition++){
+                cards.get(horizontalPosition).initializeImage(SavedDecksActivity.this, false, verticalPosition, horizontalPosition);
             }
         }
     }

@@ -17,6 +17,7 @@ import android.widget.Spinner;
 
 import com.bumptech.glide.Glide;
 import com.yifanli.mtgdecktracker.R;
+import com.yifanli.mtgdecktracker.async_tasks.CompressImageTask;
 import com.yifanli.mtgdecktracker.deck_data_classes.BasicLand;
 import com.yifanli.mtgdecktracker.deck_data_classes.Card;
 import com.yifanli.mtgdecktracker.deck_data_classes.Edition;
@@ -33,7 +34,8 @@ public class BigCardImageFragment extends Fragment {
     private SavedDeckActivityCommunicator hostActivity;
     private View rootView;
     private Card selectedCard;
-    private int recyclerViewIndex;
+    private int verticalViewIndex;
+    private int horizontalViewIndex;
     private boolean isMainboardCard;
     private int currentEditionIndex;
 
@@ -43,7 +45,8 @@ public class BigCardImageFragment extends Fragment {
 
     //keys for initialization
     private static final String SELECTED_CARD = "SelectedCard";
-    private static final String RECYCLER_VIEW_INDEX = "RecyclerViewIndex";
+    private static final String HORIZONTAL_VIEW_INDEX = "HorizontalViewIndex";
+    private static final String VERTICAL_VIEW_INDEX = "VerticalViewIndex";
     private static final String STARTING_EDITION_INDEX = "StartingEditionIndex";
     private static final String IS_MAINBOARD_CARD = "IsMainboardCard";
 
@@ -57,11 +60,12 @@ public class BigCardImageFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static BigCardImageFragment getInstance(Card selectedCard, int recyclerViewIndex, boolean mainboardCard, int startingEditionIndex){
+    public static BigCardImageFragment getInstance(Card selectedCard, int verticalViewIndex, int horizontalViewIndex, boolean mainboardCard, int startingEditionIndex){
         BigCardImageFragment newInstance = new BigCardImageFragment();
         Bundle args = new Bundle();
         args.putParcelable(SELECTED_CARD, selectedCard);
-        args.putInt(RECYCLER_VIEW_INDEX, recyclerViewIndex);
+        args.putInt(VERTICAL_VIEW_INDEX, verticalViewIndex);
+        args.putInt(HORIZONTAL_VIEW_INDEX, horizontalViewIndex);
         args.putInt(STARTING_EDITION_INDEX, startingEditionIndex);
         args.putBoolean(IS_MAINBOARD_CARD, mainboardCard);
         newInstance.setArguments(args);
@@ -85,7 +89,8 @@ public class BigCardImageFragment extends Fragment {
         else{
             Bundle args = getArguments();
             this.selectedCard = args.getParcelable(SELECTED_CARD);
-            this.recyclerViewIndex = args.getInt(RECYCLER_VIEW_INDEX);
+            this.verticalViewIndex = args.getInt(VERTICAL_VIEW_INDEX);
+            this.horizontalViewIndex = args.getInt(HORIZONTAL_VIEW_INDEX);
             this.currentEditionIndex = args.getInt(STARTING_EDITION_INDEX);
             this.isMainboardCard = args.getBoolean(IS_MAINBOARD_CARD);
 
@@ -184,7 +189,8 @@ public class BigCardImageFragment extends Fragment {
                 mBigCardImageView.buildDrawingCache();
                 selectedCard.setCardImage(Bitmap.createBitmap(mBigCardImageView.getDrawingCache()));
                 selectedCard.setCurrentEditionIndex(mSetSpinner.getSelectedItemPosition());
-                hostActivity.initCardImageCallback(recyclerViewIndex, isMainboardCard);
+                hostActivity.initCardImageCallback(verticalViewIndex, horizontalViewIndex, isMainboardCard);
+                new CompressImageTask().execute(selectedCard);
                 getActivity().getSupportFragmentManager().beginTransaction().remove(BigCardImageFragment.this).commit();
 
             }

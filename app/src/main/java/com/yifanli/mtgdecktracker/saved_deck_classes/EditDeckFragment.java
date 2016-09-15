@@ -548,11 +548,11 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
             Card card = mMainboardCopy.get(i);
             if(!card.imageInitialized){
                 if(card instanceof NonBasicLand){
-                    card.initializeImage(EditDeckFragment.this, i, getActivity(), true, 0);
+                    card.initializeImage(EditDeckFragment.this, getArguments().getInt(DECK_INDEX), i, getActivity(), true, 0);
                 }
                 else{
                     //fix for first edition in json array for basic lands being a placeholder image. So just get the second.
-                    card.initializeImage(EditDeckFragment.this, i, getActivity(), true, 1);
+                    card.initializeImage(EditDeckFragment.this, getArguments().getInt(DECK_INDEX), i, getActivity(), true, 1);
                 }
 
             }
@@ -561,7 +561,7 @@ public class EditDeckFragment extends Fragment implements ConfirmResetDialogFrag
         for(int i = 0; i < mSideboardCopy.size(); i++){
             Card card = mSideboardCopy.get(i);
             if(!card.imageInitialized){
-                card.initializeImage(EditDeckFragment.this, i, getActivity(), false, 0);
+                card.initializeImage(EditDeckFragment.this, getArguments().getInt(DECK_INDEX), i, getActivity(), false, 0);
 
             }
         }

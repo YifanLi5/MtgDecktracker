@@ -1,7 +1,5 @@
 package com.yifanli.mtgdecktracker.deck_data_classes;
 
-import android.util.Log;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -26,8 +24,8 @@ public class JsonSerialerDeSerializer implements JsonSerializer<Card>, JsonDeser
         JsonObject element = new JsonObject();
         element.addProperty("type", src.getClass().getSimpleName());
         element.add("data", context.serialize(src, src.getClass()));
-        Log.i(LOG_TAG, "serializing card with custom serializer. \ntype: " + src.getClass().getSimpleName());
-        Log.i(LOG_TAG, element.toString());
+        /*Log.i(LOG_TAG, "serializing card with custom serializer. \ntype: " + src.getClass().getSimpleName());
+        Log.i(LOG_TAG, element.toString());*/
         return element;
     }
 
@@ -35,8 +33,8 @@ public class JsonSerialerDeSerializer implements JsonSerializer<Card>, JsonDeser
     public Card deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         JsonObject jsonObj = json.getAsJsonObject();
         Gson gson = new GsonBuilder().create();
-        String printOut = gson.toJson(jsonObj);
-        Log.i(LOG_TAG, printOut);
+        /*String printOut = gson.toJson(jsonObj);
+        Log.i(LOG_TAG, printOut);*/
         String type = jsonObj.get("type").getAsString();
         JsonElement dataPart = jsonObj.get("data");
         if(type.equals(BasicLand.class.getSimpleName())){

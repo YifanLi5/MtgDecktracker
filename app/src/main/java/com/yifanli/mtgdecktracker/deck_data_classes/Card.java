@@ -11,6 +11,7 @@ import android.util.Log;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
+import com.yifanli.mtgdecktracker.async_tasks.CompressImageTask;
 import com.yifanli.mtgdecktracker.play_deck_classes.PlayDeckActivity;
 import com.yifanli.mtgdecktracker.saved_deck_classes.SavedDecksActivity;
 
@@ -146,9 +147,8 @@ public abstract class Card implements Parcelable, Serializable{
 
     /**
      * initializes image from internet (from URL)
-     * The vertical recyclerView position is not needed because the edit deck fragment (which calls this) determines where the vertical position is.
      * @param fragment: the fragment that the method is called from
-     * @param recyclerViewPosition: the position in the horizontal recyclerViews denoting where the card is
+     * @param horizontalPosition: the position in the horizontal recyclerViews denoting where the card is
      *                            used to refresh that specific card so that the image can be displayed
      * @param context: the activity that hosts where the cards are
      * @param mainboardCard: determines whether the recyclerViewPosition refers to the mainboard RV or sideboard RV
@@ -156,7 +156,7 @@ public abstract class Card implements Parcelable, Serializable{
      * @throws IOException
      * @throws URISyntaxException
      */
-    public void initializeImage(Fragment fragment, final int recyclerViewPosition, final Context context, final boolean mainboardCard, int editionIndex) throws IOException, URISyntaxException {
+    public void initializeImage(Fragment fragment, final int verticalPosition, final int horizontalPosition, final Context context, final boolean mainboardCard, int editionIndex) throws IOException, URISyntaxException {
         currentEditionIndex = editionIndex;
         Glide.with(fragment)
                 .load(editions.get(currentEditionIndex).imageURL) //edition index is which printing of the card to load, usually editionIndex is called with 0 to load the most recent
@@ -166,8 +166,9 @@ public abstract class Card implements Parcelable, Serializable{
                     public void onResourceReady(Bitmap resource, GlideAnimation glideAnimation) {
                         cardImage = resource;
                         imageInitialized = true;
+                        new CompressImageTask().execute(Card.this);
                         if (context instanceof SavedDecksActivity) {
-                            ((SavedDecksActivity) context).initCardImageCallback(recyclerViewPosition, mainboardCard);
+                            ((SavedDecksActivity) context).initCardImageCallback(verticalPosition, horizontalPosition, mainboardCard);
                         }
                     }
 
@@ -175,7 +176,16 @@ public abstract class Card implements Parcelable, Serializable{
 
     }
 
-    public void initializeImage(final Context context, final boolean mainboardCard, final int recyclerViewPosition){
+    public void initializeImage(final Context context, final boolean mainboardCard, final int verticalPosition, final int horizontalPosition){
+        if(context instanceof PlayDeckActivity){
+            Log.i("context debug", "recieved play deck activity");
+        }
+        else if (context instanceof SavedDecksActivity){
+            Log.i("context debug", "recieved saved decks activity");
+        }
+        else{
+            Log.i("context debug", "recieved unknown");
+        }
         Glide.with(context)
                 .load(imageByteArray)
                 .asBitmap()
@@ -185,17 +195,17 @@ public abstract class Card implements Parcelable, Serializable{
                         cardImage = resource;
                         imageInitialized = true;
                         if (context instanceof SavedDecksActivity) {
-                            ((SavedDecksActivity) context).initCardImageCallback(recyclerViewPosition, mainboardCard);
+                            ((SavedDecksActivity) context).initCardImageCallback(verticalPosition, horizontalPosition, mainboardCard);
                         }
                         else if(context instanceof PlayDeckActivity) {
-                            ((PlayDeckActivity) context).initCardImageCallback(recyclerViewPosition);
+                            ((PlayDeckActivity) context).initCardImageCallback(verticalPosition);
                         }
                     }
                 });
     }
 
     public void compressImageToByteArray(){
-        if(imageInitialized && cardImage != null){
+        if(cardImage != null){
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             cardImage.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
             imageByteArray = byteArrayOutputStream.toByteArray();
