@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.content.ContextCompat;
@@ -25,6 +26,7 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.yifanli.mtgdecktracker.R;
 import com.yifanli.mtgdecktracker.deck_data_classes.Card;
+import com.yifanli.mtgdecktracker.deck_data_classes.CardImagesMap;
 import com.yifanli.mtgdecktracker.deck_data_classes.Deck;
 import com.yifanli.mtgdecktracker.deck_data_classes.JsonSerialerDeSerializer;
 import com.yifanli.mtgdecktracker.play_deck_classes.PlayDeckActivity;
@@ -112,7 +114,7 @@ public class SavedDecksActivity extends AppCompatActivity implements SavedDeckAc
         mDecksRecycler.setAdapter(verticalRecyclerAdapter);
         mDecksRecycler.addItemDecoration(new VerticalItemDecoration(this, R.drawable.recycler_view_divider));
 
-        loadStoredImages();
+        new loadStoreImagesTask().execute();
     }
 
     //divider (gray line) for the vertical recycler view (containing decks)
@@ -147,7 +149,7 @@ public class SavedDecksActivity extends AppCompatActivity implements SavedDeckAc
     protected void onPause() {
         super.onPause();
         Log.i(LOG_TAG, "attempt save");
-        saveDeckData();
+        new SaveDeckTask().execute();
     }
 
     @Override
@@ -296,43 +298,52 @@ public class SavedDecksActivity extends AppCompatActivity implements SavedDeckAc
         //do nothing
     }
 
-    private void saveDeckData(){
-        GsonBuilder builder = new GsonBuilder();
-        builder.registerTypeAdapter(Card.class, new JsonSerialerDeSerializer());
-        //builder.setPrettyPrinting();
-        Gson gson = builder.create();
-        Type savedDecksType = new TypeToken<ArrayList<Deck>>(){}.getType();
-        String gsonStr = gson.toJson(savedDecks, savedDecksType);
-        Log.i("gson debug", "what is saved\n" + gsonStr);
-        FileOutputStream outputStream = null;
-        try{
-            outputStream = openFileOutput(StaticUtilityMethodsAndConstants.INTERNAL_STORAGE_FILENAME, MODE_PRIVATE);
-            outputStream.write(gsonStr.getBytes());
-        } catch (FileNotFoundException e) {
-            Log.e(LOG_TAG, "no file?");
-            e.printStackTrace();
-        } catch (IOException e) {
-            Log.e(LOG_TAG, "unable to convert gsonStr to bytes");
-            e.printStackTrace();
-        }
-        finally {
+    private class SaveDeckTask extends AsyncTask<Void, Void, Void>{
+        @Override
+        protected Void doInBackground(Void... params) {
+            GsonBuilder builder = new GsonBuilder();
+            builder.registerTypeAdapter(Card.class, new JsonSerialerDeSerializer());
+            builder.setPrettyPrinting();
+            Gson gson = builder.create();
+            Type savedDecksType = new TypeToken<ArrayList<Deck>>(){}.getType();
+            String gsonStr = gson.toJson(savedDecks, savedDecksType);
+            Log.i("gson debug", "what is saved\n" + gsonStr);
+            FileOutputStream cardOutputStream = null;
+            FileOutputStream imagesOutputStream = null;
             try{
-                if(outputStream != null){
-                    outputStream.close();
-                }
+                cardOutputStream = openFileOutput(StaticUtilityMethodsAndConstants.INTERNAL_STORAGE_FILENAME, MODE_PRIVATE);
+                cardOutputStream.write(gsonStr.getBytes());
+                imagesOutputStream = openFileOutput(StaticUtilityMethodsAndConstants.INTERNAL_IMAGE_STORAGE, MODE_PRIVATE);
+                imagesOutputStream.write(CardImagesMap.serializeAsJSON().getBytes());
+            } catch (FileNotFoundException e) {
+                Log.e(LOG_TAG, "no file?");
+                e.printStackTrace();
             } catch (IOException e) {
+                Log.e(LOG_TAG, "unable to convert gsonStr to bytes");
                 e.printStackTrace();
             }
+            finally {
+                try{
+                    if(cardOutputStream != null){
+                        cardOutputStream.close();
+                    }
+                    if(imagesOutputStream != null){
+                        imagesOutputStream.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            return null;
         }
-
-
     }
 
+    //runs on main thread, cards need to have base initialization (no images) before making recycler view
     @SuppressWarnings("unchecked")
     private ArrayList<Deck> loadSavedDecks() {
         //get the gson string file
         GsonBuilder builder = new GsonBuilder();
-        builder.setPrettyPrinting();
+
         builder.registerTypeAdapter(Card.class, new JsonSerialerDeSerializer());
         Gson gson = builder.create();
         Type savedDecksType = new TypeToken<ArrayList<Deck>>(){}.getType();
@@ -366,17 +377,57 @@ public class SavedDecksActivity extends AppCompatActivity implements SavedDeckAc
         return new ArrayList<>();
     }
 
-    private void loadStoredImages(){
-        for(int verticalPosition = 0; verticalPosition < savedDecks.size(); verticalPosition++){
-            ArrayList<Card> cards = savedDecks.get(verticalPosition).getMainBoard();
+    private class loadStoreImagesTask extends AsyncTask<Void, Void, Void> {
 
-            for(int horizontalPosition = 0; horizontalPosition < cards.size(); horizontalPosition++){
-                cards.get(horizontalPosition).initializeImage(SavedDecksActivity.this, true, verticalPosition, horizontalPosition);
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            FileInputStream inputStream = null;
+            BufferedReader reader = null;
+            try{
+                inputStream = openFileInput(StaticUtilityMethodsAndConstants.INTERNAL_IMAGE_STORAGE);
+                reader = new BufferedReader(new InputStreamReader(inputStream));
+                CardImagesMap.desealizeFromJSON(reader);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                Log.e(LOG_TAG, "no file found");
+            } catch (JsonSyntaxException e){
+                e.printStackTrace();
+                Log.e(LOG_TAG, "invalid json");
             }
-            cards = savedDecks.get(verticalPosition).getSideBoard();
-            for(int horizontalPosition = 0; horizontalPosition < cards.size(); horizontalPosition++){
-                cards.get(horizontalPosition).initializeImage(SavedDecksActivity.this, false, verticalPosition, horizontalPosition);
+            finally {
+                try{
+                    if(inputStream != null){
+                        inputStream.close();
+                    }
+                    if(reader != null){
+                        reader.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Log.e(LOG_TAG, "error closing stream");
+                }
+            }
+
+            loadStoredImages();
+
+            return null;
+        }
+
+        private void loadStoredImages(){
+            for(int verticalPosition = 0; verticalPosition < savedDecks.size(); verticalPosition++){
+                ArrayList<Card> cards = savedDecks.get(verticalPosition).getMainBoard();
+
+                for(int horizontalPosition = 0; horizontalPosition < cards.size(); horizontalPosition++){
+                    cards.get(horizontalPosition).initializeImage(SavedDecksActivity.this, true, verticalPosition, horizontalPosition);
+                }
+                cards = savedDecks.get(verticalPosition).getSideBoard();
+                for(int horizontalPosition = 0; horizontalPosition < cards.size(); horizontalPosition++){
+                    cards.get(horizontalPosition).initializeImage(SavedDecksActivity.this, false, verticalPosition, horizontalPosition);
+                }
             }
         }
     }
+
+
 }

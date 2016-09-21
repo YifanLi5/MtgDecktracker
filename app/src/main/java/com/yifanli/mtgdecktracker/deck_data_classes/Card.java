@@ -42,7 +42,7 @@ public abstract class Card implements Parcelable, Serializable{
 
     String imageURL;
 
-    byte[] imageByteArray; //the byte array used to store the bitmap
+    transient byte[] imageByteArray; //the byte array used to store the bitmap
     transient Bitmap cardImage;
 
     public transient boolean imageInitialized = false;
@@ -120,6 +120,10 @@ public abstract class Card implements Parcelable, Serializable{
         return notInDeck;
     }
 
+    public byte[] getImageByteArray() {
+        return imageByteArray;
+    }
+
     public boolean moveOutOfDeck(){
         //operation only valid is there is at least 1 card inDeck
         if(inDeck >= 1){
@@ -158,8 +162,10 @@ public abstract class Card implements Parcelable, Serializable{
      */
     public void initializeImage(Fragment fragment, final int verticalPosition, final int horizontalPosition, final Context context, final boolean mainboardCard, int editionIndex) throws IOException, URISyntaxException {
         currentEditionIndex = editionIndex;
+        String url = editions.get(currentEditionIndex).imageURL;
+        this.setImageURL(url);
         Glide.with(fragment)
-                .load(editions.get(currentEditionIndex).imageURL) //edition index is which printing of the card to load, usually editionIndex is called with 0 to load the most recent
+                .load(url) //edition index is which printing of the card to load, usually editionIndex is called with 0 to load the most recent
                 .asBitmap()
                 .into(new SimpleTarget<Bitmap>() {
                     @Override
@@ -186,22 +192,29 @@ public abstract class Card implements Parcelable, Serializable{
         else{
             Log.i("context debug", "recieved unknown");
         }
-        Glide.with(context)
-                .load(imageByteArray)
-                .asBitmap()
-                .into(new SimpleTarget<Bitmap>() {
-                    @Override
-                    public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-                        cardImage = resource;
-                        imageInitialized = true;
-                        if (context instanceof SavedDecksActivity) {
-                            ((SavedDecksActivity) context).initCardImageCallback(verticalPosition, horizontalPosition, mainboardCard);
+        try{
+            Glide.with(context)
+                    .load(CardImagesMap.urlCardTable.get(Card.this.getImageURL()))
+                    .asBitmap()
+                    .into(new SimpleTarget<Bitmap>() {
+                        @Override
+                        public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                            cardImage = resource;
+                            imageInitialized = true;
+                            if (context instanceof SavedDecksActivity) {
+                                ((SavedDecksActivity) context).initCardImageCallback(verticalPosition, horizontalPosition, mainboardCard);
+                            }
+                            else if(context instanceof PlayDeckActivity) {
+                                ((PlayDeckActivity) context).initCardImageCallback(verticalPosition);
+                            }
                         }
-                        else if(context instanceof PlayDeckActivity) {
-                            ((PlayDeckActivity) context).initCardImageCallback(verticalPosition);
-                        }
-                    }
-                });
+                    });
+        }
+        catch(NullPointerException e){
+            Log.d(LOG_TAG, "card images map null?");
+            e.printStackTrace();
+        }
+
     }
 
     public void compressImageToByteArray(){

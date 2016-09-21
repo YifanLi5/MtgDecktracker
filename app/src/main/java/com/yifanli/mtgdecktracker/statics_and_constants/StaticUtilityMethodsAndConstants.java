@@ -14,6 +14,7 @@ import android.view.inputmethod.InputMethodManager;
 public class StaticUtilityMethodsAndConstants {
 
     public static final String INTERNAL_STORAGE_FILENAME = "MTGDecktracker Saved Decks";
+    public static final String INTERNAL_IMAGE_STORAGE = "Card Image Storage";
 
     private StaticUtilityMethodsAndConstants(){
         throw new UnsupportedOperationException("No instances.");
