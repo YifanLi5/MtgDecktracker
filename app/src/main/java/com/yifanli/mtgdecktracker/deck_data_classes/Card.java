@@ -183,18 +183,10 @@ public abstract class Card implements Parcelable, Serializable{
     }
 
     public void initializeImage(final Context context, final boolean mainboardCard, final int verticalPosition, final int horizontalPosition){
-        if(context instanceof PlayDeckActivity){
-            Log.i("context debug", "recieved play deck activity");
-        }
-        else if (context instanceof SavedDecksActivity){
-            Log.i("context debug", "recieved saved decks activity");
-        }
-        else{
-            Log.i("context debug", "recieved unknown");
-        }
+
         try{
             Glide.with(context)
-                    .load(CardImagesMap.urlCardTable.get(Card.this.getImageURL()))
+                    .load(CardImagesMap.getSingletonInstance().urlCardTable.get(Card.this.getImageURL()))
                     .asBitmap()
                     .into(new SimpleTarget<Bitmap>() {
                         @Override
@@ -211,7 +203,7 @@ public abstract class Card implements Parcelable, Serializable{
                     });
         }
         catch(NullPointerException e){
-            Log.d(LOG_TAG, "card images map null?");
+            Log.d(LOG_TAG, "hashtable null");
             e.printStackTrace();
         }
 

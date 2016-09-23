@@ -13,7 +13,6 @@ public class CompressImageTask extends AsyncTask<Card, Void, Void> {
     protected Void doInBackground(Card... params) {
         Card targetCard = params[0];
         targetCard.compressImageToByteArray();
-        String debug = targetCard.getImageURL();
         CardImagesMap.urlCardTable.put(targetCard.getImageURL(), targetCard.getImageByteArray()); //add image into map
         return null;
     }

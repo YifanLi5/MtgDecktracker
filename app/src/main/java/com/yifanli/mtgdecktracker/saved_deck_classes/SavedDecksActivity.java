@@ -88,7 +88,7 @@ public class SavedDecksActivity extends AppCompatActivity implements SavedDeckAc
         if(savedInstanceState != null){
             Log.i(LOG_TAG, "restore savedDecks from savedInstanceState");
             savedDecks = savedInstanceState.getParcelableArrayList(SAVED_INSTANCE_STATED_DECKS);
-            Log.d(LOG_TAG, savedDecks.toString());
+
         }
         else{
             Log.i(LOG_TAG, "attempt to restore savedDecks from memory");
@@ -388,6 +388,7 @@ public class SavedDecksActivity extends AppCompatActivity implements SavedDeckAc
                 inputStream = openFileInput(StaticUtilityMethodsAndConstants.INTERNAL_IMAGE_STORAGE);
                 reader = new BufferedReader(new InputStreamReader(inputStream));
                 CardImagesMap.desealizeFromJSON(reader);
+
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
                 Log.e(LOG_TAG, "no file found");
@@ -408,10 +409,13 @@ public class SavedDecksActivity extends AppCompatActivity implements SavedDeckAc
                     Log.e(LOG_TAG, "error closing stream");
                 }
             }
-
-            loadStoredImages();
-
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            loadStoredImages();
         }
 
         private void loadStoredImages(){
