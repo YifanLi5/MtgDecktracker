@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    app:cardCornerRadius="5dp"
+    app:cardUseCompatPadding="true"
+    >
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="0dp"
+        android:background="?android:selectableItemBackground"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/card_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxHeight="140dp"
+            android:maxWidth="100dp"
+            android:layout_gravity="center_horizontal"
+            android:scaleType="fitXY"
+            android:adjustViewBounds="true"
+            android:src="@mipmap/ic_android" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/card_name"
+                android:layout_width="75dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="5dp"
+                android:text="Testing very long name to make sure text wraps nicely asdlkfjasdklgasdhjkghsjdklghasjdkghjasdklghaksljh"
+                android:maxLines="5"
+                android:singleLine="false"
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/font_size_small" />
+
+            <TextView
+                android:id="@+id/card_quantity"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="5dp"
+                android:text="x123"
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/font_size_small" />
+
+            <TextView
+                android:id="@+id/card_draw_probability"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="5dp"
+                android:text="25%"
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/font_size_small"/>
+        </LinearLayout>
+
+
+
+
+    </LinearLayout>
+
+</android.support.v7.widget.CardView>
