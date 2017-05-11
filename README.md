@@ -1,3 +1,6 @@
+
+# MtgDecktracker 
+
 #**MtgDecktracker**
 
 Android application to keep count of a player's Magic: The Gathering cards while ingame. 
@@ -20,3 +23,4 @@ Developement is still underway
 Todo:
 - allow user to sideboard
 - add in life counter fragment
+
